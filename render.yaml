@@ -1,0 +1,21 @@
+# Render.com — פריסה בקליק אחד
+# 1. הירשם ב-render.com (חינם)
+# 2. New + → Blueprint → חבר את הריפו → Apply
+services:
+  - type: web
+    name: plaza
+    runtime: docker
+    plan: free       # שדרג ל-starter ($7/חודש) לשרת תמיד-פעיל
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: JWT_SECRET
+        generateValue: true   # מייצר אוטומטית מחרוזת ארוכה ובטוחה
+    disk:
+      name: plaza-data
+      mountPath: /app/db
+      sizeGB: 1            # 1GB ל-DB (חינם)

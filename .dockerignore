@@ -1,0 +1,13 @@
+node_modules
+db/plaza.db
+db/plaza.db-shm
+db/plaza.db-wal
+uploads/*
+!uploads/.gitkeep
+.env
+.git
+.gitignore
+*.log
+.DS_Store
+README.md
+WHAT_IS_MISSING.md

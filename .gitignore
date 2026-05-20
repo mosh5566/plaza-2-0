@@ -1,0 +1,11 @@
+node_modules/
+db/plaza.db
+db/plaza.db-shm
+db/plaza.db-wal
+uploads/*
+!uploads/.gitkeep
+.env
+*.log
+.DS_Store
+.idea/
+.vscode/

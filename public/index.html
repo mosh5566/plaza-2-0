@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>PLAZA — דמו</title>
+<style>
+  .app[data-th="light"]{--bg:#F1F3F6;--surface:#FFFFFF;--surface2:#EBEEF2;--line:#E1E5EA;--text:#1A1F26;--sub:#5B6470;--mut:#9098A4;--acc:#4F46E5;--acc-soft:#ECEDFB;--ok:#1A7F37;--warn:#9A6700;--bad:#E5484D;--wa:#25D366}
+  .app[data-th="dark"]{--bg:#0E1117;--surface:#161B22;--surface2:#1C232E;--line:#262D38;--text:#E6EAF0;--sub:#9AA4B2;--mut:#6B7480;--acc:#6D74FF;--acc-soft:#23263D;--ok:#3FB950;--warn:#E3B341;--bad:#F85149;--wa:#25D366}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+  html,body{height:100%}body{background:#0a0c10;overflow:hidden}
+  .app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}
+  @media (min-width:540px) and (min-height:720px){body{display:flex;align-items:center;justify-content:center}.app{position:relative;inset:auto;width:min(420px,94vw);height:min(880px,94vh);border-radius:34px;box-shadow:0 0 0 10px #0c0f15,0 0 0 12px #1a212c,0 30px 70px rgba(0,0,0,.55)}}
+  .tag{flex:0 0 auto;text-align:center;background:var(--surface2);color:var(--sub);font-size:10px;font-weight:600;padding:4px;border-bottom:1px solid var(--line)}
+  .view{flex:1;position:relative;overflow:hidden}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column}
+  .screen.on{display:flex}
+  .body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .body::-webkit-scrollbar{width:0}
+  .hd{flex:0 0 auto;background:var(--bg);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 14px 10px}
+  .brandwrap{text-align:center;margin-bottom:10px}
+  .subt{color:var(--sub);font-size:11px;font-weight:600;margin-top:4px;line-height:1.5}
+  .hdrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+  .filt-block{display:flex;align-items:center;gap:9px;cursor:pointer;flex:1;min-width:0}
+  .filt-block small{color:var(--sub);font-size:11px;font-weight:600;line-height:1.35;flex:1;min-width:0}
+  .filt-block .ib{flex:0 0 auto;background:var(--surface);border:1px solid var(--line)}
+  .hd-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .brand{display:inline-flex;align-items:center;justify-content:center;gap:8px;color:var(--text)}
+  .brand .gl{font-size:18px}
+  .brand b{font-size:clamp(16px,4.4vw,19px);font-weight:800;letter-spacing:.5px}
+  .brand small{display:block;color:var(--sub);font-size:10px;font-weight:600;margin-top:1px}
+  .ico-row{display:flex;gap:4px;align-items:center}
+  .ib{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;color:var(--text)}
+  .ib:active{background:var(--surface2)}
+  .ib svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .ib.round{width:38px;height:38px;border-radius:50%;background:var(--acc);color:#fff}
+  .ib.round svg{stroke:#fff}
+  .dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--bad);border:1.5px solid var(--bg)}
+  .cbadge{position:absolute;top:-4px;left:-4px;background:var(--bad);color:#fff;font-size:9.5px;font-weight:800;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--bg)}
+  .cbadge.acc{background:var(--acc)}
+  .stat{display:flex;gap:8px;margin-top:10px}
+  .st{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 4px;text-align:center}
+  .st b{display:block;color:var(--text);font-size:clamp(13px,3.8vw,15px);font-weight:800}
+  .st small{color:var(--mut);font-size:9.5px;font-weight:600}
+  .st .o{display:flex;align-items:center;justify-content:center;gap:5px}
+  .live{width:6px;height:6px;border-radius:50%;background:var(--ok);display:inline-block}
+  .chips{display:flex;gap:6px;margin-top:9px;overflow-x:auto}
+  .chips::-webkit-scrollbar{height:0}.chips:empty{display:none}
+  .ch{flex:0 0 auto;background:var(--surface2);border:1px solid var(--line);color:var(--text);font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;display:flex;gap:6px;cursor:pointer}
+  .ch i{color:var(--mut);font-style:normal}
+  .favbar{display:flex;gap:6px;margin-top:9px;overflow-x:auto}
+  .favbar::-webkit-scrollbar{height:0}
+  .favbar .fc{flex:0 0 auto;background:var(--surface2);border:1px solid var(--line);color:var(--text);font-size:12px;font-weight:700;padding:6px 11px;border-radius:9px;cursor:pointer;white-space:nowrap}
+  .favbar .fc.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+  .sc-title{flex:0 0 auto;padding:calc(14px + env(safe-area-inset-top)) 16px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
+  .sc-title h2{color:var(--text);font-size:clamp(17px,4.6vw,20px);font-weight:800;display:flex;align-items:center;gap:9px}
+  .sc-title .bk{cursor:pointer;color:var(--sub);font-size:13px;font-weight:700;margin-bottom:8px}
+  .sc-title p{color:var(--sub);font-size:12px;margin-top:3px}
+
+  /* ===== Facebook-style feed ===== */
+  .feed{flex:1;overflow-y:auto;padding:12px 12px calc(16px + env(safe-area-inset-bottom))}
+  .feed::-webkit-scrollbar{width:0}
+  .fb{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+  .fbh{display:flex;align-items:center;gap:10px;padding:12px 13px 9px}
+  .av{width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto;overflow:hidden;cursor:pointer}
+  .av img{width:100%;height:100%;object-fit:cover}
+  .fbh .who{flex:1;min-width:0}
+  .nm-row{display:flex;align-items:center;gap:5px}
+  .nm{color:var(--text);font-weight:700;font-size:14px}
+  .vmini{width:15px;height:15px;border-radius:50%;background:#1D9BF0;color:#fff;font-size:9px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+  .vmini.gold{background:var(--warn)}
+  .meta{color:var(--mut);font-size:11.5px;margin-top:1px}
+  .pcd{display:flex;align-items:center;gap:4px;background:var(--surface2);color:var(--sub);font-size:10.5px;font-weight:700;padding:4px 8px;border-radius:8px;flex:0 0 auto}
+  .pcd.urg{background:rgba(229,72,77,.15);color:var(--bad)}
+  .ptx{color:var(--text);font-size:14.5px;line-height:1.6;padding:0 13px 11px}
+  .media img,.media video{display:block;width:100%}
+  .media video{background:#000;max-height:62vh}
+  .fbg{display:grid;gap:3px}
+  .fbg.n1{grid-template-columns:1fr}
+  .fbg.n2{grid-template-columns:1fr 1fr}
+  .fbg.n3{grid-template-columns:1fr 1fr}
+  .fbg.n3>div:first-child{grid-column:1/3}
+  .fbg.n4{grid-template-columns:1fr 1fr}
+  .fbg>div{position:relative;aspect-ratio:1.3;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:54px;overflow:hidden;cursor:pointer}
+  .fbg.n1>div{aspect-ratio:1.5}
+  .fbg>div img{width:100%;height:100%;object-fit:cover}
+  .fbg .more{position:absolute;inset:0;background:rgba(10,12,16,.6);color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .vidwrap{position:relative;background:#000}
+  .vidwrap .ph{aspect-ratio:1.1;display:flex;align-items:center;justify-content:center;font-size:80px;background:linear-gradient(160deg,#1b2030,#0e1117);color:#fff;cursor:pointer;position:relative}
+  .vidwrap .ph .pl{position:absolute;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:24px}
+  .ibx{margin:0 13px 11px;background:var(--surface2);border:1px solid var(--line);border-radius:11px;padding:11px}
+  .ibx .t{color:var(--text);font-weight:700;font-size:13.5px;margin-bottom:3px}
+  .ibx .d{color:var(--sub);font-size:12px;line-height:1.4;margin-bottom:7px}
+  .ibx .pr{color:var(--ok);font-weight:800;font-size:16px}
+  .ibx .sl{color:var(--acc);font-weight:700;font-size:13px}
+  .ibx .sh{color:var(--sub);font-size:11.5px;margin-top:5px}
+  .ibx button{margin-top:9px;width:100%;border:none;border-radius:9px;padding:10px;font-weight:700;font-size:13px;color:#fff;background:var(--acc);cursor:pointer}
+  .poll-o{background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin-top:7px;color:var(--text);font-size:13px;font-weight:600;position:relative;overflow:hidden;cursor:pointer}
+  .poll-o .f{position:absolute;inset:0 auto 0 0;background:var(--acc-soft);width:0;transition:width .6s}
+  .poll-o .l{position:relative;display:flex;justify-content:space-between}
+  .lk-card{margin:0 13px 11px;border:1px solid var(--line);border-radius:11px;overflow:hidden;cursor:pointer;display:flex;align-items:center;gap:10px;padding:11px;background:var(--surface2)}
+  .lk-card .lic{font-size:20px}
+  .lk-card .lt{color:var(--text);font-size:12.5px;font-weight:700}
+  .lk-card .lu{color:var(--sub);font-size:11px;margin-top:2px;word-break:break-all}
+  .vc{display:flex;align-items:center;gap:10px}
+  .vp{width:36px;height:36px;border-radius:50%;border:none;background:var(--acc);color:#fff;font-size:13px;cursor:pointer;flex:0 0 auto}
+  .wv{flex:1;display:flex;gap:2px;align-items:center;height:24px}
+  .wv i{flex:1;background:var(--mut);border-radius:2px}
+  .wv.pl i{animation:eq .8s ease-in-out infinite alternate}
+  @keyframes eq{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
+  .vtool{display:flex;gap:7px;margin-top:9px}
+  .vtool button{flex:1;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:11px;font-weight:700;padding:7px;border-radius:8px;cursor:pointer}
+  .vtool button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  .vout{margin-top:8px;color:var(--text);font-size:12.5px;line-height:1.5;background:var(--surface);padding:8px 10px;border-radius:8px;display:none}
+  .vout.show{display:block}
+  .fbf{display:flex;align-items:center;border-top:1px solid var(--line);padding:4px}
+  .fa{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--sub);font-size:12px;font-weight:700;padding:9px;cursor:pointer;border-radius:8px}
+  .fa:active{background:var(--surface2)}
+  .fa.on{color:var(--bad)}
+  .fa.bk.on{color:var(--warn)}
+  .wabtn{display:flex;align-items:center;justify-content:center;gap:7px;margin:0 13px 12px;background:var(--wa);color:#fff;font-size:13px;font-weight:800;padding:11px;border-radius:10px;cursor:pointer}
+
+  .list{padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:10px}
+  .row{display:flex;align-items:center;gap:11px}
+  .gridc{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:9px}
+  .rm{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 12px;cursor:pointer;display:flex;flex-direction:column;gap:7px}
+  .rm:active{background:var(--surface2)}
+  .rm .ic{font-size:22px}
+  .rm .nm2{color:var(--text);font-size:13px;font-weight:700}
+  .rm .mt{color:var(--mut);font-size:10.5px;display:flex;align-items:center;gap:5px}
+  .empty{text-align:center;color:var(--mut);padding:50px 24px}
+  .empty .e{font-size:44px;opacity:.5}
+  .empty p{margin-top:12px;font-size:13px;line-height:1.6}
+
+  .rhead{flex:0 0 auto;background:var(--surface);border-bottom:1px solid var(--line);padding:calc(12px + env(safe-area-inset-top)) 12px 10px}
+  .rhead .top{display:flex;align-items:center;gap:9px}
+  .rhead .bk{cursor:pointer;color:var(--sub);font-size:20px;flex:0 0 auto}
+  .rhead .ti{flex:1;min-width:0}
+  .rhead .ti b{color:var(--text);font-size:15px;font-weight:800;display:flex;align-items:center;gap:7px}
+  .rhead .ti small{color:var(--sub);font-size:11px;display:flex;align-items:center;gap:5px}
+  .rhead .tr{background:var(--surface2);border:1px solid var(--line);color:var(--text);font-size:11px;font-weight:700;padding:6px 10px;border-radius:8px;cursor:pointer;flex:0 0 auto}
+  .catbar{display:flex;gap:6px;margin-top:9px;overflow-x:auto}
+  .catbar::-webkit-scrollbar{height:0}.catbar.hide{display:none}
+  .ct{flex:0 0 auto;background:var(--surface2);border:1px solid var(--line);color:var(--sub);font-size:11px;font-weight:700;padding:6px 11px;border-radius:8px;cursor:pointer;display:flex;gap:5px}
+  .ct.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  .chat{flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:10px}
+  .chat::-webkit-scrollbar{width:0}
+  .msg{max-width:84%;display:flex;flex-direction:column;gap:3px}
+  .msg .w{font-size:11px;color:var(--sub);font-weight:700;padding:0 4px;cursor:pointer}
+  .msg .b{background:var(--surface);border:1px solid var(--line);padding:9px 12px;border-radius:13px;border-top-right-radius:4px;color:var(--text);font-size:13.5px;line-height:1.45}
+  .msg .b img{max-width:180px;border-radius:9px;display:block}
+  .msg .b audio{max-width:200px;height:34px}
+  .msg.me{align-self:flex-start}
+  .msg.me .b{background:var(--acc);border:none;color:#fff;border-top-right-radius:13px;border-top-left-radius:4px}
+  .trb{font-size:10.5px;color:var(--acc);font-weight:700;cursor:pointer;padding:3px 4px 0;display:inline-block}
+  .tro{margin-top:5px;padding-top:5px;border-top:1px dashed var(--line);font-size:13px;color:var(--acc);display:none}
+  .tro.show{display:block}
+  .composer{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line)}
+  .composer .snd{width:40px;height:40px;border-radius:50%;border:none;background:var(--acc);color:#fff;font-size:16px;cursor:pointer;flex:0 0 auto}
+  .composer input.cinp{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:9999px;padding:11px 15px;color:var(--text);font-size:13.5px;outline:none}
+  .composer input.cinp::placeholder{color:var(--mut)}
+  .composer .i{width:38px;height:38px;border-radius:50%;background:var(--surface2);color:var(--sub);font-size:17px;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  .composer .i.rec{background:var(--bad);color:#fff;animation:bl 1s infinite}
+  @keyframes bl{50%{opacity:.4}}
+  .nav{flex:0 0 auto;display:flex;align-items:center;justify-content:space-around;height:58px;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+  .nv{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--mut);cursor:pointer;flex:1}
+  .nv svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .nv small{font-size:9px;font-weight:700}
+  .nv.on{color:var(--acc)}
+  .nv .plus{width:44px;height:44px;border-radius:14px;background:var(--acc);display:flex;align-items:center;justify-content:center}
+  .nv .plus svg{stroke:#fff;width:22px;height:22px}
+
+  .ov{position:absolute;inset:0;z-index:60;background:rgba(5,7,11,.55);opacity:0;pointer-events:none;transition:.25s}
+  .ov.on{opacity:1;pointer-events:auto}
+  .sh{position:absolute;left:0;right:0;bottom:0;z-index:61;background:var(--bg);border-radius:20px 20px 0 0;transform:translateY(110%);transition:transform .32s cubic-bezier(.22,1,.36,1);height:90%;display:flex;flex-direction:column;overflow:hidden}
+  .sh.on{transform:translateY(0)}
+  .grip{flex:0 0 auto;width:38px;height:4px;border-radius:9px;background:var(--line);margin:9px auto 2px}
+  #shIn{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  .sh-hd{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:6px 16px 12px;border-bottom:1px solid var(--line)}
+  .sh-hd h3{color:var(--text);font-size:15px;font-weight:800}
+  .sh-hd .x{color:var(--sub);font-size:19px;cursor:pointer}
+  .sh-b{flex:1;min-height:0;overflow-y:auto;padding:14px 16px}
+  .sh-b::-webkit-scrollbar{width:0}
+  .sh-foot{flex:0 0 auto;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+  .bt{flex:1;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px}
+  .bt.g{flex:0 0 auto;background:transparent;color:var(--sub)}
+  .bt.dim{background:var(--surface2);color:var(--text)}
+  .bt.pp{background:#ffc439;color:#003087}
+  .srch{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin-bottom:8px}
+  .srch input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:13px}
+  .srch input::placeholder{color:var(--mut)}
+  .fl{max-height:46vh;overflow-y:auto;border:1px solid var(--line);border-radius:9px}
+  .fl.tall{max-height:none}
+  .fi{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer;border-bottom:1px solid var(--line)}
+  .fi:last-child{border-bottom:none}
+  .fi .l{flex:1;color:var(--text);font-size:13px}
+  .fi .k{width:20px;height:20px;border-radius:6px;border:2px solid var(--mut);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;flex:0 0 auto}
+  .fi.on{background:var(--surface2)}.fi.on .k{background:var(--acc);border-color:var(--acc)}
+  .seg{display:flex;gap:8px;margin:6px 0 4px}
+  .seg b{flex:1;text-align:center;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;font-weight:700;padding:11px;border-radius:10px;cursor:pointer}
+  .seg b.on{border-color:var(--acc);background:var(--acc-soft);color:var(--acc)}
+  .tabs{flex:0 0 auto;display:flex;gap:8px;padding:12px 14px 0}
+  .tab{flex:1;text-align:center;background:var(--surface);border:1px solid var(--line);color:var(--sub);font-size:13px;font-weight:700;padding:10px;border-radius:10px;cursor:pointer}
+  .tab.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  textarea,.inp{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px;color:var(--text);font-size:14px;outline:none;font-family:inherit;margin-bottom:8px}
+  textarea{height:80px;resize:none}
+  .prev{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .prev .pv{width:62px;height:62px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden}
+  .prev .pv img,.prev .pv video{width:100%;height:100%;object-fit:cover}
+  .req{display:flex;gap:11px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:10px}
+  .req .ra{width:38px;height:38px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto}
+  .req .rb{flex:1}
+  .req .rb b{color:var(--text);font-size:13px}
+  .req .rb p{color:var(--sub);font-size:12px;margin:3px 0 9px;line-height:1.4}
+  .req .rb .qt{background:var(--surface2);border-radius:8px;padding:7px 10px;color:var(--sub);font-size:12px;margin-bottom:9px}
+  .req .ba{display:flex;gap:7px}
+  .req .ba button{border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer}
+  .req .ba .y{background:var(--acc);color:#fff}.req .ba .n{background:var(--surface2);color:var(--text)}.req .ba .bl{background:transparent;color:var(--bad)}
+  .mi{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:13px 14px;margin-bottom:8px;color:var(--text);font-size:13.5px;font-weight:600;cursor:pointer}
+  .mi .mc{font-size:17px;width:22px;text-align:center;flex:0 0 auto}
+  .mi .mv{margin-right:auto;color:var(--sub);font-size:12px;display:flex;align-items:center;gap:6px}
+  .sw{margin-right:auto;width:42px;height:24px;border-radius:9999px;background:var(--surface2);position:relative;transition:.2s;flex:0 0 auto}
+  .sw.on{background:var(--ok)}.sw i{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}.sw.on i{right:21px}
+  .sh-h{color:var(--sub);font-size:11px;font-weight:800;margin:16px 4px 9px;letter-spacing:.3px}
+  .pf-cov{height:66px;background:var(--acc-soft);position:relative;border-radius:12px 12px 0 0}
+  .pf-cov.bz{background:linear-gradient(120deg,var(--acc-soft),var(--surface2))}
+  .pf-av{position:absolute;bottom:-26px;right:18px;width:62px;height:62px;border-radius:50%;background:var(--surface2);border:4px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden;cursor:pointer}
+  .pf-av img{width:100%;height:100%;object-fit:cover}
+  .pf-nm{display:flex;align-items:center;gap:7px;color:var(--text);font-size:17px;font-weight:800;margin-top:32px}
+  .vb{width:18px;height:18px;border-radius:50%;background:#1D9BF0;color:#fff;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+  .vb.gold{background:var(--warn)}
+  .pf-s{color:var(--sub);font-size:12.5px;margin-top:3px}
+  .pf-p{color:var(--acc);font-size:13px;font-weight:700;margin-top:5px}
+  .pf-bio{color:var(--text);font-size:13px;line-height:1.5;margin-top:8px}
+  .pf-st{display:flex;gap:20px;margin:12px 0 4px}
+  .pf-st div{text-align:center}.pf-st b{display:block;color:var(--text);font-size:15px;font-weight:800}.pf-st small{color:var(--mut);font-size:10px}
+  .pf-act{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .pf-act button{flex:1;min-width:46%;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff}
+  .pf-act button.g{background:var(--surface2);color:var(--text)}
+  .pf-act button.wa{background:var(--wa);color:#fff}
+  .svc{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:8px}
+  .svc .sr{display:flex;align-items:center;gap:9px;color:var(--text);font-size:13px;font-weight:700}
+  .svc .sr .pr{margin-right:auto;color:var(--ok);font-weight:800}
+  .svc .sm{margin-top:8px;border-radius:8px;overflow:hidden;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:40px;min-height:90px}
+  .svc .sm img,.svc .sm video{width:100%;display:block}
+  .svc .sd{color:var(--sub);font-size:12px;margin-top:7px;line-height:1.4}
+  .svc .slk{color:var(--acc);font-size:12px;font-weight:700;margin-top:6px;display:inline-block}
+  .note{background:var(--surface2);border:1px dashed var(--line);border-radius:10px;padding:11px 13px;color:var(--sub);font-size:12px;line-height:1.55;margin-top:6px}
+  .ben{display:flex;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:12px;margin-bottom:8px}
+  .ben .e{font-size:20px;flex:0 0 auto}
+  .ben b{color:var(--text);font-size:13px}.ben p{color:var(--sub);font-size:12px;margin-top:2px;line-height:1.4}
+  .price{text-align:center;color:var(--text);font-size:22px;font-weight:800;margin:8px 0 14px}
+  .price small{color:var(--sub);font-size:12px;font-weight:600}
+  .dialrow{display:flex;gap:8px}
+  .dialrow select{width:96px;background:var(--surface);border:1px solid var(--line);border-radius:11px;color:var(--text);font-size:13px;padding:12px 6px;margin-bottom:8px}
+  .dialrow .inp{flex:1}
+  .iv{position:absolute;inset:0;z-index:80;background:#000;display:none;align-items:center;justify-content:center;flex-direction:column}
+  .iv.on{display:flex}
+  .iv .c{font-size:clamp(110px,40vw,170px);max-width:96vw;max-height:80vh}
+  .iv .c img{max-width:96vw;max-height:80vh}
+  .iv .x{position:absolute;top:calc(28px + env(safe-area-inset-top));left:20px;color:#fff;font-size:24px;cursor:pointer}
+  .iv .nav2{position:absolute;bottom:40px;display:flex;gap:18px;color:#fff;font-size:30px}
+  .iv .nav2 span{cursor:pointer;background:rgba(255,255,255,.15);width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .toast{position:absolute;left:14px;right:14px;bottom:74px;z-index:90;background:var(--surface);border:1px solid var(--line);color:var(--text);padding:12px 14px;border-radius:12px;font-size:13px;font-weight:600;display:flex;gap:9px;align-items:center;box-shadow:0 12px 28px rgba(0,0,0,.25);transform:translateY(150px);transition:transform .4s cubic-bezier(.22,1,.36,1)}
+  .toast.on{transform:translateY(0)}
+  .inapp{position:absolute;inset:0;z-index:120;background:var(--bg);display:none;flex-direction:column}
+  .inapp.on{display:flex}
+  .inapp-bar{padding:calc(10px + env(safe-area-inset-top)) 12px 10px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .inapp-bar button{background:var(--surface2);border:1px solid var(--line);color:var(--text);font-weight:700;font-size:12.5px;padding:8px 12px;border-radius:9px;cursor:pointer}
+  .inapp-bar span{color:var(--sub);font-size:11.5px;flex:1;min-width:0;word-break:break-all}
+  .inapp iframe{flex:1;width:100%;border:none;background:#fff}
+  .qrwrap{text-align:center;padding:20px}
+  .qrwrap img{max-width:240px;border:1px solid var(--line);border-radius:14px;padding:8px;background:#fff}
+  .vsnd{padding:0 13px 11px}
+  .vsnd audio{width:100%}
+  .recOv{position:absolute;inset:0;z-index:130;background:rgba(5,7,11,.78);display:none;align-items:center;justify-content:center;padding:24px;flex-direction:column;gap:14px}
+  .recOv.on{display:flex}
+  .recOv .mic{font-size:60px;animation:pulse 1.1s infinite}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.7}}
+  .recOv .bars{display:flex;gap:3px;align-items:center;height:46px}
+  .recOv .bars i{width:5px;background:var(--bad);border-radius:3px;animation:eqr 1s ease-in-out infinite alternate}
+  @keyframes eqr{from{height:8px}to{height:42px}}
+  .recOv .tm{color:#fff;font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+  .recOv .ht{color:rgba(255,255,255,.7);font-size:13px;text-align:center}
+  /* full-screen video card (TikTok-style mixed with FB feed) */
+  .fb.fbvideo{position:relative;height:100%;min-height:78vh;border-radius:0;border:none;background:#000;margin:0 -12px 12px;overflow:hidden;scroll-snap-align:start;scroll-snap-stop:always}
+  .fb.fbvideo video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
+  .fb.fbvideo .vhd{position:absolute;left:0;right:0;top:0;z-index:2;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);padding:calc(10px + env(safe-area-inset-top)) 13px 14px;display:flex;align-items:center;gap:10px}
+  .fb.fbvideo .vhd .nm,.fb.fbvideo .vhd .meta{color:#fff}
+  .fb.fbvideo .vhd .pcd{background:rgba(255,255,255,.18);color:#fff}
+  .fb.fbvideo .vfoot{position:absolute;left:0;right:74px;bottom:0;z-index:2;padding:14px 13px;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent)}
+  .fb.fbvideo .vfoot .ptx{color:#fff;padding:0;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+  .fb.fbvideo .vacts{position:absolute;left:8px;bottom:18px;z-index:3;display:flex;flex-direction:column;gap:12px;align-items:center}
+  .fb.fbvideo .vacts .va{width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;position:relative}
+  .fb.fbvideo .vacts .va small{position:absolute;bottom:-15px;color:#fff;font-size:10px;font-weight:700}
+  .feed{scroll-snap-type:y proximity}
+  .toast .e{font-size:18px}
+</style>
+</head>
+<body>
+<div class="app" id="app" data-th="light">
+  <div class="view" id="view">
+    <section class="screen on" id="s-feed">
+      <div class="hd">
+        <div class="brandwrap"><div class="brand"><span class="gl">🌍</span><b id="brandTxt">PLAZA</b></div><div class="subt" id="subt">קבוצה עולמית · אין אלגוריתם · כולם עוקבים אחריך · הכל נעלם תוך 48 שעות</div></div>
+        <div class="stat">
+          <div class="st"><b id="stU">128,940</b><small id="lblReg">רשומים</small></div>
+          <div class="st"><b class="o"><span class="live"></span><span id="stO">8,302</span></b><small id="lblOnl">אונליין</small></div>
+          <div class="st"><b id="stP">2,417</b><small id="lblP48">פוסטים 48ש</small></div>
+        </div>
+        <div class="hdrow">
+          <div class="filt-block" onclick="openFilter()">
+            <div class="ib" title="סינון"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg><i class="cbadge acc" id="fbadge" style="display:none">0</i></div>
+            <small id="filtHint">סנן את התוכן שתואם לשפה, למדינה ולקטגוריה שלך</small>
+          </div>
+          <div class="ico-row">
+            <div class="ib round" onclick="go('msgs')" title="הודעות"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg><i class="cbadge" id="mbadge">2</i></div>
+            <div class="ib" onclick="go('notif')" title="התראות"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><i class="dot"></i></div>
+          </div>
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="feed" id="feed"></div>
+    </section>
+
+    <section class="screen" id="s-rooms">
+      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה לכיכר</div><h2>💬 חדרי צאט</h2><p>חדר לכל קטגוריה · ההודעות נעלמות תוך 48 שעות</p></div>
+      <div class="body"><div class="srch" style="margin:14px 14px 4px"><span>🔍</span><input id="roomSearch" placeholder="חפש חדר/קטגוריה..." oninput="renderRooms()"></div><div class="list"><div class="gridc" id="roomsGrid"></div></div></div>
+    </section>
+
+    <section class="screen" id="s-room">
+      <div class="rhead"><div class="top"><span class="bk" id="rBack" onclick="go('rooms')">→</span><div class="ti"><b id="rTitle">💻 טכנולוגיה</b><small><span class="live"></span><span id="rOnline">412</span> מחוברים · ⏳ ההודעות נעלמות תוך 48 שעות</small></div><button class="tr" id="rTrAll" onclick="trAllToggle()">🌐 תרגם הכל</button></div><div class="catbar" id="catbar"></div><input id="rmSearch" placeholder="🔍 חפש מילת מפתח בחדר זה..." oninput="roomFilter(this.value)" style="margin-top:8px;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px;outline:none;color:var(--text)"></div>
+      <div class="chat" id="chat"></div>
+      <div class="composer">
+        <button class="snd" onclick="sendMsg()">➤</button>
+        <input class="cinp" id="cin" placeholder="כתוב..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <span class="i" onclick="pickChatImg()" title="תמונה">📷</span>
+        <span class="i" id="recBtn" onclick="recVoice()" title="הקלטה">🎙️</span>
+      </div>
+    </section>
+
+    <section class="screen" id="s-search">
+      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה</div><h2>🔍 חיפוש</h2><p>הקלד מילת מפתח בכל שפה — וראה מה אנשים פרסמו</p></div>
+      <div class="body"><div class="list"><div class="srch" style="margin-bottom:12px"><span>🔍</span><input id="qin" placeholder="נושא, מקום, אנשים, מילה בכל שפה..." oninput="doSearch()"></div><div id="qres"></div></div></div>
+    </section>
+
+    <section class="screen" id="s-create">
+      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה</div><h2>＋ שתף עם העולם</h2><p>בחר סוג — מה שתעלה ייעלם תוך 24 שעות</p></div>
+      <div class="body"><div class="list"><div class="gridc" id="createGrid"></div></div></div>
+    </section>
+
+    <section class="screen" id="s-myposts">
+      <div class="sc-title"><div class="bk" onclick="go('profile')">→ פרופיל</div><h2>📝 הפוסטים שלי</h2><p>פעילים עכשיו · עריכה / מחיקה / הארכה</p></div>
+      <div class="body"><div class="list" id="myList"></div></div>
+    </section>
+
+    <section class="screen" id="s-bm">
+      <div class="sc-title"><div class="bk" onclick="go('profile')">→ פרופיל</div><h2>🔖 סימניות</h2><p>Snapshot נשמר — גם אם הפוסט נעלם</p></div>
+      <div class="body"><div class="list" id="bmList"></div></div>
+    </section>
+
+    <section class="screen" id="s-msgs">
+      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה</div><h2>💌 הודעות פרטיות</h2><p>בקשות עם אישור · חסימה ודיווח</p></div>
+      <div class="tabs"><div class="tab on" id="tbC" onclick="msgTab('c')">צ'אטים</div><div class="tab" id="tbR" onclick="msgTab('r')">בקשות <span id="reqN"></span></div></div>
+      <div class="body"><div class="list" id="msgBody"></div></div>
+    </section>
+
+    <section class="screen" id="s-notif">
+      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה</div><h2>🔔 התראות</h2><p>גם ההתראות נעלמות אחרי 30 דקות</p></div>
+      <div class="body"><div class="list" id="ntList"></div></div>
+    </section>
+
+    <section class="screen" id="s-profile">
+      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה</div><h2>👤 הפרופיל שלי</h2></div>
+      <div class="body"><div class="list" id="pWrap"></div></div>
+    </section>
+  </div>
+
+  <div class="nav" id="nav"></div>
+  <div class="ov" id="ov" onclick="closeSheet()"></div>
+  <div class="sh" id="sh"><div class="grip"></div><div id="shIn"></div></div>
+  <div class="iv" id="iv"><span class="x" onclick="document.getElementById('iv').classList.remove('on')">✕</span><div class="c" id="ivc">🖼️</div><div class="nav2" id="ivnav" style="display:none"><span onclick="galStep(1)">‹</span><span onclick="galStep(-1)">›</span></div></div>
+  <div class="toast" id="toast"><span class="e" id="te">⏳</span><div id="tt"></div></div>
+  <input type="file" id="fileIn" style="display:none">
+  <div class="recOv" id="recOv"><div class="mic">🎙️</div><div class="bars">${'<i></i>'.repeat(0)}</div><div class="tm" id="recTm">0:00</div><div class="ht">מקליט בזמן אמת — הקש שוב על המיקרופון לעצור</div></div>
+  <div class="inapp" id="inapp"><div class="inapp-bar"><button onclick="closeInApp()">← חזור לאפליקציה</button><span id="inappUrl"></span></div><iframe id="inappFrame" src="about:blank" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe></div>
+</div>
+<script src="/socket.io/socket.io.js" onerror="window._noSock=1"></script>
+<script>
+/* ===== API layer (היברידי — אם השרת רץ; אחרת fallback לדמו) ===== */
+const API = {
+  ok:false, token:null, user:null, socket:null,
+  async init(){
+    this.token = localStorage.getItem('plazaTok') || null;
+    try{
+      const r = await fetch('/api/health',{cache:'no-store'});
+      this.ok = r.ok;
+    }catch(e){ this.ok=false; }
+    if(this.ok && !this.token){ location.href='/login.html'; return; }
+    if(this.ok && this.token){
+      try{
+        const r = await fetch('/api/me',{headers:{Authorization:'Bearer '+this.token}});
+        if(!r.ok){ localStorage.removeItem('plazaTok'); location.href='/login.html'; return; }
+        this.user = await r.json();
+        if(typeof io!=='undefined' && !window._noSock){
+          try{ this.socket = io({auth:{token:this.token}}); }catch(e){}
+        }
+      }catch(e){}
+    }
+  },
+  async req(p,o={}){
+    const opts={...o, headers:{'Content-Type':'application/json', ...(o.headers||{}), ...(this.token?{Authorization:'Bearer '+this.token}:{})}};
+    if(opts.body && typeof opts.body!=='string') opts.body=JSON.stringify(opts.body);
+    const r=await fetch('/api'+p, opts);
+    if(r.status===401){ localStorage.removeItem('plazaTok'); location.href='/login.html'; return null; }
+    if(!r.ok) throw new Error('API '+r.status);
+    return r.json();
+  },
+  logout(){ localStorage.removeItem('plazaTok'); localStorage.removeItem('plazaUser'); if(this.socket)this.socket.disconnect(); location.href='/login.html'; },
+  async upload(files){
+    const fd=new FormData(); files.forEach(f=>fd.append('files',f));
+    const r=await fetch('/api/upload',{method:'POST',headers:{Authorization:'Bearer '+this.token},body:fd});
+    return r.json();
+  }
+};
+const IS_SERVER = ()=>API.ok;
+
+const LANGS=[['he','עברית','🇮🇱'],['en','English','🇺🇸'],['ar','العربية','🇸🇦'],['ru','Русский','🇷🇺'],['fr','Français','🇫🇷'],['es','Español','🇪🇸'],['de','Deutsch','🇩🇪'],['pt-BR','Português','🇧🇷'],['zh-CN','中文','🇨🇳'],['ja','日本語','🇯🇵'],['ko','한국어','🇰🇷'],['hi','हिन्दी','🇮🇳'],['tr','Türkçe','🇹🇷'],['it','Italiano','🇮🇹'],['pl','Polski','🇵🇱'],['uk','Українська','🇺🇦'],['nl','Nederlands','🇳🇱'],['sv','Svenska','🇸🇪'],['th','ไทย','🇹🇭'],['vi','Tiếng Việt','🇻🇳'],['id','Bahasa','🇮🇩'],['ro','Română','🇷🇴'],['am','አማርኛ','🇪🇹'],['fa','فارسی','🇮🇷'],['sw','Kiswahili','🇰🇪']];
+const COUNTRIES=[['IL','ישראל','🇮🇱'],['AR','ארגנטינה','🇦🇷'],['AU','אוסטרליה','🇦🇺'],['BR','ברזיל','🇧🇷'],['CA','קנדה','🇨🇦'],['CN','סין','🇨🇳'],['EG','מצרים','🇪🇬'],['FR','צרפת','🇫🇷'],['DE','גרמניה','🇩🇪'],['IN','הודו','🇮🇳'],['IT','איטליה','🇮🇹'],['JP','יפן','🇯🇵'],['MX','מקסיקו','🇲🇽'],['NL','הולנד','🇳🇱'],['PL','פולין','🇵🇱'],['RU','רוסיה','🇷🇺'],['SA','ערב הסעודית','🇸🇦'],['ES','ספרד','🇪🇸'],['SE','שוודיה','🇸🇪'],['TR','טורקיה','🇹🇷'],['AE','איחוד האמירויות','🇦🇪'],['GB','בריטניה','🇬🇧'],['US','ארה"ב','🇺🇸']];
+const TOPICS=[['tech','טכנולוגיה','💻'],['cars','רכב','🚗'],['real_estate','נדל"ן','🏢'],['art','אמנות','🎨'],['music','מוזיקה','🎵'],['film','סרטים','🎬'],['books','ספרים','📚'],['fitness','כושר','💪'],['food','אוכל','🍕'],['travel','טיולים','✈️'],['photography','צילום','📸'],['gaming','גיימינג','🎮'],['sports','ספורט','⚽'],['wellness','בריאות','🧘'],['business','עסקים','💼'],['finance','פיננסים','💰'],['science','מדע','🔬'],['environment','סביבה','🌍'],['politics','פוליטיקה','🏛️'],['news','חדשות','📰'],['education','חינוך','🎓'],['parenting','הורות','👶'],['relationships','יחסים','💑'],['home','בית וגינה','🏠'],['fashion','אופנה','👗'],['beauty','יופי','💄'],['pets','חיות מחמד','🐶'],['spirituality','רוחניות','🙏'],['humor','הומור','😂'],['entertainment','בידור','🎭'],['community','קהילה','🤝'],['jobs','דרושים','💼'],['ai','בינה מלאכותית','🤖'],['crypto','קריפטו','💎'],['startups','סטארטאפים','🚀'],['diy','עשה זאת בעצמך','🔨'],['cooking','בישול','👨‍🍳'],['mental_health','בריאות נפשית','🧠'],['history','היסטוריה','📜'],['marketing','שיווק','📣'],['design','עיצוב','✏️'],['languages','שפות','🗣️'],['volunteering','התנדבות','🤲'],['law','משפט','⚖️'],['psychology','פסיכולוגיה','🧠'],['military','ביטחון','🎖️'],['agriculture','חקלאות','🌾'],['medicine','רפואה','⚕️'],['astronomy','אסטרונומיה','🔭'],['philosophy','פילוסופיה','💭'],['dance','ריקוד','💃'],['theater','תיאטרון','🎭'],['podcast','פודקאסטים','🎧'],['investing','השקעות','📈'],['architecture','אדריכלות','🏛️']];
+const PTYPES=[['text','טקסט','📝'],['image','תמונה','📷'],['video','וידאו','🎥'],['audio','אודיו','🎙️'],['location','מיקום','📍'],['file','קובץ','📎'],['poll','סקר','📊'],['job','דרושים','💼'],['product','מוצר','🏷️']];
+const SHIP=['איסוף עצמי','משלוח עד הבית','משלוח עולמי 🌍','שליח עד שעה'];
+function flagOf(cc){return cc.toUpperCase().replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));}
+[['AF','אפגניסטן'],['AL','אלבניה'],['DZ',"אלג'יריה"],['AD','אנדורה'],['AO','אנגולה'],['AG','אנטיגואה'],['AM','ארמניה'],['AT','אוסטריה'],['AZ',"אזרבייג'ן"],['BS','בהאמה'],['BH','בחריין'],['BD','בנגלדש'],['BB','ברבדוס'],['BY','בלארוס'],['BE','בלגיה'],['BZ','בליז'],['BJ','בנין'],['BT','בהוטן'],['BO','בוליביה'],['BA','בוסניה'],['BW','בוצוואנה'],['BN','ברוניי'],['BG','בולגריה'],['BF','בורקינה פאסו'],['BI','בורונדי'],['KH','קמבודיה'],['CM','קמרון'],['CV','כף ורדה'],['CF','מרכז אפריקה'],['TD',"צ'אד"],['CL',"צ'ילה"],['CO','קולומביה'],['KM','קומורו'],['CG','קונגו'],['CR','קוסטה ריקה'],['HR','קרואטיה'],['CU','קובה'],['CY','קפריסין'],['CZ',"צ'כיה"],['DK','דנמרק'],['DJ',"ג'יבוטי"],['DM','דומיניקה'],['DO','הדומיניקנית'],['EC','אקוודור'],['SV','אל סלבדור'],['GQ','גינאה המשוונית'],['ER','אריתריאה'],['EE','אסטוניה'],['ET','אתיופיה'],['FI','פינלנד'],['GA','גבון'],['GM','גמביה'],['GE','גאורגיה'],['GH','גאנה'],['GR','יוון'],['GD','גרנדה'],['GT','גואטמלה'],['GN','גינאה'],['GY','גיאנה'],['HT','האיטי'],['HN','הונדורס'],['HU','הונגריה'],['IS','איסלנד'],['IR','איראן'],['IQ','עיראק'],['IE','אירלנד'],['JM',"ג'מייקה"],['JO','ירדן'],['KZ','קזחסטן'],['KE','קניה'],['KW','כווית'],['KG','קירגיזסטן'],['LA','לאוס'],['LV','לטביה'],['LB','לבנון'],['LS','לסוטו'],['LR','ליבריה'],['LY','לוב'],['LI','ליכטנשטיין'],['LT','ליטא'],['LU','לוקסמבורג'],['MK','מקדוניה'],['MG','מדגסקר'],['MW','מלאווי'],['MY','מלזיה'],['MV','מלדיביים'],['ML','מאלי'],['MT','מלטה'],['MR','מאוריטניה'],['MU','מאוריציוס'],['MD','מולדובה'],['MC','מונקו'],['MN','מונגוליה'],['ME','מונטנגרו'],['MA','מרוקו'],['MZ','מוזמביק'],['MM','מיאנמר'],['NA','נמיביה'],['NP','נפאל'],['NZ','ניו זילנד'],['NI','ניקרגואה'],['NE',"ניז'ר"],['NG','ניגריה'],['KP','צפון קוריאה'],['NO','נורבגיה'],['OM','עומאן'],['PK','פקיסטן'],['PA','פנמה'],['PG','פפואה גינאה'],['PY','פרגוואי'],['PE','פרו'],['PH','פיליפינים'],['PT','פורטוגל'],['QA','קטאר'],['RO','רומניה'],['RW','רואנדה'],['SM','סן מרינו'],['SN','סנגל'],['RS','סרביה'],['SC','סיישל'],['SL','סיירה לאון'],['SG','סינגפור'],['SK','סלובקיה'],['SI','סלובניה'],['SO','סומליה'],['KR','דרום קוריאה'],['LK','סרי לנקה'],['SD','סודן'],['SR','סורינאם'],['SY','סוריה'],['CH','שווייץ'],['TW','טייוואן'],['TJ',"טג'יקיסטן"],['TZ','טנזניה'],['TH','תאילנד'],['TG','טוגו'],['TT','טרינידד'],['TN','תוניסיה'],['TM','טורקמניסטן'],['UG','אוגנדה'],['UA','אוקראינה'],['UY','אורוגוואי'],['UZ','אוזבקיסטן'],['VE','ונצואלה'],['VN','וייטנאם'],['YE','תימן'],['ZM','זמביה'],['ZW','זימבבואה']].forEach(a=>COUNTRIES.push([a[0],a[1],flagOf(a[0])]));
+LANGS.push(['af','Afrikaans','🇿🇦'],['hu','Magyar','🇭🇺'],['fi','Suomi','🇫🇮'],['da','Dansk','🇩🇰'],['no','Norsk','🇳🇴'],['cs','Čeština','🇨🇿'],['sk','Slovenčina','🇸🇰'],['hr','Hrvatski','🇭🇷'],['sr','Српски','🇷🇸'],['sl','Slovenščina','🇸🇮'],['bg','Български','🇧🇬'],['el','Ελληνικά','🇬🇷'],['et','Eesti','🇪🇪'],['lv','Latviešu','🇱🇻'],['lt','Lietuvių','🇱🇹'],['be','Беларуская','🇧🇾'],['mk','Македонски','🇲🇰'],['sq','Shqip','🇦🇱'],['hy','Հայերեն','🇦🇲'],['az','Azərbaycan','🇦🇿'],['ka','ქართული','🇬🇪'],['kk','Қазақ','🇰🇿'],['ky','Кыргыз','🇰🇬'],['uz','Oʻzbekcha','🇺🇿'],['mn','Монгол','🇲🇳'],['ms','Bahasa Melayu','🇲🇾'],['tl','Filipino','🇵🇭'],['my','မြန်မာ','🇲🇲'],['km','ខ្មែរ','🇰🇭'],['lo','ລາວ','🇱🇦'],['ne','नेपाली','🇳🇵'],['si','සිංහල','🇱🇰'],['ta','தமிழ்','🇮🇳'],['te','తెలుగు','🇮🇳'],['ml','മലയാളം','🇮🇳'],['kn','ಕನ್ನಡ','🇮🇳'],['gu','ગુજરાતી','🇮🇳'],['mr','मराठी','🇮🇳'],['pa','ਪੰਜਾਬੀ','🇮🇳'],['bn','বাংলা','🇧🇩'],['ur','اردو','🇵🇰'],['ps','پښتو','🇦🇫'],['ku','Kurdî','🇮🇶'],['ha','Hausa','🇳🇬'],['yo','Yorùbá','🇳🇬'],['ig','Igbo','🇳🇬'],['zu','isiZulu','🇿🇦'],['xh','isiXhosa','🇿🇦'],['st','Sesotho','🇱🇸'],['sn','ChiShona','🇿🇼'],['rw','Kinyarwanda','🇷🇼'],['mg','Malagasy','🇲🇬'],['so','Soomaali','🇸🇴'],['ny','Chichewa','🇲🇼'],['lg','Luganda','🇺🇬'],['ca','Català','🇪🇸'],['eu','Euskara','🇪🇸'],['gl','Galego','🇪🇸'],['ga','Gaeilge','🇮🇪'],['is','Íslenska','🇮🇸'],['lb','Lëtzebuergesch','🇱🇺'],['mt','Malti','🇲🇹'],['ht','Kreyòl','🇭🇹'],['qu','Runa Simi','🇵🇪'],['mi','Māori','🇳🇿'],['sm','Samoan','🇼🇸'],['eo','Esperanto','🌐'],['la','Latina','🇻🇦'],['yi','ייִדיש','🇮🇱'],['jw','Basa Jawa','🇮🇩'],['su','Basa Sunda','🇮🇩'],['ceb','Cebuano','🇵🇭']);
+const DIAL=[['972','🇮🇱 +972'],['1','🇺🇸 +1'],['44','🇬🇧 +44'],['49','🇩🇪 +49'],['33','🇫🇷 +33'],['34','🇪🇸 +34'],['39','🇮🇹 +39'],['7','🇷🇺 +7'],['91','🇮🇳 +91'],['55','🇧🇷 +55'],['81','🇯🇵 +81'],['86','🇨🇳 +86'],['971','🇦🇪 +971'],['20','🇪🇬 +20'],['90','🇹🇷 +90']];
+
+let POSTS=[
+ {e:'🌅',av:'🦅',nm:'נועה',meta:'🇮🇱 עברית · לפני 4 דק׳',type:'text',topicId:'environment',lang:'he',country:'IL',text:'הזריחה הבוקר מעל הים הייתה מטורפת. מישהו עוד ער? 👇',mins:142,likes:2147,com:340},
+ {e:'🏙️',av:'🎧',nm:'Diego',meta:'🇪🇸 Español · 11 min',type:'image',topicId:'photography',lang:'es',country:'ES',text:'Las calles de Madrid esta noche 🌃',mins:300,likes:5829,com:912,imgs:['🌃','🏛️','🎆','🍷','🌆','🥂']},
+ {e:'🔥',av:'⚡',nm:'אריאל',meta:'🇮🇱 עברית · לפני 50 דק׳',type:'poll',topicId:'community',lang:'he',country:'IL',text:'מה גורם לכם להישאר באפליקציה יותר מדי זמן?',mins:34,likes:8401,com:2304,poll:[{t:'תוכן שנעלם (FOMO)',p:58},{t:'אנשים אמיתיים בזמן אמת',p:31},{t:'אלגוריתם ממכר',p:11}]},
+ {e:'🎬',av:'🌊',nm:'Mei',meta:'🇯🇵 日本語 · 22 min',type:'video',topicId:'travel',lang:'ja',country:'JP',text:'渋谷の朝 — בוקר בשיבויה. 30 שניות שתופסות הכל.',mins:88,likes:14200,com:3110},
+ {e:'🛍️',av:'💎',nm:'Lena Audio',meta:'🇩🇪 Deutsch · 9 min',type:'product',topicId:'tech',lang:'de',country:'DE',text:'אוזניות אלחוטיות כמו חדשות, משלוח לכל העולם 🌍',mins:240,likes:734,com:96,imgs:['🎧','📦','🔋'],prod:{title:'Sony WH-1000XM5',desc:'מצב מעולה, קופסה מקורית, אחריות שנה',price:'₪690',ship:'משלוח עולמי 🌍'}},
+ {e:'💼',av:'🚀',nm:'TechFlow',meta:'🌐 Global · 15 min',type:'job',topicId:'jobs',lang:'en',country:'US',text:'מגייסים מפתח/ת Frontend — עבודה מרחוק מכל מקום 🌍',mins:600,likes:1205,com:240,job:{title:'Senior Frontend Developer',company:'TechFlow · Remote 🌍',sal:'$7,000–$11,000 / חודש'}},
+ {e:'🎙️',av:'🎤',nm:'Sara',meta:'🇪🇬 العربية · 6 min',type:'audio',topicId:'mental_health',lang:'ar',country:'EG',text:'הקלטה קצרה על למה רשת בלי מעקב מרגישה אחרת.',mins:18,likes:1290,com:188,voice:{dur:'0:42',tr:'شبكة بدون إعلانات',tl:'רשת בלי פרסומות נותנת תחושת חופש.'}},
+ {e:'📍',av:'🧭',nm:'Tom',meta:'🇮🇱 עברית · לפני 30 דק׳',type:'location',topicId:'community',lang:'he',country:'IL',text:'מפגש ספונטני על החוף בעוד שעה — מי בסביבה? 🏖️',mins:60,likes:892,com:410,loc:{place:'חוף הדקל, אילת',dist:'2.4 ק״מ ממך'}},
+ {e:'🚗',av:'🔑',nm:'אוטו דיל',meta:'🇮🇱 עברית · לפני 20 דק׳',type:'product',topicId:'cars',lang:'he',country:'IL',text:'מאזדה 3 2021, יד ראשונה, 45 אלף ק״מ',mins:400,likes:540,com:120,imgs:['🚗','🚙','🛞'],prod:{title:'Mazda 3 2021',desc:'יד ראשונה, טסט שנה, שמורה',price:'₪98,000',ship:'איסוף עצמי'}},
+ {e:'🎵',av:'🎼',nm:'Nina Records',meta:'🇸🇪 Svenska · 13 min',type:'audio',topicId:'music',lang:'sv',country:'SE',text:'30 שניות מוזיקה שהקלטתי ברחוב הבוקר.',mins:150,likes:2030,com:300,voice:{dur:'0:31',tr:'Den här melodin',tl:'המנגינה הזו נוגנה ברחוב.'}}
+];
+const PROF={
+ 'נועה':{k:'r',av:'🦅',nm:'נועה',loc:'תל אביב 🇮🇱',j:'אזרחית · 3 חודשים'},
+ 'Diego':{k:'r',av:'🎧',nm:'Diego',loc:'Madrid 🇪🇸',j:'אזרח · שנה'},
+ 'אריאל':{k:'r',av:'⚡',nm:'אריאל',loc:'חיפה 🇮🇱',j:'אזרח · 7 חודשים'},
+ 'Mei':{k:'r',av:'🌊',nm:'Mei',loc:'Tokyo 🇯🇵',j:'אזרחית · שנתיים'},
+ 'Lena Audio':{k:'b',bd:'blue',av:'💎',nm:'Lena Audio',loc:'Berlin 🇩🇪',pr:'🏷️ חנות אלקטרוניקה מאומתת',bio:'מכשירי שמע מקוריים עם אחריות, משלוח עולמי.',wa:'4915112345678',ph:'+49 30 1234567',em:'shop@lena-audio.shop',st:[['1.2K','עסקאות'],['4.9★','דירוג'],['320','פוסטים']],port:['🎧','🔊','🎤','📻','🎚️','🎛️'],svc:[{t:'אוזניות פרימיום',p:'מ-₪290',m:'🎧',d:'דגמים מובילים, אחריות שנתיים',l:'lena-audio.shop/headphones'},{t:'תיקון ושירות',p:'₪120',m:'🛠️',d:'תיקון מקצועי תוך 48ש׳',l:''}],web:'lena-audio.shop'},
+ 'TechFlow':{k:'b',bd:'blue',av:'🚀',nm:'TechFlow',loc:'Remote 🌍',pr:'💼 חברת טכנולוגיה מאומתת',bio:'סטארטאפ גלובלי. גיוס מכל העולם.',wa:'',st:[['47','משרות'],['4.8★','דירוג'],['12K','עוקבים']],port:['💻','📱','☁️','🤖','📊','🌐'],svc:[{t:'גיוס Frontend',p:'$7K–$11K',m:'💻',d:'משרה מלאה, מרחוק',l:'techflow.io/careers'}],web:'techflow.io'},
+ 'Sara':{k:'r',av:'🎤',nm:'Sara',loc:'Cairo 🇪🇬',j:'אזרחית · 5 חודשים'},
+ 'Tom':{k:'r',av:'🧭',nm:'Tom',loc:'אילת 🇮🇱',j:'אזרח · חודש'},
+ 'אוטו דיל':{k:'b',bd:'blue',av:'🔑',nm:'אוטו דיל',loc:'תל אביב 🇮🇱',pr:'🚗 מגרש רכב מאומת',bio:'רכבים יד ראשונה בדוקים, אחריות והעברת בעלות.',wa:'972541234567',ph:'03-9998877',em:'sales@autodeal.co.il',st:[['540','מכירות'],['4.7★','דירוג'],['90','רכבים']],port:['🚗','🚙','🏎️','🛻','🚕','🔧'],svc:[{t:'רכב משפחתי',p:'מ-₪70K',m:'🚗',d:'מגוון דגמים בדוקים',l:'autodeal.co.il'},{t:'בדיקה לפני קנייה',p:'₪450',m:'🔧',d:'בדיקת מכון מוסמך',l:''}],web:'autodeal.co.il'},
+ 'Nina Records':{k:'b',bd:'gold',av:'🎼',nm:'Nina Records',loc:'Stockholm 🇸🇪',pr:'🎵 סטודיו הקלטות · יוצרת זהב',bio:'מפיקה מוזיקלית. סטודיו מקצועי.',wa:'46701234567',st:[['90','הפקות'],['4.9★','דירוג'],['21K','מאזינים']],port:['🎵','🎹','🎚️','🥁','🎸','🎤'],svc:[{t:'הפקת שיר',p:'מ-$400',m:'🎵',d:'הפקה מלאה מקצה לקצה',l:'ninarecords.se'}],web:'ninarecords.se'}
+};
+const ROOM_SEED={tech:[{w:'Raj 🇮🇳',t:'anyone tried the new AI chip?',tl:'מישהו ניסה את שבב ה-AI?'},{w:'דנה 🇮🇱',t:'עברתי ל-Linux סופית 😎'}],cars:[{w:'יוסי 🇮🇱',t:'איפה הכי כדאי למכור רכב?'},{w:'Marco 🇮🇹',t:'EV o ibrida?',tl:'חשמלי או היברידי?'}],real_estate:[{w:'רותם 🇮🇱',t:'מחירי השכירות מטורפים'}],music:[{w:'Nina 🇸🇪',t:'new track tonight 🎚️',tl:'טראק חדש הלילה 🎚️'}]};
+const GENERIC=[{w:'Alex 🇺🇸',t:'love this room',tl:'אוהב את החדר'},{w:'מאיה 🇮🇱',t:'סוף סוף מקום לנושא הזה'},{w:'Sofia 🇪🇸',t:'¿alguien aquí?',tl:'מישהו כאן?'}];
+const COM=POSTS.map(()=>[{a:'🌟',n:'מירב',t:'וואו תודה ששיתפת! 🔥',m:'לפני 2 דק׳'},{a:'🌍',n:'Alex',t:'this is why I stay all day',m:'5 min'}]);
+
+const SK='plaza_demo_v5';
+function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,
+ me:{nm:'משה',loc:'ישראל 🇮🇱',av:'🦊',avImg:'',lng:'עברית',hobby:'',bnm:'הסטודיו שלי',bpr:'🎨 שירות מאומת',bbio:'תיאור העסק שלי כאן',waD:'972',waN:'',bem:'',bph:'',bweb:'',port:['🖼️','🎨','📷'],svc:[{t:'שירות לדוגמה',p:'מ-₪100',m:'🛠️',d:'תיאור השירות',l:''}]},
+ prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},mine:[],pchats:[],reqN:2};
+ try{const s=Object.assign(d,JSON.parse(localStorage.getItem(SK)||'{}'));s.nf=Object.assign({comments:true,chats:true},s.nf);s.me=Object.assign(d.me,s.me);return s;}catch(e){return d;}}
+let S=ld();const sv=()=>localStorage.setItem(SK,JSON.stringify(S));
+function applyTh(){document.getElementById('app').setAttribute('data-th',S.th);}
+applyTh();
+const I18N={he:{subt:'קבוצה עולמית · אין אלגוריתם · כולם עוקבים אחריך · הכל נעלם תוך 48 שעות',reg:'רשומים',onl:'אונליין',p48:'פוסטים 48ש',filtHint:'סנן את התוכן שתואם לשפה למדינה ולקטגוריה שלך',brand:'PLAZA',nHome:'בית',nSearch:'חיפוש',nRooms:'חדרי צאט',nProfile:'פרופיל'},
+ en:{subt:'Global community · no algorithm · everyone follows you · everything vanishes in 48h',reg:'Registered',onl:'Online',p48:'Posts 48h',filtHint:'Filter content by language, country and category',brand:'PLAZA',nHome:'Home',nSearch:'Search',nRooms:'Chats',nProfile:'Profile'},
+ ar:{subt:'مجتمع عالمي · لا خوارزمية · الكل يتابعك · يختفي خلال 48 ساعة',reg:'مسجلون',onl:'متصل',p48:'منشورات 48س',filtHint:'صفّ المحتوى حسب لغتك وبلدك وفئتك',brand:'PLAZA',nHome:'الرئيسية',nSearch:'بحث',nRooms:'الغرف',nProfile:'الملف'},
+ es:{subt:'Comunidad global · sin algoritmo · todo desaparece en 48h',reg:'Registrados',onl:'En línea',p48:'Posts 48h',filtHint:'Filtra por idioma, país y categoría',brand:'PLAZA',nHome:'Inicio',nSearch:'Buscar',nRooms:'Salas',nProfile:'Perfil'},
+ fr:{subt:'Communauté mondiale · sans algorithme · tout disparaît en 48h',reg:'Inscrits',onl:'En ligne',p48:'Posts 48h',filtHint:'Filtrer par langue, pays et catégorie',brand:'PLAZA',nHome:'Accueil',nSearch:'Recherche',nRooms:'Salons',nProfile:'Profil'},
+ ru:{subt:'Глобальное сообщество · без алгоритма · всё исчезает за 48ч',reg:'Зарегистрировано',onl:'Онлайн',p48:'Посты 48ч',filtHint:'Фильтр по языку, стране и категории',brand:'PLAZA',nHome:'Главная',nSearch:'Поиск',nRooms:'Комнаты',nProfile:'Профиль'},
+ de:{subt:'Globale Gemeinschaft · kein Algorithmus · alles verschwindet in 48h',reg:'Registriert',onl:'Online',p48:'Posts 48h',filtHint:'Nach Sprache, Land und Kategorie filtern',brand:'PLAZA',nHome:'Start',nSearch:'Suche',nRooms:'Räume',nProfile:'Profil'}};
+function applyLang(){const RTL=['he','ar','fa','ur','yi','ps','ckb'];const dir=RTL.includes(S.lang)?'rtl':'ltr';document.documentElement.setAttribute('dir',dir);document.documentElement.lang=S.lang;
+ const t=I18N[S.lang]||I18N.en,set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+ set('subt',t.subt);set('lblReg',t.reg);set('lblOnl',t.onl);set('lblP48',t.p48);set('filtHint',t.filtHint);set('brandTxt',t.brand);try{nav();}catch(e){}}
+setTimeout(applyLang,0);
+let curRoom='tech',trAll=false,privCtx=null;
+function tp(id){return TOPICS.find(x=>x[0]===id);}
+function isImg(s){return typeof s==='string'&&(s.startsWith('blob:')||s.startsWith('data:')||s.startsWith('http'));}
+function cell(m){return isImg(m)?`<img src="${m}">`:m;}
+function avH(o){return o.avImg?`<img src="${o.avImg}">`:(o.av||'🙂');}
+function profBadge(nm){const p=PROF[nm];return p&&p.k==='b'?`<span class="vmini ${p.bd==='gold'?'gold':''}">✔</span>`:'';}
+function waLink(d,n){if(!n)return '';return 'https://wa.me/'+(d+''+n).replace(/\D/g,'');}
+
+/* ===== FEED (Facebook-style cards) ===== */
+const feed=document.getElementById('feed');
+function mediaBlock(p,i){
+ if(p.type==='image'&&p.imgs&&p.imgs.length){const im=p.imgs,sh=im.slice(0,4),n=Math.min(sh.length,4);
+  return `<div class="media"><div class="fbg n${n}">`+sh.map((m,k)=>`<div onclick="galView(${i},${k})">${cell(m)}${(k===3&&im.length>4)?`<span class="more">+${im.length-4}</span>`:''}</div>`).join('')+`</div></div>`;}
+ if(p.type==='video'){if(p.vidUrl)return `<div class="media"><video src="${p.vidUrl}" controls playsinline></video></div>`;
+  return `<div class="media"><div class="vidwrap"><div class="ph" onclick="toast('🎬','וידאו לדוגמה — בפלטפורמה האמיתית יתנגן')">${p.e}<div class="pl">▶</div></div></div></div>`;}
+ if(p.type==='poll')return `<div style="padding:0 13px 11px">`+p.poll.map(o=>`<div class="poll-o" onclick="this.querySelector('.f').style.width='${o.p}%';this.querySelector('.pc').textContent='${o.p}%'"><div class="f"></div><div class="l"><span>${o.t}</span><span class="pc"></span></div></div>`).join('')+`</div>`;
+ if(p.type==='product'){const g=p.imgs&&p.imgs.length?`<div class="media"><div class="fbg n${Math.min(p.imgs.length,4)}">`+p.imgs.slice(0,4).map((m,k)=>`<div onclick="galView(${i},${k})">${cell(m)}${(k===3&&p.imgs.length>4)?`<span class="more">+${p.imgs.length-4}</span>`:''}</div>`).join('')+`</div></div>`:'';
+  return g+`<div class="ibx"><div class="t">${p.prod.title}</div><div class="d">${p.prod.desc}</div><div class="pr">${p.prod.price}</div>${p.prod.ship?`<div class="sh">🚚 ${p.prod.ship}</div>`:''}<button onclick="contactSeller('${p.nm}')">💬 צור קשר עם המוכר/ת</button></div>`;}
+ if(p.type==='job')return `<div class="ibx"><div class="t">${p.job.title}</div><div class="d">${p.job.company}</div><div class="sl">💰 ${p.job.sal}</div><button onclick="toast('✅','המועמדות נשלחה!')">הגש מועמדות</button></div>`;
+ if(p.type==='location')return `<div class="ibx" style="padding:0;overflow:hidden">${p.loc.lat&&p.loc.lat!=='—'?`<iframe style="width:100%;height:160px;border:none" src="https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(p.loc.lng)-0.02},${parseFloat(p.loc.lat)-0.01},${parseFloat(p.loc.lng)+0.02},${parseFloat(p.loc.lat)+0.01}&marker=${p.loc.lat},${p.loc.lng}"></iframe>`:`<div style="height:90px;background:linear-gradient(160deg,#1c2b40,#13324a);display:flex;align-items:center;justify-content:center;font-size:30px">🗺️📍</div>`}<div class="d" style="padding:8px 12px;margin:0;display:flex;justify-content:space-between"><span>📍 ${p.loc.place}</span><span>${p.loc.dist}</span></div></div>`;
+ if(p.type==='audio')return `<div class="ibx">${p.audioUrl?`<audio controls src="${p.audioUrl}" style="width:100%"></audio>`:`<div class="vc"><button class="vp" onclick="pa(${i},this)">▶</button><div class="wv" id="w${i}">${'<i></i>'.repeat(20)}</div><span style="color:var(--sub);font-size:11px">${p.voice.dur}</span></div>`}<div class="vtool"><button onclick="vs(${i},'tr',this)">📝 תמלול חי</button><button onclick="vs(${i},'tl',this)">🌐 תרגום</button></div><div class="vout" id="vo${i}"></div></div>`;
+ return '';
+}
+function postCard(p,i){if(p.type==='video')return videoCard(p,i);
+ const tot=p.mins<60?60:48*60,t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&pr.wa?waLink('',pr.wa):'';
+ return `<div class="fb" data-i="${i}">
+  <div class="fbh"><div class="av" onclick="openProf('${p.nm}')">${avH(p)}</div>
+   <div class="who" onclick="openProf('${p.nm}')"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}</div></div>
+   <div class="pcd"><span class="cdt">--</span> ⏳</div></div>
+  ${p.text?`<div class="ptx">${p.text}<div style="margin-top:6px;font-size:11px"><span style="color:var(--acc);font-weight:700;cursor:pointer" onclick="translatePost(${i},this)">🌐 תרגם את הפוסט</span><div style="display:none;margin-top:6px;padding:8px 10px;background:var(--surface2);border-radius:8px;color:var(--text);font-size:13px"></div></div></div>`:''}
+  ${mediaBlock(p,i)}
+  ${p.snd?`<div class="vsnd"><audio controls src="${p.snd}"></audio></div>`:''}
+  ${p.link?`<div class="lk-card" onclick="openInApp('${p.link}')"><span class="lic">🔗</span><div><div class="lt">קישור מצורף — נפתח באפליקציה</div><div class="lu">${p.link}</div></div></div>`:''}
+  ${wa?`<div class="wabtn" onclick="window.open('${wa}','_blank')"><span>🟢</span> צור קשר ב-WhatsApp</div>`:''}
+  <div style="padding:0 13px 9px;display:flex;gap:6px;flex-wrap:wrap;font-size:11px">
+   <span style="background:var(--surface2);color:var(--ok);font-weight:700;padding:3px 8px;border-radius:7px;display:inline-flex;align-items:center;gap:4px"><span class="live"></span>${postViewers(i)} צופים</span>
+   ${p.autoExt?'<span style="background:var(--acc-soft);color:var(--acc);font-weight:700;padding:3px 8px;border-radius:7px">♻️ הארכה אוטו׳</span>':''}
+   ${p.sched?'<span style="background:var(--surface2);color:var(--warn);font-weight:700;padding:3px 8px;border-radius:7px">⏰ תוזמן</span>':''}
+  </div>
+  <div class="fbf">
+   <div class="fa lk" onclick="like(${i},this)"><span class="ic">🤍</span><span id="lk${i}">${(p.likes/1000).toFixed(1)}K</span></div>
+   <div class="fa" onclick="openCom(${i})">💬 <span id="cm${i}">${p.com}</span></div>
+   <div class="fa" onclick="openShare()">↗️ שתף</div>
+   <div class="fa bk" onclick="bk(${i},this)">🔖 שמור</div>
+  </div></div>`;
+}
+function videoCard(p,i){const t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&pr.wa?waLink('',pr.wa):'';
+ return `<div class="fb fbvideo" data-i="${i}">
+  ${p.vidUrl?`<video src="${p.vidUrl}" controls playsinline ${p.snd?'muted':''}></video>`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:80px;background:linear-gradient(160deg,#1b2030,#0b0e14)" onclick="toast('🎬','וידאו לדוגמה')">${p.e}</div>`}
+  ${p.snd?`<audio src="${p.snd}" autoplay loop></audio>`:''}
+  <div class="vhd"><div class="av" onclick="openProf('${p.nm}')">${avH(p)}</div>
+   <div class="who" onclick="openProf('${p.nm}')" style="flex:1"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}</div></div>
+   <div class="pcd"><span class="cdt">--</span> ⏳</div></div>
+  <div class="vfoot"><div class="ptx">${p.text||''}</div>${p.link?`<div class="lk-card" style="margin:8px 0 0;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.2)" onclick="openInApp('${p.link}')"><span class="lic">🔗</span><div><div class="lt" style="color:#fff">קישור</div><div class="lu" style="color:#ddd">${p.link}</div></div></div>`:''}</div>
+  <div class="vacts">
+   <div class="va lk" onclick="like(${i},this)"><span class="ic">🤍</span><small id="lk${i}">${(p.likes/1000).toFixed(1)}K</small></div>
+   <div class="va" onclick="openCom(${i})">💬<small id="cm${i}">${p.com}</small></div>
+   <div class="va" onclick="openShare()">↗️<small>שתף</small></div>
+   <div class="va bk" onclick="bk(${i},this)">🔖<small>שמור</small></div>
+   ${wa?`<div class="va" onclick="window.open('${wa}','_blank')" style="background:var(--wa)">🟢<small>וואטסאפ</small></div>`:''}
+  </div></div>`;
+}
+function passes(p){return (!S.fP.length||S.fP.includes(p.type))&&(!S.fL.length||S.fL.includes(p.lang))&&(!S.fC.length||S.fC.includes(p.country))&&(!S.fT.length||S.fT.includes(p.topicId));}
+function buildFeed(){const f=POSTS.filter(passes);
+ feed.innerHTML=f.length?f.map(p=>postCard(p,POSTS.indexOf(p))).join(''):`<div class="empty"><div class="e">🌫️</div><p>אין פוסטים בסינון הזה</p></div>`;
+ for(const k in S.likes){if(S.likes[k]){const e=document.querySelector(`.fb[data-i="${k}"] .lk`);if(e){e.classList.add('on');e.querySelector('.ic').textContent='❤️';}}}
+ for(const k in S.bk){if(S.bk[k]){const e=document.querySelector(`.fb[data-i="${k}"] .bk`);if(e)e.classList.add('on');}}}
+function chips(){const c=document.getElementById('chips');let h='';
+ const a=(arr,src,key)=>arr.forEach(id=>{const it=src.find(x=>x[0]===id);if(it)h+=`<div class="ch" onclick="rmF('${key}','${id}')">${it[2]} ${it[1]} <i>✕</i></div>`;});
+ a(S.fL,LANGS,'fL');a(S.fC,COUNTRIES,'fC');a(S.fT,TOPICS,'fT');S.fP.forEach(id=>{const it=PTYPES.find(x=>x[0]===id);if(it)h+=`<div class="ch" onclick="rmF('fP','${id}')">${it[2]} ${it[1]} <i>✕</i></div>`;});
+ c.innerHTML=h;const n=S.fL.length+S.fC.length+S.fT.length+S.fP.length,b=document.getElementById('fbadge');if(n){b.style.display='flex';b.textContent=n;}else b.style.display='none';}
+function rmF(k,id){S[k]=S[k].filter(x=>x!==id);sv();chips();buildFeed();}
+function renderFav(){const def=['tech','cars','real_estate','sports','food','music','news','ai','travel','gaming'];
+ const ids=(S.prefT&&S.prefT.length)?S.prefT:def;const cur=S.fT[0]||'';
+ let h=`<div class="fc ${!S.fT.length?'on':''}" onclick="favPick('')">⭐ הכל</div>`;
+ h+=ids.map(id=>{const t=tp(id);return t?`<div class="fc ${cur===id?'on':''}" onclick="favPick('${id}')">${t[2]} ${t[1]}</div>`:'';}).join('');
+ const e=document.getElementById('favbar');if(e)e.innerHTML=h;}
+function favPick(id){S.fT=id?[id]:[];sv();chips();buildFeed();renderFav();
+ if(id){const t=tp(id);toast('⚡',(t?t[2]+' '+t[1]:'')+' — סינון מהיר הוחל');}}
+function mbadge(){const b=document.getElementById('mbadge');const n=S.reqN+S.pchats.filter(c=>c.nw).length;if(n>0&&!S.hideBadge){b.style.display='flex';b.textContent=n;}else b.style.display='none';}
+/* === Boot: init API → load server data if connected, else demo === */
+async function bootApp(){
+  await API.init();
+  if(API.ok && API.user){
+    // החלף את הפוסטים הדמו בפוסטים אמיתיים מהשרת
+    try{
+      const real = await API.req('/posts?limit=50');
+      if(Array.isArray(real) && real.length>=0){
+        // המר פורמט שרת לפורמט POSTS המקומי
+        POSTS = real.map(r=>({
+          _sid:r.id, e:r.type==='image'?'🖼️':r.type==='video'?'🎬':'📝',
+          av:'👤', avImg:r.avatar_url||'', nm:r.display_name||r.username, meta:(r.country||'')+' · '+new Date(r.created_at*1000).toLocaleString('he-IL'),
+          type:r.type, topicId:r.topic||'community', lang:r.lang||'he', country:r.country||'IL',
+          text:r.text||'', mins:Math.max(1,(r.expires_at-Math.floor(Date.now()/1000))/60),
+          likes:r.like_count||0, com:r.comment_count||0,
+          imgs:r.media_urls||undefined, vidUrl:r.video_url||undefined, audioUrl:r.audio_url||undefined, snd:r.sound_url||undefined,
+          link:r.link||'', poll:r.poll_data||undefined, prod:r.product_data||undefined, job:r.job_data||undefined, loc:r.loc_data||undefined,
+          voice:r.audio_url?{dur:'',tr:'',tl:''}:undefined
+        }));
+        POSTS.forEach((p,i)=>{COM[i]=[];}); // load lazily
+      }
+      // מזג חדרי קטגוריות מהשרת אם יש
+      try{const rms=await API.req('/rooms'); if(Array.isArray(rms))rms.forEach(r=>{if(!TOPICS.find(t=>t[0]===r.topic))TOPICS.push([r.topic,r.name,r.icon||'💬']);});}catch(e){}
+      // התראת חיבור
+      toast('🟢','מחובר לשרת אמיתי · '+(API.user.display_name||API.user.username));
+    }catch(e){console.warn('load posts failed:',e);}
+  }
+  buildFeed();chips();mbadge();
+}
+bootApp();
+function like(i,el){const c=document.getElementById('lk'+i);let v=parseFloat(c.textContent);if(!S.likes[i]){S.likes[i]=1;el.classList.add('on');el.querySelector('.ic').textContent='❤️';c.textContent=(v+.1).toFixed(1)+'K';}else{S.likes[i]=0;el.classList.remove('on');el.querySelector('.ic').textContent='🤍';c.textContent=(v-.1).toFixed(1)+'K';}sv();
+ if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid){API.req('/posts/'+POSTS[i]._sid+'/like',{method:'POST'}).catch(()=>{});}}
+function bk(i,el){if(!S.bk[i]){S.bk[i]=1;el.classList.add('on');toast('🔖','נשמר — snapshot יישאר גם אחרי שייעלם');}else{S.bk[i]=0;el.classList.remove('on');toast('🔖','הוסר');}sv();
+ if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid){API.req('/posts/'+POSTS[i]._sid+'/bookmark',{method:'POST'}).catch(()=>{});}}
+let galP=null,galI=0;
+function galView(i,k){galP=POSTS[i];galI=k;showGal();document.getElementById('iv').classList.add('on');document.getElementById('ivnav').style.display=galP.imgs&&galP.imgs.length>1?'flex':'none';}
+function showGal(){const m=galP.imgs[galI];document.getElementById('ivc').innerHTML=isImg(m)?`<img src="${m}">`:`<span style="font-size:150px">${m}</span>`;}
+function galStep(d){if(!galP)return;galI=(galI+d+galP.imgs.length)%galP.imgs.length;showGal();}
+function pa(i,el){const w=document.getElementById('w'+i);if(el.textContent==='▶'){el.textContent='⏸';w.classList.add('pl');w.querySelectorAll('i').forEach((b,n)=>b.style.animationDelay=(n*.04)+'s');}else{el.textContent='▶';w.classList.remove('pl');}}
+function vs(i,m,el){const o=document.getElementById('vo'+i),p=POSTS[i];const txt=m==='tr'?'📝 '+p.voice.tr:'🌐 '+p.voice.tl;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));if(o.classList.contains('show')&&o.dataset.m===m){o.classList.remove('show');return;}el.classList.add('on');o.textContent=txt;o.dataset.m=m;o.classList.add('show');}
+function fmt(m){const h=Math.floor(m/60),mm=Math.floor(m%60),s=Math.floor(m*60%60);return h>0?`${h}:${String(mm).padStart(2,'0')}ש׳`:`${mm}:${String(s).padStart(2,'0')}`;}
+setInterval(()=>{document.querySelectorAll('.fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];if(!p)return;p._m=(p._m??p.mins);p._m=Math.max(0,p._m-1/60);const c=po.querySelector('.cdt');if(c)c.textContent=fmt(p._m);po.querySelector('.pcd')?.classList.toggle('urg',p._m<60);});},1000);
+function jit(sel,b){setInterval(()=>{b+=Math.floor(Math.random()*46-20);b=Math.max(1,b);document.querySelectorAll(sel).forEach(e=>e.textContent=b.toLocaleString('en-US'));},2600);}
+async function liveStats(){if(!IS_SERVER()){jit('#stU',1);jit('#stO',1);setInterval(()=>document.getElementById('stP').textContent='0',4000);return;}
+ const set=async()=>{try{const s=await fetch('/api/stats').then(r=>r.json());document.getElementById('stU').textContent=(s.users||0).toLocaleString('en-US');document.getElementById('stO').textContent=(s.online||0).toLocaleString('en-US');document.getElementById('stP').textContent=(s.posts||0).toLocaleString('en-US');}catch(e){}};
+ set();setInterval(set,5000);}
+liveStats();
+
+/* ===== NAV ===== */
+const NAV=[['feed','בית','M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'],['search','חיפוש','search'],['plus','',''],['rooms','חדרי צאט','M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z'],['profile','פרופיל','user']];
+let cur='feed';
+function navSvg(d){if(d==='search')return '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>';if(d==='user')return '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';return `<svg viewBox="0 0 24 24"><path d="${d}"></path></svg>`;}
+function nav(){const t=I18N[S.lang]||I18N.en,lbl={feed:t.nHome,search:t.nSearch,rooms:t.nRooms,profile:t.nProfile};
+ document.getElementById('nav').innerHTML=NAV.map(n=>{if(n[0]==='plus')return `<div class="nv" onclick="go('create')"><div class="plus"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div></div>`;const on=(cur===n[0]||(n[0]==='rooms'&&cur==='room'))?'on':'';return `<div class="nv ${on}" onclick="go('${n[0]}')">${navSvg(n[2])}<small>${lbl[n[0]]||n[1]}</small></div>`;}).join('');}
+function go(s){cur=s;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-'+s).classList.add('on');nav();
+ if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')renderMsgs();if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='create')renderCreate();}
+nav();
+
+/* ===== ROOMS / CHAT ===== */
+function roomMembers(id){let h=0;for(let i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))%900;return 80+h;}
+function renderRooms(){const q=(document.getElementById('roomSearch').value||'').trim();const list=TOPICS.filter(t=>!q||t[1].includes(q)||t[0].includes(q));
+ const tiles=list.map(t=>`<div class="rm" onclick="enterRoom('${t[0]}')"><div class="ic">${t[2]}</div><div class="nm2">${t[1]}</div><div class="mt"><span class="live"></span>${roomMembers(t[0]).toLocaleString('en-US')} מחוברים</div></div>`).join('');
+ const req=`<div class="rm" style="border-style:dashed;border-color:var(--acc)" onclick="openTopicReq()"><div class="ic">💡</div><div class="nm2" style="color:var(--acc)">בקש נושא חדש</div><div class="mt">${getTopicReqs().length} בקשות פתוחות</div></div>`;
+ document.getElementById('roomsGrid').innerHTML=tiles+req;}
+async function enterRoom(id){privCtx=null;curRoom=id;const t=tp(id)||['','כללי','💬'];
+ document.getElementById('rTitle').textContent=`${t[2]} ${t[1]}`;document.getElementById('rOnline').textContent=roomMembers(id).toLocaleString('en-US');
+ document.getElementById('rBack').setAttribute('onclick',"go('rooms')");document.getElementById('rTrAll').style.display='';
+ const cb=document.getElementById('catbar');cb.classList.remove('hide');cb.innerHTML=TOPICS.map(x=>`<div class="ct ${x[0]===id?'on':''}" onclick="enterRoom('${x[0]}')">${x[2]} ${x[1]}</div>`).join('');
+ const chat=document.getElementById('chat');chat.innerHTML='';
+ // הודעות אמיתיות מהשרת אם מחובר
+ let loaded=false;
+ if(IS_SERVER()){
+  try{const msgs=await API.req('/rooms/'+id+'/messages');if(Array.isArray(msgs)){msgs.forEach(m=>addMsg({w:m.display_name||'משתמש',t:m.text,img:m.image_url,audio:m.audio_url}));loaded=true;}}catch(e){}
+  // הירשם לחדר ב-Socket.io
+  if(API.socket){try{API.socket.emit('room:leave',window._curTopic||'');API.socket.emit('room:join',id);window._curTopic=id;API.socket.off('room:msg');API.socket.on('room:msg',m=>{if(m.topic===id&&m.user_id!==(API.user&&API.user.id))addMsg({w:'משתמש',t:m.text,img:m.image_url,audio:m.audio_url});});}catch(e){}}
+ }
+ if(!loaded){(ROOM_SEED[id]||GENERIC).concat(GENERIC.slice(0,2)).forEach(m=>addMsg(m));}
+ cur='room';document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-room').classList.add('on');nav();
+ setTimeout(()=>{const c=document.querySelector('#catbar .ct.on');c&&c.scrollIntoView({inline:'center',block:'nearest'});},30);chat.scrollTop=chat.scrollHeight;}
+function openPChat(nm){privCtx={nm};document.getElementById('rTitle').textContent='💬 '+nm;document.getElementById('rOnline').textContent='פרטי · נעלם תוך 24ש׳';
+ document.getElementById('rBack').setAttribute('onclick',"go('msgs')");document.getElementById('rTrAll').style.display='none';document.getElementById('catbar').classList.add('hide');
+ const c=S.pchats.find(x=>x.nm===nm);if(c)c.nw=0;sv();mbadge();
+ const chat=document.getElementById('chat');chat.innerHTML='';addMsg({w:nm,t:'היי! קיבלתי את ההודעה 👋'});
+ cur='room';document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-room').classList.add('on');nav();chat.scrollTop=chat.scrollHeight;}
+setInterval(()=>{if(cur==='room'&&!privCtx)addMsg(GENERIC[Math.floor(Math.random()*GENERIC.length)]);},4500);
+function linkify(t){if(!t)return '';return String(t).replace(/(https?:\/\/[^\s]+|(?:www\.|[\w-]+\.(?:com|net|org|co\.il|io|app|shop|art|se|de|fr|es|it|jp|cn|br))[^\s]*)/g,u=>{const url=u.startsWith('http')?u:'https://'+u;return `<a onclick="openInApp('${url}');return false" href="#" style="color:#bcdcff;text-decoration:underline">${u}</a>`;});}
+function addMsg(m,me){const chat=document.getElementById('chat');const id='x'+(Math.random()*1e9|0);
+ const tl=m.tl?`<span class="trb" onclick="trln('${id}',this,'${encodeURIComponent(m.tl)}')">🌐 תרגם</span><div class="tro" id="${id}"></div>`:'';
+ const el=document.createElement('div');el.className='msg'+(me?' me':'');
+ const body=m.img?`<img src="${m.img}">`:(m.audio?`<audio controls src="${m.audio}"></audio>`:(m.voiceSim?`🎙️ הודעה קולית · 0:${String(m.voiceSim).padStart(2,'0')}`:linkify(m.t||'')));
+ el.innerHTML=`<div class="w" onclick="${me?'':`msgMenu('${(m.w||'').replace(/'/g,'')}')`}">${m.w||'אתה'}${me?'':' ⋯'}</div><div class="b">${body}</div>${tl}`;
+ chat.appendChild(el);if(trAll&&m.tl){const o=document.getElementById(id);o.textContent='🌐 '+m.tl;o.classList.add('show');}chat.scrollTop=chat.scrollHeight;}
+function trln(id,b,e){const o=document.getElementById(id);if(o.classList.contains('show')){o.classList.remove('show');b.textContent='🌐 תרגם';return;}o.textContent='🌐 '+decodeURIComponent(e);o.classList.add('show');b.textContent='הסתר';}
+function trAllToggle(){trAll=!trAll;document.getElementById('rTrAll').textContent=trAll?'🌐 תרגום: פעיל':'🌐 תרגם הכל';document.querySelectorAll('#chat .msg').forEach(m=>{const o=m.querySelector('.tro'),b=m.querySelector('.trb');if(!o)return;if(trAll){o.classList.add('show');if(!o.textContent)o.textContent='🌐 (תרגום אוטומטי)';if(b)b.textContent='הסתר';}else{o.classList.remove('show');if(b)b.textContent='🌐 תרגם';}});toast('🌐',trAll?'תרגום אוטומטי פעיל':'כבוי');}
+function sendMsg(){const i=document.getElementById('cin');if(!i.value.trim())return;const text=i.value.trim();addMsg({w:'אתה'},true);const last=document.querySelector('#chat .msg.me:last-child');last.querySelector('.b').textContent=text;i.value='';
+ if(IS_SERVER()&&!privCtx&&curRoom){API.req('/rooms/'+curRoom+'/messages',{method:'POST',body:{text}}).catch(()=>{});}
+ if(privCtx){const chat=document.getElementById('chat');
+  const sn=document.createElement('div');sn.style.cssText='align-self:flex-start;color:var(--mut);font-size:10px;padding:0 6px';sn.textContent='נשלח';chat.appendChild(sn);chat.scrollTop=chat.scrollHeight;
+  setTimeout(()=>{sn.textContent='✓✓ נצפה';},1100);
+  let tp=document.getElementById('typingI');if(!tp){tp=document.createElement('div');tp.id='typingI';tp.className='msg';tp.innerHTML=`<div class="w">${privCtx.nm}</div><div class="b">מקליד<span id="td">.</span></div>`;}
+  setTimeout(()=>{chat.appendChild(tp);chat.scrollTop=chat.scrollHeight;let n=1;tp._t=setInterval(()=>{n=n%3+1;const d=document.getElementById('td');if(d)d.textContent='.'.repeat(n);},350);},1500);
+  setTimeout(()=>{clearInterval(tp._t);tp.remove();addMsg({w:privCtx.nm,t:'תודה! 🙏 קיבלתי, אחזור אליך בקרוב'});},3600);}}
+function pickChatImg(){fileInput('image/*',false,f=>{addMsg({w:'אתה',img:URL.createObjectURL(f[0])},true);toast('📷','התמונה נשלחה');});}
+let mediaRec=null,recChunks=[],recTimer=null,recSecs=0;
+function showRecOv(){const o=document.getElementById('recOv');o.classList.add('on');o.querySelector('.bars').innerHTML='<i></i>'.repeat(28);let s=0;clearInterval(o._t);document.getElementById('recTm').textContent='0:00';o._t=setInterval(()=>{s++;document.getElementById('recTm').textContent='0:'+String(s).padStart(2,'0');},1000);}
+function hideRecOv(){const o=document.getElementById('recOv');o.classList.remove('on');clearInterval(o._t);}
+function recVoice(){const btn=document.getElementById('recBtn');
+ if(btn._sim){btn._sim();return;}
+ if(mediaRec&&mediaRec.state==='recording'){try{mediaRec.stop();}catch(e){}return;}
+ const ok=navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder;
+ if(!ok){ // fallback
+  btn.classList.add('rec');btn.textContent='■';recSecs=0;recTimer=setInterval(()=>recSecs++,1000);showRecOv();
+  toast('🎙️','מקליט... הקש שוב לעצור (מצב דמו)');
+  btn._sim=()=>{clearInterval(recTimer);hideRecOv();btn.classList.remove('rec');btn.textContent='🎙️';addMsg({w:'אתה',voiceSim:Math.max(1,recSecs)},true);btn._sim=null;toast('🎙️','הודעה קולית נשלחה');};
+  return;}
+ navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{
+  let mt='';['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg'].forEach(m=>{try{if(!mt&&MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m))mt=m;}catch(e){}});
+  try{mediaRec=mt?new MediaRecorder(st,{mimeType:mt}):new MediaRecorder(st);}catch(e){mediaRec=new MediaRecorder(st);}
+  recChunks=[];recSecs=0;
+  mediaRec.ondataavailable=e=>{if(e.data&&e.data.size)recChunks.push(e.data);};
+  mediaRec.onstop=()=>{clearInterval(recTimer);hideRecOv();const blob=new Blob(recChunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'});const u=URL.createObjectURL(blob);addMsg({w:'אתה',audio:u},true);btn.classList.remove('rec');btn.textContent='🎙️';st.getTracks().forEach(t=>t.stop());mediaRec=null;toast('🎙️','ההקלטה נשלחה ✓');};
+  mediaRec.start();btn.classList.add('rec');btn.textContent='■';recSecs=0;recTimer=setInterval(()=>recSecs++,1000);showRecOv();
+  toast('🎙️','מקליט... 🔴 הקש שוב לעצור');
+ }).catch(e=>{toast('🎙️','אין הרשאת מיקרופון — אשר גישה בהגדרות הדפדפן ונסה שוב');});}
+function msgMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b">
+ <div class="mi" onclick="sendReq('${nm}')"><span class="mc">✉️</span>שלח בקשת הודעה פרטית<span class="mv">›</span></div>
+ <div class="mi" onclick="openProf('${nm.split(' ')[0]}')"><span class="mc">👤</span>הצג פרופיל<span class="mv">›</span></div>
+ <div class="mi" onclick="closeSheet();toast('🚫','${nm} נחסם')"><span class="mc">🚫</span>חסום<span class="mv">›</span></div>
+ <div class="mi" onclick="closeSheet();toast('⚠️','הדיווח נשלח')"><span class="mc">⚠️</span>דווח<span class="mv">›</span></div></div>`);}
+function sendReq(nm){closeSheet();toast('✉️','בקשת הודעה נשלחה ל-'+nm+' — ממתינה לאישור');}
+
+/* ===== SEARCH ===== */
+function doSearch(){const q=(document.getElementById('qin').value||'').trim().toLowerCase();
+ const r=POSTS.filter(p=>{if(!q)return true;const t=tp(p.topicId);return (p.text||'').toLowerCase().includes(q)||(p.nm||'').toLowerCase().includes(q)||(t&&(t[1].includes(q)||t[0].includes(q)));});
+ document.getElementById('qres').innerHTML=(q&&r.length)?r.map(p=>{const t=tp(p.topicId);return `<div class="card" onclick="go('feed')"><div style="color:var(--text);font-weight:700;font-size:13.5px">${p.av} ${p.nm} · ${t?t[1]:''}</div><div style="color:var(--sub);font-size:12px;margin-top:4px">${p.text.slice(0,46)}…</div></div>`;}).join(''):(q?`<div class="empty"><div class="e">🌫️</div><p>לא נמצא — אולי כבר נעלם</p></div>`:`<div class="empty"><div class="e">🔍</div><p>הקלד מילה בכל שפה<br>וראה מה אנשים פרסמו עליה</p></div>`);}
+doSearch();
+
+/* ===== FILE INPUT ===== */
+let _fcb=null;
+function fileInput(accept,multi,cb){const fi=document.getElementById('fileIn');fi.accept=accept;fi.multiple=!!multi;_fcb=cb;fi.value='';fi.click();}
+document.getElementById('fileIn').addEventListener('change',function(){if(_fcb&&this.files.length)_fcb([...this.files]);_fcb=null;});
+
+/* ===== CREATE ===== */
+function renderCreate(){const g=document.getElementById('createGrid');
+ const draft=S.draft?`<div class="card" style="grid-column:1/-1;cursor:pointer;border-color:var(--acc)" onclick="resumeDraft()"><div class="row"><span style="font-size:20px">💾</span><div style="flex:1"><b style="color:var(--text);font-size:13px">המשך טיוטה שמורה</b><div style="color:var(--sub);font-size:12px;margin-top:2px">${S.draft.label||'פוסט'} · ${(S.draft.text||'').slice(0,40)||'ללא טקסט'}</div></div><span style="color:var(--acc);font-weight:700">המשך ›</span></div></div>`:'';
+ g.innerHTML=draft+PTYPES.map(c=>`<div class="rm" onclick="createKind('${c[0]}','${c[1]}','${c[2]}')"><div class="ic">${c[2]}</div><div class="nm2">${c[1]}</div><div class="mt">${(c[0]==='image'||c[0]==='video'||c[0]==='file'||c[0]==='product')?'📂 גלריה':'צור'}</div></div>`).join('');}
+let C={type:'text',label:'טקסט',em:'📝',exp:24,picks:[],vid:'',topic:'community',country:'IL',lang:'he',ship:SHIP[0],text:'',pT:'',pP:'',link:'',audio:'',audioSecs:0,audioDur:''};
+function createKind(id,label,em){C={type:id,label,em,exp:24,picks:[],vid:'',topic:'',country:'IL',lang:S.lang||'he',ship:SHIP[0],text:'',pT:'',pP:'',link:'',audio:'',audioSecs:0,audioDur:'',snd:'',sched:'',autoExt:false};
+ if(id==='image'||id==='product'){fileInput('image/*',true,f=>{C.picks=f.map(x=>URL.createObjectURL(x));compose();});}
+ else if(id==='video'){fileInput('video/*',false,f=>{C.vid=URL.createObjectURL(f[0]);compose();});}
+ else if(id==='file'){fileInput('*/*',true,f=>{C.picks=f.map(x=>'📎 '+x.name);compose();});}
+ else if(id==='location'){if(navigator.geolocation){toast('📍','מבקש גישה למיקום...');navigator.geolocation.getCurrentPosition(async pos=>{const lat=pos.coords.latitude.toFixed(5),lng=pos.coords.longitude.toFixed(5);let addr='';try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${S.lang||'he'}`);const j=await r.json();addr=j&&j.display_name||'';}catch(e){}C.loc={lat,lng,addr};compose();toast('📍','המיקום זוהה: '+(addr.split(',')[0]||lat+', '+lng));},()=>{C.loc={lat:'—',lng:'—',addr:'אין הרשאת מיקום'};compose();toast('📍','אין הרשאת מיקום — אפשר ידנית');});}else compose();}
+ else compose();}
+function grab(){const g=id=>(document.getElementById(id)||{}).value;C.text=g('cText')??C.text;C.pT=g('pT')??C.pT;C.pP=g('pP')??C.pP;C.link=g('cLink')??C.link;}
+function compose(){const em=C.em,label=C.label,id=C.type;
+ const prev=C.picks.length?`<div class="prev">${C.picks.map(p=>`<div class="pv">${isImg(p)?`<img src="${p}">`:(p[0]=='📎'?'📎':em)}</div>`).join('')}</div>`:(C.vid?`<div class="prev"><div class="pv"><video src="${C.vid}"></video></div></div>`:'');
+ let f=`<div class="sh-h" style="margin-top:0">כתוב כיתוב / הסבר — יופיע מעל המדיה (כמו פייסבוק)</div><textarea id="cText" maxlength="500" placeholder="מה אתה משתף? ספר/הסבר...">${C.text}</textarea>`;
+ if(id==='poll')f+='<input class="inp" id="po1" placeholder="אפשרות 1"><input class="inp" id="po2" placeholder="אפשרות 2"><input class="inp" id="po3" placeholder="אפשרות 3 (לא חובה)">';
+ if(id==='product')f+=`<input class="inp" id="pT" value="${C.pT}" placeholder="שם המוצר"><input class="inp" id="pP" value="${C.pP}" placeholder="מחיר ₪"><div class="mi" onclick="grab();pickShip()"><span class="mc">🚚</span>אפשרות משלוח<span class="mv" id="shLbl">${C.ship} ›</span></div><div class="mi" onclick="grab();fileInput('image/*',true,f=>{C.picks=C.picks.concat(f.map(x=>URL.createObjectURL(x)));compose();})"><span class="mc">🖼️</span>הוסף תמונות/וידאו מהגלריה<span class="mv">${C.picks.length} ›</span></div>`;
+ if(id==='job')f+='<input class="inp" placeholder="כותרת המשרה"><input class="inp" placeholder="חברה / מיקום"><input class="inp" placeholder="טווח שכר">';
+ if(id==='location')f+=`<div class="ibx" style="margin:0 0 8px;padding:0;overflow:hidden">${C.loc&&C.loc.lat!=='—'?`<iframe style="width:100%;height:160px;border:none" src="https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(C.loc.lng)-0.02},${parseFloat(C.loc.lat)-0.01},${parseFloat(C.loc.lng)+0.02},${parseFloat(C.loc.lat)+0.01}&marker=${C.loc.lat},${C.loc.lng}"></iframe>`:`<div style="height:90px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:28px">🗺️📍</div>`}<div class="d" style="padding:8px 12px;margin:0">${C.loc?'📍 '+(C.loc.addr||C.loc.lat+', '+C.loc.lng):'לחץ "פרסם" — תתבקש לאשר גישה למיקום'}</div></div>`;
+ if(id==='video')f+=`<div class="mi" onclick="grab();fileInput('audio/*',false,fs=>{C.snd=URL.createObjectURL(fs[0]);C.sndName=fs[0].name;compose();toast('🎵','סאונד נטען');})"><span class="mc">🎵</span>הוסף סאונד מהגלריה<span class="mv">${(C.snd&&!String(C.snd).startsWith('lib:'))?'✓ '+(C.sndName||'נטען'):'בחר קובץ ›'}</span></div><div class="mi" onclick="grab();openSounds()"><span class="mc">🎶</span>ספריית סאונדים (Pixabay/YouTube*)<span class="mv">${(C.snd&&String(C.snd).startsWith('lib:'))?'✓ '+(C.sndName||''):'פתח ›'}</span></div>${(C.snd&&!String(C.snd).startsWith('lib:'))?`<audio controls src="${C.snd}" style="width:100%;margin-bottom:8px"></audio>`:''}`;
+ if(id==='audio')f+=`<div class="ibx" style="text-align:center;margin:0 0 8px"><button class="vp" id="cRec" style="width:54px;height:54px;font-size:20px" onclick="recCreate()">🎙️</button><div id="cRecS" style="color:var(--sub);font-size:12px;margin-top:8px">${C.audio?'✓ הוקלט · '+(C.audioDur||'')+' — הקש להקליט מחדש':'הקש להקלטה אמיתית'}</div>${C.audio?`<audio controls src="${C.audio}" style="width:100%;margin-top:8px"></audio>`:''}</div>`;
+ f+=`<input class="inp" id="cLink" value="${C.link}" placeholder="🔗 קישור (לא חובה — יופיע ככפתור מתחת לפוסט)">`;
+ openSheet(`<div class="sh-hd"><h3>${em} פוסט ${label} חדש</h3><span class="x" onclick="closeSheet()">✕</span></div>
+  <div class="sh-b">${prev}${f}
+   <div class="mi" onclick="grab();pickMeta('topic')"><span class="mc">🏷️</span>נושא<span class="mv">${(tp(C.topic)||['','בחר',''])[2]} ${(tp(C.topic)||['','בחר'])[1]} ›</span></div>
+   <div class="mi" onclick="grab();pickMeta('country')"><span class="mc">🌍</span>מדינה<span class="mv">${(COUNTRIES.find(x=>x[0]===C.country)||['','בחר',''])[2]} ${(COUNTRIES.find(x=>x[0]===C.country)||['','בחר'])[1]} ›</span></div>
+   <div class="mi" onclick="grab();pickMeta('lang')"><span class="mc">🗣️</span>שפה<span class="mv">${(LANGS.find(x=>x[0]===C.lang)||['','בחר'])[1]} ›</span></div>
+   <div class="sh-h">משך חיים — מתי הפוסט נעלם</div>
+   <div class="seg" id="es"><b class="${C.exp===24?'on':''}" onclick="C.exp=24;document.querySelectorAll('#es b').forEach(b=>b.classList.remove('on'));this.classList.add('on')">24 שעות</b><b class="${C.exp===48?'on':''}" onclick="C.exp=48;document.querySelectorAll('#es b').forEach(b=>b.classList.remove('on'));this.classList.add('on')">48 שעות</b></div>
+   <div class="sh-h">תזמון והארכה</div>
+   <div class="mi" onclick="grab();pickSched()"><span class="mc">⏰</span>תזמון פרסום (תאריך + שעה)<span class="mv" id="schLbl">${C.sched||'פרסם עכשיו'} ›</span></div>
+   <div class="mi"><span class="mc">♻️</span>חבילת חיים — הארכה אוטומטית<div class="sw ${C.autoExt?'on':''}" onclick="C.autoExt=!C.autoExt;this.classList.toggle('on');toast('♻️',C.autoExt?'הפוסט יתחדש אוטומטית':'בוטל')"><i></i></div></div>
+   <div class="note">הכל בחינם · כולם נהנים מכל הפיצ׳רים · אפס פרסום · אפס מעקב</div></div>
+  <div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="publish()">🚀 פרסם</button></div>`);}
+function pickShip(){selSheet('אפשרות משלוח',SHIP.map(s=>[s,s,'🚚']),C.ship,v=>{C.ship=v;compose();});}
+function pickMeta(kind){const src=kind==='topic'?TOPICS:kind==='country'?COUNTRIES:LANGS;const cv=kind==='topic'?C.topic:kind==='country'?C.country:C.lang;
+ selSheet(kind==='topic'?'בחר נושא':kind==='country'?'בחר מדינה':'בחר שפה',src,cv,v=>{C[kind]=v;compose();});}
+function selSheet(title,arr,cv,cb){openSheet(`<div class="sh-hd"><h3>${title}</h3><span class="x" onclick="compose()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="ssq" placeholder="חיפוש..." oninput="document.getElementById('ssl').innerHTML=selItems(window._ssA,'${cv}',this.value)"></div><div class="fl tall" id="ssl">${selItems(arr,cv,'')}</div></div>`);window._ssA=arr;window._ssCb=cb;}
+function selItems(arr,cv,q){q=(q||'').trim().toLowerCase();return arr.filter(it=>!q||(it[1]+'').toLowerCase().includes(q)).map(it=>`<div class="fi ${it[0]===cv?'on':''}" onclick="window._ssCb('${it[0]}')"><span>${it[2]||'•'}</span><span class="l">${it[1]}</span><span class="k">${it[0]===cv?'✓':''}</span></div>`).join('');}
+function em0(){return C.picks[0]&&!isImg(C.picks[0])?'📎':C.em;}
+function makeNP(){const me=S.me,np={e:em0(),av:me.av,avImg:me.avImg,nm:me.nm,meta:'🇮🇱 עכשיו',type:C.type,topicId:C.topic,lang:C.lang,country:C.country,text:C.text,mins:C.exp*60,likes:0,com:0,link:(C.link||'').trim()};
+ if(C.type==='image'&&C.picks.length)np.imgs=C.picks;
+ if(C.type==='video')np.vidUrl=C.vid;
+ if(C.type==='poll'){const o=['po1','po2','po3'].map(x=>(document.getElementById(x)||{}).value).filter(Boolean);np.poll=(o.length?o:['כן','לא']).map((t,k)=>({t,p:k===0?60:Math.round(40/Math.max(1,o.length-1))}));}
+ if(C.type==='product'){np.imgs=C.picks;np.prod={title:C.pT||'מוצר',desc:C.text||'תיאור',price:C.pP||'₪—',ship:C.ship};}
+ if(C.type==='job')np.job={title:'משרה',company:'החברה שלי',sal:'—'};
+ if(C.type==='location')np.loc={place:(C.loc&&C.loc.addr)||'המיקום שלי',dist:C.loc?(C.loc.lat+', '+C.loc.lng):'—',lat:C.loc&&C.loc.lat,lng:C.loc&&C.loc.lng};
+ if(C.type==='audio')np.voice={dur:C.audioDur||'0:0'+(C.audioSecs||5),tr:'(תמלול בזמן אמת)',tl:'(תרגום)'};if(C.type==='audio'&&C.audio&&C.audio!=='sim')np.audioUrl=C.audio;
+ if(C.snd)np.snd=C.snd;if(C.sched)np.sched=C.sched;if(C.autoExt)np.autoExt=1;
+ return np;}
+function publish(){grab();if(C.type==='text'&&!C.text.trim()){toast('✏️','כתוב משהו לפני פרסום');return;}
+ const np=makeNP();window._np=np;
+ openSheet(`<div class="sh-hd"><h3>👁️ תצוגה מקדימה — כך זה ייראה</h3><span class="x" onclick="closeSheet()">✕</span></div>
+  <div class="sh-b" style="background:var(--bg)"><div class="feed" style="padding:0;overflow:visible">${postCard(np,'-1')}</div>
+  <div class="note">כך הפוסט יוצג בכיכר. נעלם תוך ${C.exp} שעות.</div></div>
+  <div class="sh-foot"><button class="bt g" onclick="compose()">← עריכה</button><button class="bt dim" onclick="saveDraft()">💾 טיוטה</button><button class="bt" onclick="confirmPublish()">🚀 פרסם</button></div>`);}
+async function confirmPublish(){const np=window._np,me=S.me;
+ PROF[me.nm]={k:'b',bd:'blue',av:me.av,avImg:me.avImg,nm:me.nm,loc:me.loc,j:'אתה',pr:me.bpr,bio:me.bbio,wa:me.waN?(me.waD+me.waN):'',ph:me.bph,em:me.bem,st:[['0','חדש'],['—','דירוג'],[(S.mine.length+1)+'','פוסטים']],port:me.port,svc:me.svc,web:me.bweb||'me.plaza'};
+ if(IS_SERVER()){
+  try{
+   // העלה קבצים תחילה אם יש
+   let imgs=np.imgs, vidUrl=np.vidUrl, audioUrl=np.audioUrl;
+   if(C.picks&&C.picks.length&&C.picks.some(p=>p.startsWith('blob:'))){
+    const blobs=await Promise.all(C.picks.map(u=>fetch(u).then(r=>r.blob())));
+    const files=blobs.map((b,i)=>new File([b],'img'+i+'.'+(b.type.split('/')[1]||'jpg'),{type:b.type}));
+    const up=await API.upload(files); if(up&&up.urls)imgs=up.urls;
+   }
+   if(C.vid&&C.vid.startsWith('blob:')){const b=await fetch(C.vid).then(r=>r.blob());const f=new File([b],'video.webm',{type:b.type});const up=await API.upload([f]); if(up&&up.urls)vidUrl=up.urls[0];}
+   if(C.audio&&C.audio.startsWith('blob:')){const b=await fetch(C.audio).then(r=>r.blob());const f=new File([b],'audio.webm',{type:b.type});const up=await API.upload([f]); if(up&&up.urls)audioUrl=up.urls[0];}
+   const body={type:np.type, text:np.text, topic:np.topicId||null, lang:np.lang, country:np.country, media_urls:imgs||null, video_url:vidUrl||null, sound_url:np.snd||null, audio_url:audioUrl||null, link:np.link||null, product_data:np.prod||null, job_data:np.job||null, poll_data:np.poll||null, loc_data:np.loc||null, expiry_hours:C.exp, auto_extend:C.autoExt?1:0, scheduled_at:C.sched?Math.floor(new Date(C.sched).getTime()/1000):null};
+   const res=await API.req('/posts',{method:'POST',body});
+   if(res&&res.id){np._sid=res.id; np.imgs=imgs; np.vidUrl=vidUrl; np.audioUrl=audioUrl;}
+   toast('💾','נשמר בשרת');
+  }catch(e){console.warn('publish failed:',e);toast('⚠️','שמירה לשרת נכשלה — נשמר מקומית');}
+ }
+ POSTS.unshift(np);COM.unshift([{a:'🌍',n:'World',t:'welcome! 🌍',m:'עכשיו'}]);
+ S.mine.unshift({e:np.e,type:C.type,topicId:C.topic,text:np.text||C.label,exp:C.exp,mins:C.exp*60,likes:0,com:0});S.draft=null;sv();
+ closeSheet();buildFeed();go('feed');feed.scrollTo({top:0});toast('🚀',`פורסם כפוסט ${C.label}! נעלם תוך ${C.exp} שעות`);}
+function saveDraft(){grab();S.draft=JSON.parse(JSON.stringify(C));sv();closeSheet();toast('💾','נשמר כטיוטה — תוכל להמשיך מאוחר יותר ממסך היצירה');}
+function resumeDraft(){if(!S.draft)return;C=Object.assign(C,S.draft);compose();}
+let cRec=null,cChunks=[],cT=null;
+function recCreate(){const b=document.getElementById('cRec'),s=document.getElementById('cRecS');
+ if(cRec&&cRec.state==='recording'){try{cRec.stop();}catch(e){}return;}
+ const ok=navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder;
+ if(!ok){b.textContent='■';C.audioSecs=0;cT=setInterval(()=>{C.audioSecs++;s.textContent='מקליט... 0:'+String(C.audioSecs).padStart(2,'0')+' (הקש לעצור)';},1000);
+  b._sim=()=>{clearInterval(cT);b._sim=null;C.audioDur='0:'+String(C.audioSecs||5).padStart(2,'0');C.audio='sim';compose();toast('🎙️','ההקלטה נשמרה לפוסט');};
+  b.onclick=()=>{if(b._sim)b._sim();else recCreate();};return;}
+ navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{
+  let mt='';['audio/webm;codecs=opus','audio/webm','audio/mp4'].forEach(m=>{try{if(!mt&&MediaRecorder.isTypeSupported(m))mt=m;}catch(e){}});
+  try{cRec=mt?new MediaRecorder(st,{mimeType:mt}):new MediaRecorder(st);}catch(e){cRec=new MediaRecorder(st);}
+  cChunks=[];C.audioSecs=0;cRec.ondataavailable=e=>{if(e.data&&e.data.size)cChunks.push(e.data);};
+  cRec.onstop=()=>{clearInterval(cT);hideRecOv();C.audio=URL.createObjectURL(new Blob(cChunks,{type:(cRec&&cRec.mimeType)||'audio/webm'}));C.audioDur='0:'+String(C.audioSecs||3).padStart(2,'0');st.getTracks().forEach(t=>t.stop());cRec=null;compose();toast('🎙️','ההקלטה נשמרה לפוסט ✓');};
+  cRec.start();b.textContent='■';C.audioSecs=0;cT=setInterval(()=>{C.audioSecs++;s.textContent='🔴 מקליט... 0:'+String(C.audioSecs).padStart(2,'0')+' — הקש לעצור';},1000);showRecOv();
+ }).catch(e=>{toast('🎙️','אין הרשאת מיקרופון — אשר בדפדפן');});}
+
+/* ===== MY POSTS / BOOKMARKS ===== */
+function renderMine(){const L=document.getElementById('myList');const seed=[{e:'🌅',type:'text',topicId:'environment',text:'הזריחה הבוקר הייתה מטורפת 🌊',exp:48,mins:1320,likes:212,com:34}];const all=S.mine.concat(seed);
+ if(!all.length){L.innerHTML=`<div class="empty"><div class="e">📝</div><p>אין לך פוסטים פעילים</p></div>`;return;}
+ L.innerHTML=all.map((p,k)=>{const t=tp(p.topicId);return `<div class="card"><div class="row"><span style="font-size:18px">${isImg(p.e)?'🖼️':p.e}</span><b style="color:var(--text);font-size:13px">${t?t[2]+' '+t[1]:''}</b><span style="margin-right:auto;color:var(--mut);font-size:11px">❤️ ${p.likes} · ⏳ ${Math.floor(p.mins/60)}ש׳</span></div><div style="color:var(--text);font-size:13.5px;margin:9px 0" id="mt${k}">${p.text}</div><div style="display:flex;gap:7px"><button class="bt dim" style="flex:1;padding:8px;font-size:12px" onclick="editMine(${k})">✏️ עריכה</button><button class="bt dim" style="flex:1;padding:8px;font-size:12px" onclick="toast('⏳','חיי הפוסט הוארכו ב-24ש׳')">⏳ הארך</button><button class="bt" style="flex:0 0 auto;padding:8px 14px;font-size:12px;background:var(--bad)" onclick="delMine(${k})">🗑️</button></div></div>`;}).join('');}
+function editMine(k){const d=document.getElementById('mt'+k),v=d.textContent;d.innerHTML=`<textarea id="me${k}" style="height:64px">${v}</textarea><div style="display:flex;gap:7px"><button class="bt" style="padding:8px;font-size:12px" onclick="saveMine(${k})">שמור</button><button class="bt g" onclick="renderMine()">בטל</button></div>`;}
+function saveMine(k){const v=document.getElementById('me'+k).value;if(k<S.mine.length)S.mine[k].text=v;sv();renderMine();toast('✏️','עודכן');}
+function delMine(k){if(k<S.mine.length)S.mine.splice(k,1);sv();renderMine();toast('🗑️','נמחק');}
+function renderBm(){const L=document.getElementById('bmList');const ids=Object.keys(S.bk).filter(k=>S.bk[k]);
+ if(!ids.length){L.innerHTML=`<div class="empty"><div class="e">🔖</div><p>אין סימניות עדיין<br>שמור פוסט מהפיד</p></div>`;return;}
+ L.innerHTML=ids.map((id,n)=>{const p=POSTS[id];if(!p)return '';const t=tp(p.topicId),del=n%3===2;return `<div class="card"><div class="row"><span class="av" style="width:32px;height:32px;font-size:15px">${avH(p)}</span><b style="color:var(--text);font-size:13px">${p.nm}</b><span style="margin-right:auto;background:var(--surface2);color:var(--sub);font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:7px">${t?t[2]+' '+t[1]:''}</span></div><div style="color:var(--text);font-size:13px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${p.text}</div><div style="display:flex;justify-content:space-between"><span style="color:var(--mut);font-size:11px">📸 snapshot</span>${del?'<span style="background:var(--bad);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px">⚠️ המקור נמחק</span>':'<span style="color:var(--ok);font-size:11px;font-weight:700">✓ חי</span>'}</div></div>`;}).join('');}
+
+/* ===== MESSAGES ===== */
+let mTab='c';
+function msgTab(t){mTab=t;document.getElementById('tbC').classList.toggle('on',t==='c');document.getElementById('tbR').classList.toggle('on',t==='r');renderMsgs();}
+function renderMsgs(){document.getElementById('reqN').textContent=S.reqN?`(${S.reqN})`:'';mbadge();const L=document.getElementById('msgBody');
+ if(mTab==='r'){L.innerHTML=`<div class="req"><div class="ra">🧑</div><div class="rb"><b>Daniel 🇩🇪 · 💻 טכנולוגיה</b><p>רוצה לשלוח לך הודעה פרטית</p><div class="qt">"הפתרון שהצעת ל-React עבד, אפשר להתייעץ?"</div><div class="ba"><button class="y" onclick="reqAcc('Daniel')">אשר</button><button class="n" onclick="reqDec()">דחה</button><button class="bl" onclick="reqDec(1)">חסום/דווח</button></div></div></div>
+  <div class="req"><div class="ra">👩</div><div class="rb"><b>Lucia 🇮🇹 · 🎨 אמנות</b><p>רוצה לשלוח לך הודעה פרטית</p><div class="qt">"היצירה שלך מהממת — הזמנת עבודה?"</div><div class="ba"><button class="y" onclick="reqAcc('Lucia')">אשר</button><button class="n" onclick="reqDec()">דחה</button><button class="bl" onclick="reqDec(1)">חסום/דווח</button></div></div></div>
+  <div class="sh-h">בקשות שאתה שלחת</div><div class="card"><div class="row"><span style="font-size:17px">✉️</span><b style="color:var(--text);font-size:13px">Raj 🇮🇳</b><span style="margin-right:auto;color:var(--warn);font-size:11px;font-weight:700">ממתינה</span></div></div>`;return;}
+ let pend='';if(S.reqN>0){pend=`<div class="sh-h" style="margin-top:0">⏳ בקשות ממתינות (${S.reqN}) — אשר כאן ישירות</div>`;
+  if(S.reqN>=1)pend+=`<div class="req"><div class="ra">🧑</div><div class="rb"><b>Daniel 🇩🇪 · 💻 טכנולוגיה</b><p>"הפתרון שהצעת ל-React עבד, אפשר להתייעץ?"</p><div class="ba"><button class="y" onclick="reqAcc('Daniel')">✓ אשר</button><button class="n" onclick="reqDec()">דחה</button><button class="bl" onclick="reqDec(1)">חסום</button></div></div></div>`;
+  if(S.reqN>=2)pend+=`<div class="req"><div class="ra">👩</div><div class="rb"><b>Lucia 🇮🇹 · 🎨 אמנות</b><p>"היצירה שלך מהממת — הזמנת עבודה?"</p><div class="ba"><button class="y" onclick="reqAcc('Lucia')">✓ אשר</button><button class="n" onclick="reqDec()">דחה</button><button class="bl" onclick="reqDec(1)">חסום</button></div></div></div>`;
+ }
+ const chats=S.pchats.length?`<div class="sh-h">צ'אטים פעילים</div>`+S.pchats.map(c=>`<div class="card" style="cursor:pointer" onclick="openPChat('${c.nm}')"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">💬</span><div style="flex:1"><b style="color:var(--text);font-size:13px">${c.nm}</b><div style="color:var(--sub);font-size:12px;margin-top:2px">${c.last}</div></div>${c.nw?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad)"></span>':''}</div></div>`).join(''):(pend?'':`<div class="empty"><div class="e">💌</div><p>אין צ'אטים פרטיים עדיין<br>אשר בקשת הודעה או צור קשר עם מוכר</p></div>`);
+ L.innerHTML=pend+chats;}
+function reqAcc(nm){if(S.reqN>0)S.reqN--;S.pchats.unshift({nm,last:'הבקשה אושרה — התחילו לשוחח 👋',nw:1});sv();mbadge();toast('✅','אושר! הצ׳אט קפץ לכפתור ההודעות העגול למעלה (תג אדום)');mTab='c';msgTab('c');}
+function reqDec(b){if(S.reqN>0)S.reqN--;sv();renderMsgs();mbadge();toast(b?'🚫':'✖️',b?'נחסם ודווח':'נדחה');}
+function contactSeller(nm){if(!S.pchats.find(c=>c.nm===nm)){S.pchats.unshift({nm,last:'שיחה עם המוכר/ת נפתחה',nw:1});sv();}mbadge();toast('💬','נפתחה שיחה — מופיעה למעלה בכפתור ההודעות');}
+
+/* ===== NOTIF ===== */
+function renderNt(){document.getElementById('ntList').innerHTML=[['❤️','נועה ועוד 240 אהבו את הפוסט שלך','"הזריחה הבוקר..."','2 דק׳',1],['✉️','Daniel שלח בקשת הודעה','💻 טכנולוגיה','4 דק׳',1],['💬','Diego הגיב לך','"increíble!"','6 דק׳',1],['🔥','הפוסט שלך עבר 1,000 לייקים','מיילסטון 🎉','12 דק׳',0]].map(n=>`<div class="card" style="display:flex;gap:11px;${n[4]?'border-color:var(--acc)':''}"><div class="av" style="width:36px;height:36px;font-size:16px">${n[0]}</div><div style="flex:1"><b style="color:var(--text);font-size:12.5px">${n[1]}</b><p style="color:var(--sub);font-size:12px;margin-top:2px">${n[2]}</p></div><span style="color:var(--mut);font-size:10px">${n[3]}</span></div>`).join('');}
+
+/* ===== PROFILE ===== */
+function nmList(a){return a.length?(a.length+' נבחרו'):'לא הוגדר';}
+function renderProfile(){const ln=(LANGS.find(l=>l[0]===S.lang)||['','עברית'])[1],mute=S.muteAll,me=S.me,wal=waLink(me.waD,me.waN);
+ const head=`<div class="pf-cov bz"><div class="pf-av" onclick="pickAvatar()">${me.avImg?`<img src="${me.avImg}">`:me.av}</div></div>
+   <div class="pf-nm">${me.bnm||me.nm}</div><div class="pf-s">${me.loc} · 🗣️ ${me.lng||'—'}${me.hobby?' · 🎯 '+me.hobby:''}</div>
+   ${me.bpr?`<div class="pf-p">${me.bpr}</div>`:''}<div class="pf-bio">${me.bbio||''}</div>
+   <div class="pf-act"><button onclick="editBiz()">✏️ ערוך פרופיל</button><button class="g" onclick="addPort()">＋ תיק עבודות</button>${wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:''}${me.bph?`<button class="g" onclick="window.open('tel:${me.bph}')">📞 חייג</button>`:''}${me.bem?`<button class="g" onclick="window.open('mailto:${me.bem}')">✉️ אימייל</button>`:''}${me.bweb?`<button class="g" onclick="toast('🔗','${me.bweb}')">🔗 ${me.bweb}</button>`:''}<button class="g" onclick="showQR()">📱 QR</button></div>
+   <div class="sh-h">🗂️ תיק עבודות (לחיצה להוספה אמיתית)</div><div class="fbg n3" style="border-radius:10px;overflow:hidden">${me.port.slice(0,6).map(w=>`<div onclick="zoomOne('${w}')" style="aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden">${isImg(w)?`<img src="${w}" style="width:100%;height:100%;object-fit:cover">`:w}</div>`).join('')}</div>
+   <div class="sh-h">🛠️ שירותים/מוצרים (תמונה/וידאו + טקסט + קישור)</div>${me.svc.map((s,k)=>`<div class="svc"><div class="sr">${s.m&&!isImg(s.m)?s.m:'🛠️'} ${s.t}<span class="pr">${s.p}</span></div>${isImg(s.m)?`<div class="sm">${s.m.includes('video')?`<video src="${s.m}" controls></video>`:`<img src="${s.m}">`}</div>`:''}${s.d?`<div class="sd">${s.d}</div>`:''}${s.l?`<a class="slk" onclick="openInApp('${s.l}');return false" href="#">🔗 ${s.l}</a>`:''}<div style="display:flex;gap:7px;margin-top:8px"><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcMedia(${k})">📷 מדיה</button><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcEdit(${k})">✏️ ערוך</button></div></div>`).join('')}<div class="svc" onclick="addSvc()" style="cursor:pointer;color:var(--acc);text-align:center">＋ הוסף שירות / מוצר</div>`;
+ document.getElementById('pWrap').innerHTML=`${head}
+ <div class="sh-h">התוכן שלי</div>
+ <div class="mi" onclick="go('myposts')"><span class="mc">📝</span>הפוסטים שלי<span class="mv">${S.mine.length+1} ›</span></div>
+ <div class="mi" onclick="go('bm')"><span class="mc">🔖</span>סימניות<span class="mv">${Object.values(S.bk).filter(Boolean).length} ›</span></div>
+ <div class="mi" onclick="go('msgs')"><span class="mc">💌</span>הודעות פרטיות<span class="mv">${S.reqN} בקשות ›</span></div>
+ <div class="sh-h">סינוני ברירת מחדל</div>
+ <div class="mi" onclick="pick('prefC',COUNTRIES,'מדינות')"><span class="mc">🌍</span>מדינות מועדפות<span class="mv">${nmList(S.prefC)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
+ <div class="mi" onclick="pick('prefL',LANGS,'שפות')"><span class="mc">🗣️</span>שפות מועדפות<span class="mv">${nmList(S.prefL)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
+ <div class="mi" onclick="pick('prefT',TOPICS,'תחומים')"><span class="mc">🏷️</span>תחומים מועדפים<span class="mv">${nmList(S.prefT)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
+ <div class="sh-h">מראה</div>
+ <div class="mi"><span class="mc">🌙</span>מצב כהה<div class="sw ${S.th==='dark'?'on':''}" onclick="setTh()"><i></i></div></div>
+ <div class="mi" onclick="pickLang()"><span class="mc">🌐</span>שפת ממשק<span class="mv">${ln} ›</span></div>
+ <div class="sh-h">התראות</div>
+ <div class="mi"><span class="mc">🔢</span>הסתר מונה הודעות שלא נקראו<div class="sw ${S.hideBadge?'on':''}" onclick="S.hideBadge=!S.hideBadge;sv();mbadge();renderProfile()"><i></i></div></div>
+ <div class="mi"><span class="mc">🔕</span>השתק את כל ההתראות<div class="sw ${mute?'on':''}" onclick="setMute()"><i></i></div></div>
+ <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">💬</span>תגובות לפוסטים שלך<div class="sw ${!mute&&S.nf.comments?'on':''}" onclick="setNf('comments')"><i></i></div></div>
+ <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">💌</span>צ'אטים<div class="sw ${!mute&&S.nf.chats?'on':''}" onclick="setNf('chats')"><i></i></div></div>
+ <div class="sh-h">חשבון</div>
+ <div class="mi" onclick="toast('🔒','אפס מעקב · אפס פרסום · קוד פתוח')"><span class="mc">🔒</span>פרטיות<span class="mv">›</span></div>
+ <div class="mi" onclick="IS_SERVER()?API.logout():toast('👋','התנתקת (דמו)')"><span class="mc">🚪</span>התנתק<span class="mv">›</span></div>`;}
+function zoomOne(m){document.getElementById('ivc').innerHTML=isImg(m)?`<img src="${m}">`:`<span style="font-size:150px">${m}</span>`;document.getElementById('ivnav').style.display='none';document.getElementById('iv').classList.add('on');}
+function pickAvatar(){fileInput('image/*',false,f=>{S.me.avImg=URL.createObjectURL(f[0]);sv();renderProfile();toast('🖼️','תמונת הפרופיל עודכנה');});}
+function editReg(){openSheet(`<div class="sh-hd"><h3>✏️ עריכת פרופיל רגיל</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="text-align:center;margin-bottom:12px"><div class="pf-av" style="position:relative;margin:0 auto;right:auto;bottom:auto" onclick="pickAvatar()">${S.me.avImg?`<img src="${S.me.avImg}">`:S.me.av}</div><div style="color:var(--sub);font-size:11px;margin-top:6px">לחץ להחלפת תמונה (גלריה אמיתית)</div></div>
+ <div class="sh-h" style="margin-top:0">שם / כינוי</div><input class="inp" id="enm" value="${S.me.nm}">
+ <div class="sh-h">מיקום</div><input class="inp" id="eloc" value="${S.me.loc}">
+ <div class="sh-h">שפה</div><input class="inp" id="elng" value="${S.me.lng}">
+ <div class="sh-h">תחביב</div><input class="inp" id="ehob" value="${S.me.hobby}" placeholder="לדוגמה: צילום, ריצה, גיטרה"></div>
+ <div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.nm=eV('enm');S.me.loc=eV('eloc');S.me.lng=eV('elng');S.me.hobby=eV('ehob');sv();closeSheet();renderProfile();toast('✅','נשמר')">שמור</button></div>`);}
+function eV(id){return (document.getElementById(id)||{}).value||'';}
+function editBiz(){openSheet(`<div class="sh-hd"><h3>✏️ עריכת פרופיל עסקי</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="text-align:center;margin-bottom:12px"><div class="pf-av" style="position:relative;margin:0 auto;right:auto;bottom:auto" onclick="pickAvatar()">${S.me.avImg?`<img src="${S.me.avImg}">`:S.me.av}</div></div>
+ <div class="sh-h" style="margin-top:0">שם העסק</div><input class="inp" id="bnm" value="${S.me.bnm}">
+ <div class="sh-h">תחום (מקצוע)</div><input class="inp" id="bpr" value="${S.me.bpr}">
+ <div class="sh-h">תיאור העסק</div><textarea id="bbio">${S.me.bbio}</textarea>
+ <div class="sh-h">WhatsApp — קידומת + מספר (יומר לקישור ישיר)</div>
+ <div class="dialrow"><select id="bwd">${DIAL.map(d=>`<option value="${d[0]}" ${S.me.waD===d[0]?'selected':''}>${d[1]}</option>`).join('')}</select><input class="inp" id="bwn" value="${S.me.waN}" placeholder="501234567"></div>
+ <div class="sh-h">טלפון לחיוג לעסק</div><input class="inp" id="bph" value="${S.me.bph||''}" placeholder="03-1234567">
+ <div class="sh-h">אימייל ליצירת קשר</div><input class="inp" id="bem" value="${S.me.bem||''}" placeholder="biz@email.com">
+ <div class="sh-h">קישור כללי / אתר</div><input class="inp" id="bweb" value="${S.me.bweb||''}" placeholder="mybusiness.com"></div>
+ <div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.bnm=eV('bnm');S.me.bpr=eV('bpr');S.me.bbio=eV('bbio');S.me.waD=eV('bwd');S.me.waN=eV('bwn').replace(/\\D/g,'');S.me.bph=eV('bph');S.me.bem=eV('bem');S.me.bweb=eV('bweb');sv();closeSheet();renderProfile();toast('✅','נשמר — כפתורי קשר פעילים')">שמור</button></div>`);}
+function addPort(){fileInput('image/*',true,fs=>{fs.forEach(f=>S.me.port.unshift(URL.createObjectURL(f)));sv();renderProfile();toast('🗂️','נוסף לתיק העבודות');});}
+function svcMedia(k){fileInput('image/*,video/*',false,f=>{S.me.svc[k].m=URL.createObjectURL(f[0]);sv();renderProfile();toast('📷','מדיה נוספה לשירות');});}
+function svcEdit(k){const s=S.me.svc[k];openSheet(`<div class="sh-hd"><h3>✏️ עריכת שירות</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="sh-h" style="margin-top:0">שם השירות</div><input class="inp" id="st" value="${s.t}"><div class="sh-h">מחיר</div><input class="inp" id="sp" value="${s.p}"><div class="sh-h">טקסט / תיאור</div><textarea id="sd">${s.d||''}</textarea><div class="sh-h">קישור</div><input class="inp" id="sl" value="${s.l||''}" placeholder="example.com"></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.svc[${k}].t=eV('st');S.me.svc[${k}].p=eV('sp');S.me.svc[${k}].d=eV('sd');S.me.svc[${k}].l=eV('sl');sv();closeSheet();renderProfile();toast('✅','השירות עודכן')">שמור</button></div>`);}
+function addSvc(){S.me.svc.push({t:'שירות חדש',p:'₪—',m:'🛠️',d:'',l:''});sv();renderProfile();svcEdit(S.me.svc.length-1);}
+function setTh(){S.th=S.th==='dark'?'light':'dark';sv();applyTh();renderProfile();toast(S.th==='dark'?'🌙':'☀️','מצב '+(S.th==='dark'?'כהה':'בהיר'));}
+function setMute(){S.muteAll=!S.muteAll;sv();renderProfile();toast(S.muteAll?'🔕':'🔔',S.muteAll?'הושתק':'הופעל');}
+function setNf(k){if(S.muteAll)return;S.nf[k]=!S.nf[k];sv();renderProfile();toast('🔔','נשמר');}
+function pickLang(){openSheet(`<div class="sh-hd"><h3>🌐 שפת ממשק</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="fl tall">${LANGS.map(l=>`<div class="fi ${S.lang===l[0]?'on':''}" onclick="S.lang='${l[0]}';sv();applyLang();closeSheet();renderProfile();buildFeed();toast('🌐','שפה עודכנה')"><span>${l[2]}</span><span class="l">${l[1]}</span><span class="k">${S.lang===l[0]?'✓':''}</span></div>`).join('')}</div></div>`);}
+function pick(key,src,label){let sel=[...S[key]];openSheet(`<div class="sh-hd"><h3>בחר ${label}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="pq" placeholder="חיפוש..." oninput="document.getElementById('pl').innerHTML=pli(window._pkS,window._pkSel,this.value)"></div><div class="fl tall" id="pl">${pli(src,sel,'')}</div></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" id="psave">שמור (${sel.length})</button></div>`);
+ window._pkS=src;window._pkSel=sel;document.getElementById('psave').onclick=()=>{S[key]=[...sel];const m={prefT:'fT',prefL:'fL',prefC:'fC'};if(m[key])S[m[key]]=[...sel];sv();closeSheet();renderProfile();chips();buildFeed();toast('✅','נשמר ויושם אוטומטית — האפליקציה למדה');};
+ window.ptg=(id,el)=>{const i=sel.indexOf(id);if(i>=0){sel.splice(i,1);el.classList.remove('on');el.querySelector('.k').textContent='';}else{sel.push(id);el.classList.add('on');el.querySelector('.k').textContent='✓';}document.getElementById('psave').textContent=`שמור (${sel.length})`;};}
+function pli(src,sel,q){q=(q||'').trim().toLowerCase();return src.filter(it=>!q||it[1].toLowerCase().includes(q)).map(it=>`<div class="fi ${sel.includes(it[0])?'on':''}" onclick="ptg('${it[0]}',this)"><span>${it[2]}</span><span class="l">${it[1]}</span><span class="k">${sel.includes(it[0])?'✓':''}</span></div>`).join('');}
+function upBiz(){openSheet(`<div class="sh-hd"><h3>✔️ שדרג לפרופיל עסקי</h3><span class="x" onclick="closeSheet()">✕</span></div>
+ <div class="sh-b"><div style="text-align:center;padding:2px 0"><div style="font-size:38px">✔️</div><div style="color:var(--text);font-size:18px;font-weight:800;margin-top:6px">פרופיל עסקי מאומת</div></div>
+  <div class="price">$10 <small>/ לחודש</small></div>
+  ${[['✔️','תג מאומת (כחול/זהב)','ליד השם בכל פוסט ובחדרים'],['🗂️','תיק עבודות קבוע','גלריה שלא נעלמת'],['🛠️','מוצרים/שירותים עם מדיה+טקסט+קישור','לכל מוצר תמונה/וידאו וקישור משלו'],['🟢','כפתור WhatsApp ישיר','קידומת+מספר → קישור wa.me אוטומטי'],['📞','כפתור חיוג לעסק','tel: ישיר מהפרופיל ומהפוסטים'],['✉️','כפתור אימייל','mailto: ליצירת קשר'],['🔗','קישור כללי + קישורים בפוסטים','אתר/דף נחיתה בכל פוסט'],['💬','צ׳אט עסקי שלא נעלם','שיחות לקוחות נשמרות'],['🔎','חיפוש עסקי גלובלי','לקוחות מוצאים אותך לפי תחום/מדינה'],['📊','אנליטיקס','בלי מעקב על המשתמשים']].map(b=>`<div class="ben"><span class="e">${b[0]}</span><div><b>${b[1]}</b><p>${b[2]}</p></div></div>`).join('')}
+  <div style="text-align:center;color:var(--sub);font-size:12px">דוגמאות: לחץ על <b>Lena Audio</b> / <b>אוטו דיל</b> / <b>Nina Records</b> בפיד</div></div>
+ <div class="sh-foot"><button class="bt g" onclick="closeSheet()">לא עכשיו</button><button class="bt pp" onclick="S.pMode='b';sv();closeSheet();renderProfile();toast('✔️','שולם דרך PayPal — שודרגת לעסקי (דמו)')">💳 שלם ב-PayPal $10/חודש</button></div>`);}
+function openProf(nm){const p=PROF[nm]||PROF[Object.keys(PROF).find(k=>k.startsWith(nm))];if(!p){toast('👤',nm);return;}const wal=p.wa?waLink('',p.wa):'';
+ if(p.k==='b'){openSheet(`<div class="sh-hd"><h3>פרופיל מאומת</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="pf-cov bz" style="margin:-14px -16px 0"><div class="pf-av">${p.av}</div></div>
+  <div class="pf-nm">${p.nm} <span class="vb ${p.bd==='gold'?'gold':''}">✔</span></div><div class="pf-s">${p.loc} · פרופיל מאומת</div><div class="pf-p">${p.pr}</div><div class="pf-bio">${p.bio}</div>
+  <div class="pf-st">${p.st.map(s=>`<div><b>${s[0]}</b><small>${s[1]}</small></div>`).join('')}</div>
+  <div class="pf-act"><button onclick="closeSheet();contactSeller('${p.nm}')">💬 צ׳אט</button>${wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:''}${p.ph?`<button class="g" onclick="window.open('tel:${(p.ph||'').replace(/\\s/g,'')}')">📞 חייג</button>`:''}${p.em?`<button class="g" onclick="window.open('mailto:${p.em}')">✉️ אימייל</button>`:''}<button class="g" onclick="openInApp('${p.web}')">🔗 ${p.web}</button><button class="g" onclick="closeSheet();rateBiz('${p.nm}')">⭐ דרג</button></div>
+  <div class="sh-h">🗂️ תיק עבודות</div><div class="fbg n3" style="border-radius:10px;overflow:hidden">${p.port.map(w=>`<div onclick="zoomOne('${w}')" style="aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:30px">${w}</div>`).join('')}</div>
+  <div class="sh-h">🛠️ שירותים ומחירון</div>${p.svc.map(s=>`<div class="svc"><div class="sr">${s.m||'🛠️'} ${s.t}<span class="pr">${s.p}</span></div>${s.d?`<div class="sd">${s.d}</div>`:''}${s.l?`<a class="slk" href="https://${s.l}" target="_blank">🔗 ${s.l}</a>`:''}</div>`).join('')}</div>`);}
+ else{openSheet(`<div class="sh-hd"><h3>פרופיל</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="pf-cov" style="margin:-14px -16px 0"><div class="pf-av">${avH(p)}</div></div>
+  <div class="pf-nm">${p.nm}</div><div class="pf-s">${p.loc} · ${p.j}</div>
+  <div class="note" style="margin-top:10px">🔒 פרופיל מינימלי — בלי גרף חברתי, אין עוקבים. רק שיחה כאן ועכשיו.</div>
+  <div class="pf-act"><button onclick="closeSheet();sendReq('${p.nm}')">✉️ בקשת הודעה</button></div></div>`);}
+}
+
+/* ===== SHEET / SHARED ===== */
+const ov=document.getElementById('ov'),sh=document.getElementById('sh'),shi=document.getElementById('shIn');
+function openSheet(h){shi.innerHTML=h;ov.classList.add('on');sh.classList.add('on');}
+function closeSheet(){ov.classList.remove('on');sh.classList.remove('on');document.getElementById('iv').classList.remove('on');}
+function openCom(i){const a=COM[i]||[{a:'🌍',n:'World',t:'first!',m:'עכשיו'}];openSheet(`<div class="sh-hd"><h3>💬 תגובות (${document.getElementById('cm'+i).textContent})</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b" id="cb">${a.map(c=>`<div class="row" style="align-items:flex-start;margin-bottom:13px"><div class="av" style="width:32px;height:32px;font-size:14px">${c.a}</div><div><b style="color:var(--text);font-size:12px">${c.n}</b><div style="color:var(--text);font-size:13px;margin-top:2px">${c.t}</div><div style="color:var(--mut);font-size:10.5px;margin-top:3px">${c.m}</div></div></div>`).join('')}</div><div class="sh-foot"><button class="bt" style="flex:0 0 auto;padding:13px 18px" onclick="addCom(${i})">שלח</button><button class="bt dim" style="flex:0 0 auto;padding:13px 14px" onclick="recPostComment(${i})">🎙️</button><input class="inp" id="ci" style="margin:0" placeholder="הגב או הקלט תגובה קולית..." onkeydown="if(event.key==='Enter')addCom(${i})"></div>`);}
+function addCom(i){const v=document.getElementById('ci');if(!v.value.trim())return;document.getElementById('cb').insertAdjacentHTML('beforeend',`<div class="row" style="align-items:flex-start;margin-bottom:13px"><div class="av" style="width:32px;height:32px;font-size:14px">🦊</div><div><b style="color:var(--text);font-size:12px">משה (אתה)</b><div style="color:var(--text);font-size:13px;margin-top:2px">${v.value.trim()}</div><div style="color:var(--mut);font-size:10.5px;margin-top:3px">עכשיו</div></div></div>`);const c=document.getElementById('cm'+i);c.textContent=parseInt(c.textContent)+1;v.value='';document.getElementById('cb').scrollTop=9e9;}
+function openShare(){openSheet(`<div class="sh-hd"><h3>↗️ שתף</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">${[['🔗','העתק'],['💬','צ׳אט'],['🟢','WhatsApp'],['📸','סטורי'],['✈️','Telegram'],['🐦','X'],['📧','מייל'],['🔖','שמור']].map(s=>`<div style="text-align:center;cursor:pointer" onclick="toast('${s[0]}','${s[1]}')"><div style="width:48px;height:48px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:21px;margin:0 auto">${s[0]}</div><div style="color:var(--text);font-size:11px;margin-top:6px">${s[1]}</div></div>`).join('')}</div></div>`);}
+let tT;function toast(e,t){const x=document.getElementById('toast');document.getElementById('te').textContent=e;document.getElementById('tt').innerHTML=t;x.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>x.classList.remove('on'),3200);}
+function filterApply(){}
+function openFilter(){let T={fL:[...S.fL],fC:[...S.fC],fT:[...S.fT],fP:[...S.fP]};window._T=T;
+ openSheet(`<div class="sh-hd"><h3>פילטרים</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b">${acc('שפה','fL',LANGS)}${acc('מדינה','fC',COUNTRIES)}${acc('קטגוריה','fT',TOPICS)}${acc('סוג פוסט','fP',PTYPES)}</div><div class="sh-foot"><button class="bt g" onclick="fRst()">אפס</button><button class="bt" onclick="fApp()">✓ החל</button></div>`);}
+function acc(t,k,src){return `<div class="card" style="padding:0;overflow:hidden"><div style="padding:13px 14px;font-weight:700;color:var(--text);cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">${t} ▾</div><div style="display:none;padding:0 12px 12px"><div class="fl">${src.map(it=>`<div class="fi ${window._T[k].includes(it[0])?'on':''}" onclick="fTg('${k}','${it[0]}',this)"><span>${it[2]||'•'}</span><span class="l">${it[1]}</span><span class="k">${window._T[k].includes(it[0])?'✓':''}</span></div>`).join('')}</div></div></div>`;}
+function fTg(k,id,el){const T=window._T,i=T[k].indexOf(id);if(i>=0){T[k].splice(i,1);el.classList.remove('on');el.querySelector('.k').textContent='';}else{T[k].push(id);el.classList.add('on');el.querySelector('.k').textContent='✓';}}
+function fRst(){window._T={fL:[],fC:[],fT:[],fP:[]};toast('♻️','אופס — לחץ החל');}
+function fApp(){const T=window._T;S.fL=[...T.fL];S.fC=[...T.fC];S.fT=[...T.fT];S.fP=[...T.fP];sv();closeSheet();chips();buildFeed();toast('✅','הסינון הוחל');}
+
+/* ===== In-app browser ===== */
+function openInApp(url){if(!/^https?:\/\//.test(url))url='https://'+url;document.getElementById('inappFrame').src=url;document.getElementById('inappUrl').textContent=url;document.getElementById('inapp').classList.add('on');}
+function closeInApp(){document.getElementById('inapp').classList.remove('on');document.getElementById('inappFrame').src='about:blank';}
+
+/* ===== QR for profile ===== */
+function showQR(){const me=S.me;const url='https://plaza-concept-demo-2026.netlify.app/';const qrPng='https://api.qrserver.com/v1/create-qr-code/?size=320x320&format=png&data='+encodeURIComponent(url);
+ openSheet(`<div class="sh-hd"><h3>📱 QR לפרופיל</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b qrwrap"><div style="color:var(--text);font-size:15px;font-weight:800;margin-bottom:8px">${me.bnm||me.nm}</div><img id="qrImg" src="${qrPng}" alt="QR"><div class="note" style="margin-top:14px">סרוק כדי לפתוח את פלאזה ישירות במכשיר. שתף בכרטיס ביקור, שלט בחנות, פליירים.</div></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">סגור</button><button class="bt dim" onclick="dlQR('${qrPng}','plaza-qr.png')">⬇️ הורד תמונה</button><button class="bt" onclick="printQR('${qrPng}','${me.bnm||me.nm}')">🖨️ PDF/הדפס</button></div>`);}
+function dlQR(u,fn){fetch(u).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;document.body.appendChild(a);a.click();a.remove();toast('⬇️','הקובץ הורד');});}
+const SOUNDS=[{n:'🎵 Upbeat Pop',d:'0:15'},{n:'🎸 Indie Vibe',d:'0:22'},{n:'🥁 Drop Beat',d:'0:18'},{n:'🎬 Cinematic',d:'0:28'},{n:'🎉 Party',d:'0:20'},{n:'🌊 Chill Wave',d:'0:30'},{n:'🔥 Trap Beat',d:'0:16'},{n:'🎺 Jazz Loop',d:'0:24'},{n:'🌙 Ambient',d:'0:35'},{n:'⚡ Electronic',d:'0:19'},{n:'🎻 Classical',d:'0:32'},{n:'🌍 World Music',d:'0:26'},{n:'🎤 Hip Hop',d:'0:21'},{n:'🎹 Lo-Fi',d:'0:40'},{n:'🥳 Birthday',d:'0:12'},{n:'😱 Suspense',d:'0:18'}];
+function openSounds(){openSheet(`<div class="sh-hd"><h3>🎵 ספריית סאונדים</h3><span class="x" onclick="compose()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="snQ" placeholder="חפש סאונד..." oninput="document.getElementById('snL').innerHTML=sndList(this.value)"></div><div class="fl tall" id="snL">${sndList('')}</div><div class="note" style="margin-top:10px">בייצור: חיבור ל-Pixabay/YouTube/Soundstripe API לסאונדים אמיתיים עם רישיון</div></div>`);}
+function sndList(q){q=(q||'').toLowerCase();return SOUNDS.filter(s=>!q||s.n.toLowerCase().includes(q)).map((s,i)=>`<div class="fi" onclick="C.snd='lib:${i}';C.sndName='${s.n}';compose();toast('🎵','נבחר: ${s.n}')"><span>${s.n.split(' ')[0]}</span><span class="l">${s.n}</span><span style="color:var(--mut);font-size:11px">${s.d}</span></div>`).join('');}
+
+/* ===== Room search + topic request + voice comment translate ===== */
+function roomFilter(q){q=(q||'').toLowerCase();document.querySelectorAll('#chat .msg').forEach(m=>{const t=m.textContent.toLowerCase();m.style.display=(!q||t.includes(q))?'':'none';});}
+const TOPIC_REQ_KEY='plaza_topic_reqs';
+function getTopicReqs(){try{return JSON.parse(localStorage.getItem(TOPIC_REQ_KEY)||'[]');}catch(e){return [];}}
+function saveTopicReqs(a){localStorage.setItem(TOPIC_REQ_KEY,JSON.stringify(a));}
+function openTopicReq(){const reqs=getTopicReqs();openSheet(`<div class="sh-hd"><h3>💡 בקש נושא לחדר חדש</h3><span class="x" onclick="closeSheet()">✕</span></div>
+ <div class="sh-b"><div class="note" style="margin:0 0 10px">הצע נושא חדש לחדר. כשהוא יגיע ל-100 הצבעות — יישלח אוטומטית לאישור מנהל הפלטפורמה.</div>
+  <div class="srch"><input id="ntq" placeholder="שם הנושא החדש..."><button class="bt" style="padding:8px 12px;flex:0 0 auto" onclick="addTopicReq()">+ הוסף</button></div>
+  <div class="sh-h" style="margin-top:14px">נושאים פתוחים להצבעה</div>
+  <div id="trList">${reqs.length?reqs.map((r,k)=>`<div class="card"><div class="row"><span style="font-size:18px">💡</span><b style="color:var(--text);font-size:13px">${r.t}</b><span style="margin-right:auto;color:var(--mut);font-size:11px">${r.v||0}/100 הצבעות</span><button class="bt" style="flex:0 0 auto;padding:7px 12px;font-size:12px" onclick="voteTopic(${k})">👍 הצבע</button></div></div>`).join(''):'<div class="empty"><div class="e">💡</div><p>אין בקשות עדיין — הצע אחת!</p></div>'}</div></div>`);}
+function addTopicReq(){const v=document.getElementById('ntq').value.trim();if(!v){toast('💡','כתוב שם נושא');return;}const a=getTopicReqs();a.unshift({t:v,v:1});saveTopicReqs(a);openTopicReq();toast('💡','הצעה נוספה');}
+function voteTopic(k){const a=getTopicReqs();a[k].v=(a[k].v||0)+1;if(a[k].v>=100){toast('🎉','נושא "'+a[k].t+'" קיבל 100 הצבעות — נשלח לאישור מנהל הפלטפורמה!');a.splice(k,1);}saveTopicReqs(a);openTopicReq();}
+
+/* voice comment translate/transcript */
+function trVoiceCom(id){const el=document.getElementById(id);if(!el)return;if(el.dataset.shown){el.style.display='none';el.dataset.shown='';return;}el.style.display='block';el.dataset.shown='1';if(!el.dataset.loaded){el.dataset.loaded='1';el.textContent='⏳ מתמלל ומתרגם...';setTimeout(async()=>{const txt='[תמלול] הקלטה קולית קצרה';const tr=await translateText(txt,S.lang);el.innerHTML='📝 '+txt+'<br>🌐 '+tr;},800);}}
+function printQR(u,nm){const w=window.open('','_blank');w.document.write('<html><head><title>QR '+nm+'</title></head><body style="text-align:center;font-family:sans-serif;padding:40px"><h1>'+nm+'</h1><img src="'+u+'" style="max-width:400px"><p>plaza-concept-demo-2026.netlify.app</p><scr'+'ipt>setTimeout(function(){window.print()},500)</scr'+'ipt></body></html>');}
+
+/* ===== Schedule publish ===== */
+function pickSched(){const now=new Date(),pad=n=>String(n).padStart(2,'0');const def=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+ openSheet(`<div class="sh-hd"><h3>⏰ תזמון פרסום</h3><span class="x" onclick="compose()">✕</span></div>
+ <div class="sh-b"><div class="note" style="margin:0 0 10px">בחר תאריך ושעה — הפוסט יתפרסם אוטומטית וייעלם 24ש׳ אחר כך.</div>
+  <input class="inp" id="schI" type="datetime-local" value="${C.sched||def}">
+  <div class="seg" style="margin-top:10px"><b onclick="C.sched='';compose()">פרסם עכשיו</b><b onclick="C.sched=document.getElementById('schI').value;compose();toast('⏰','תוזמן ל-'+C.sched)">תזמן</b></div></div>`);}
+
+/* ===== Voice comment on post ===== */
+let pcRec=null,pcChunks=[],pcIdx=-1;
+async function recPostComment(i){if(pcRec&&pcRec.state==='recording'){pcRec.stop();return;}pcIdx=i;
+ const addVc=(audioHTML)=>{const tid='tv'+Date.now();COM[i]=COM[i]||[];COM[i].push({a:'🦊',n:'אתה',t:audioHTML+'<br><span class="trb" onclick="trVoiceCom(\''+tid+'\')">📝 תמלל + 🌐 תרגם לשפה שלך</span><div id="'+tid+'" class="tro" style="display:none"></div>',m:'עכשיו'});};
+ if(!(navigator.mediaDevices&&window.MediaRecorder)){showRecOv();setTimeout(()=>{hideRecOv();addVc('🎙️ הודעה קולית 0:0'+Math.floor(Math.random()*8+2));toast('🎙️','תגובה קולית נשלחה (דמו)');openCom(i);},2500);return;}
+ try{const st=await navigator.mediaDevices.getUserMedia({audio:true});pcRec=new MediaRecorder(st);pcChunks=[];
+  pcRec.ondataavailable=e=>{if(e.data&&e.data.size)pcChunks.push(e.data);};
+  pcRec.onstop=()=>{hideRecOv();const u=URL.createObjectURL(new Blob(pcChunks,{type:pcRec.mimeType||'audio/webm'}));addVc('🎙️ <audio controls src="'+u+'" style="max-width:200px"></audio>');st.getTracks().forEach(t=>t.stop());pcRec=null;openCom(i);toast('🎙️','תגובה קולית נשלחה');};
+  pcRec.start();showRecOv();toast('🎙️','מקליט תגובה... הקש שוב לעצור');}catch(e){toast('🎙️','אין הרשאת מיקרופון');}}
+
+/* ===== Post auto-translate + viewers ===== */
+async function translateText(text,target,source){target=(target||S.lang||'he').split('-')[0];source=(source||'en').split('-')[0];if(source===target)return text;try{const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0,500))}&langpair=${source}|${target}`);const j=await r.json();if(j&&j.responseData&&j.responseData.translatedText){const t=j.responseData.translatedText;if(t&&t.toLowerCase().indexOf('mymemory warning')<0&&t!==text)return t;}}catch(e){console.warn('translate err',e);}return '['+target+'] '+text;}
+async function translatePost(i,el){const p=POSTS[i];if(!p)return;const o=el.nextElementSibling;
+ if(o.style.display==='block'){o.style.display='none';el.textContent='🌐 תרגם את הפוסט';return;}
+ el.textContent='⏳ מתרגם...';
+ try{const tr=p._tl||(p._tl=await translateText(p.text,S.lang,p.lang||'en'));o.textContent='🌐 '+tr;o.style.display='block';el.textContent='הסתר תרגום';}
+ catch(e){o.textContent='שגיאת תרגום';o.style.display='block';el.textContent='🌐 תרגם את הפוסט';}}
+function postViewers(i){let h=0,id=String(i);for(let k=0;k<id.length;k++)h=(h*31+id.charCodeAt(k))%140;return 30+h;}
+
+/* ===== Rating ===== */
+function rateBiz(nm){openSheet(`<div class="sh-hd"><h3>⭐ דירוג ${nm}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="text-align:center;font-size:38px;color:var(--warn);margin:14px 0" id="rStars">${'☆'.repeat(5)}</div><div id="rTxt" style="text-align:center;color:var(--sub);font-size:12px">בחר דירוג 1–5</div><div style="display:flex;gap:10px;justify-content:center;margin:14px 0">${[1,2,3,4,5].map(n=>`<button class="bt dim" style="padding:9px 14px" onclick="document.getElementById('rStars').textContent='⭐'.repeat(${n})+'☆'.repeat(5-${n});document.getElementById('rTxt').textContent='${n} כוכבים'">${n}</button>`).join('')}</div><textarea placeholder="ספר על העסקה (לא חובה)"></textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">בטל</button><button class="bt" onclick="closeSheet();toast('⭐','תודה! הדירוג נשלח')">שלח דירוג</button></div>`);}
+
+/* ===== Expiry warning ===== */
+function checkExpiryWarn(){for(let i=0;i<POSTS.length;i++){const p=POSTS[i];if(p._m&&p._m<30&&!p._warned&&S.mine.find(m=>m.text===p.text)){p._warned=1;toast('⏳','הפוסט שלך עומד להיעלם בעוד פחות מ-30 דק׳ — להאריך?');return;}}}
+setInterval(checkExpiryWarn,17000);
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>PLAZA 2.0 — כניסה</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
+body{background:linear-gradient(160deg,#0E1117,#1C232E);color:#E6EAF0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.box{max-width:400px;width:100%;background:#161B22;border:1px solid #262D38;border-radius:18px;padding:32px}
+.brand{text-align:center;margin-bottom:22px}
+.brand b{display:block;font-size:28px;font-weight:800;color:#6D74FF;letter-spacing:2px}
+.brand small{color:#9AA4B2;font-size:12px;margin-top:4px;display:block}
+.tabs{display:flex;gap:8px;margin-bottom:18px}
+.tab{flex:1;text-align:center;background:#0E1117;border:1px solid #262D38;color:#9AA4B2;padding:10px;border-radius:9px;cursor:pointer;font-weight:700;font-size:13px}
+.tab.on{background:#6D74FF;border-color:#6D74FF;color:#fff}
+input{width:100%;background:#0E1117;border:1px solid #262D38;border-radius:10px;padding:12px 14px;color:#E6EAF0;font-size:14px;outline:none;margin-bottom:10px}
+button{width:100%;background:#6D74FF;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:800;cursor:pointer;font-size:14px}
+.err{color:#F85149;font-size:12.5px;margin-top:8px;text-align:center}
+.note{color:#6B7480;font-size:11.5px;text-align:center;margin-top:14px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="brand"><b>🌍 PLAZA</b><small>הכיכר הדיגיטלית הגלובלית</small></div>
+  <div class="tabs"><div class="tab on" id="tL" onclick="setMode('login')">כניסה</div><div class="tab" id="tR" onclick="setMode('register')">הרשמה</div></div>
+  <div id="frm"></div>
+  <div class="err" id="err"></div>
+  <div class="note">הכל בחינם · אפס פרסום · אפס מעקב · הכל נעלם תוך 24 שעות</div>
+</div>
+<script>
+let MODE='login';
+function setMode(m){MODE=m;document.getElementById('tL').classList.toggle('on',m==='login');document.getElementById('tR').classList.toggle('on',m==='register');render();}
+function render(){const f=document.getElementById('frm');
+ if(MODE==='login')f.innerHTML=`<input id="u" placeholder="שם משתמש"><input id="p" type="password" placeholder="סיסמה"><button onclick="doLogin()">היכנס</button>`;
+ else f.innerHTML=`<input id="u" placeholder="שם משתמש (ייחודי)"><input id="n" placeholder="שם תצוגה / כינוי"><input id="e" type="email" placeholder="אימייל (לא חובה)"><input id="p" type="password" placeholder="סיסמה (6+ תווים)"><button onclick="doRegister()">צור חשבון</button>`;}
+async function doLogin(){const u=$('u').value,p=$('p').value;try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});const d=await r.json();if(!r.ok){document.getElementById('err').textContent=d.error;return;}localStorage.setItem('plazaTok',d.token);localStorage.setItem('plazaUser',JSON.stringify(d.user));location.href='/';}catch(e){document.getElementById('err').textContent='שגיאת חיבור';}}
+async function doRegister(){const u=$('u').value,n=$('n').value,e=$('e').value,p=$('p').value;try{const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,display_name:n,email:e,password:p,lang:'he',country:'IL'})});const d=await r.json();if(!r.ok){document.getElementById('err').textContent=d.error;return;}localStorage.setItem('plazaTok',d.token);localStorage.setItem('plazaUser',JSON.stringify(d.user));location.href='/';}catch(ex){document.getElementById('err').textContent='שגיאת חיבור';}}
+function $(id){return document.getElementById(id);}
+render();
+</script>
+</body>
+</html>

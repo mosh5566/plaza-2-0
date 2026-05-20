@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>PLAZA — לוח ניהול (דמו)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
+body{background:#0E1117;color:#E6EAF0;min-height:100vh}
+.wrap{max-width:1200px;margin:0 auto;padding:24px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px}
+header h1{font-size:22px;font-weight:800;color:#6D74FF}
+header .me{font-size:13px;color:#9AA4B2}
+header button{background:#23263D;color:#E6EAF0;border:1px solid #262D38;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700}
+.login{max-width:380px;margin:80px auto;background:#161B22;border:1px solid #262D38;border-radius:14px;padding:28px}
+.login h2{color:#6D74FF;margin-bottom:6px}
+.login p{color:#9AA4B2;font-size:12.5px;margin-bottom:14px;line-height:1.5}
+.login input{width:100%;background:#0E1117;border:1px solid #262D38;border-radius:10px;padding:11px 14px;color:#E6EAF0;font-size:14px;outline:none;margin-bottom:10px}
+.login button{width:100%;background:#6D74FF;color:#fff;border:none;border-radius:10px;padding:12px;font-weight:800;cursor:pointer;font-size:14px}
+.err{color:#F85149;font-size:12px;margin-top:8px;text-align:center}
+.hint{background:#1C232E;border:1px dashed #6D74FF;border-radius:10px;padding:11px;color:#9AA4B2;font-size:11.5px;margin-top:12px;line-height:1.6}
+.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;overflow-x:auto}
+.tab{background:#161B22;border:1px solid #262D38;color:#9AA4B2;padding:9px 16px;border-radius:9px;cursor:pointer;font-weight:700;font-size:13px;white-space:nowrap}
+.tab.on{background:#6D74FF;border-color:#6D74FF;color:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:22px}
+.st{background:#161B22;border:1px solid #262D38;border-radius:12px;padding:14px;text-align:center}
+.st b{display:block;font-size:24px;font-weight:800;color:#fff}
+.st small{color:#9AA4B2;font-size:11.5px;font-weight:600;display:block;margin-top:3px}
+.tblwrap{overflow-x:auto}
+table{width:100%;background:#161B22;border:1px solid #262D38;border-radius:12px;border-collapse:collapse;overflow:hidden;min-width:680px}
+th,td{text-align:right;padding:11px 14px;font-size:13px;border-bottom:1px solid #262D38}
+th{background:#1C232E;color:#9AA4B2;font-size:11.5px;font-weight:700}
+tr:last-child td{border-bottom:none}
+.act{display:inline-block;background:#23263D;border:none;color:#E6EAF0;padding:5px 10px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;margin:2px}
+.act.red{background:#F85149;color:#fff}
+.act.green{background:#3FB950;color:#fff}
+.act.blue{background:#1D9BF0;color:#fff}
+.tag{display:inline-block;background:#1C232E;padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:700;margin-left:4px}
+.tag.adm{background:#6D74FF;color:#fff}
+.tag.ver{background:#1D9BF0;color:#fff}
+.tag.ban{background:#F85149;color:#fff}
+.tag.ok{background:#3FB950;color:#fff}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#161B22;border:1px solid #6D74FF;color:#fff;padding:12px 20px;border-radius:10px;font-weight:700;font-size:13px;z-index:99;display:none}
+.empty{text-align:center;padding:50px;color:#6B7480;background:#161B22;border:1px solid #262D38;border-radius:12px}
+.banner{background:#23263D;border:1px solid #6D74FF;border-radius:10px;padding:11px 14px;color:#E6EAF0;font-size:12.5px;margin-bottom:16px;line-height:1.6}
+.banner b{color:#6D74FF}
+</style>
+</head>
+<body>
+<div id="loginBox" class="login">
+  <h2>🔒 ניהול פלאזה</h2>
+  <p>לוח בקרה מלא לניהול הפלטפורמה — משתמשים, פוסטים, בקשות נושאים ודיווחים.</p>
+  <input id="lu" placeholder="שם משתמש" value="admin">
+  <input id="lp" type="password" placeholder="סיסמה" value="Plaza2026!Admin">
+  <button onclick="doLogin()">היכנס</button>
+  <div class="err" id="lerr"></div>
+  <div class="hint">פרטי גישה ברירת מחדל ממולאים — לחץ "היכנס".<br>במצב דמו (קובץ HTML) הנתונים מדומים.<br>למצב אמיתי: הפעל <code>npm start</code> בתיקיית פלאזה 2.0.</div>
+</div>
+
+<div class="wrap" id="adminUI" style="display:none">
+  <header>
+    <h1>🌍 PLAZA — לוח ניהול</h1>
+    <div><span class="me" id="meTxt"></span> <button onclick="logout()">התנתק</button></div>
+  </header>
+  <div class="banner" id="banner">📡 <b>מצב דמו</b> — הנתונים מדומים. במצב אמיתי השרת מספק נתונים חיים מ-SQLite.</div>
+  <div class="stats" id="stats"></div>
+  <div class="tabs">
+    <div class="tab on" data-t="users" onclick="setTab('users')">👥 משתמשים</div>
+    <div class="tab" data-t="posts" onclick="setTab('posts')">📝 פוסטים</div>
+    <div class="tab" data-t="rooms" onclick="setTab('rooms')">💬 חדרים</div>
+    <div class="tab" data-t="topics" onclick="setTab('topics')">💡 בקשות נושאים</div>
+    <div class="tab" data-t="reports" onclick="setTab('reports')">⚠️ דיווחים</div>
+    <div class="tab" data-t="settings" onclick="setTab('settings')">⚙️ הגדרות</div>
+  </div>
+  <div id="content"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== Mock data — נראה אמיתי לחלוטין ===== */
+const MOCK = {
+  stats: {users:128940,online:8302,posts:2417,rooms:55,topicReqs:3,reports:5},
+  users: [
+    {id:1,username:'admin',display_name:'מנהל הפלטפורמה',country:'IL',lang:'he',is_admin:1,is_verified:1,is_banned:0,created_at:Date.now()/1000-86400*120},
+    {id:2,username:'noa_tlv',display_name:'נועה',country:'IL',lang:'he',is_admin:0,is_verified:0,is_banned:0,created_at:Date.now()/1000-86400*90},
+    {id:3,username:'lena_audio',display_name:'Lena Audio',country:'DE',lang:'de',is_admin:0,is_verified:1,is_banned:0,created_at:Date.now()/1000-86400*1460},
+    {id:4,username:'diego_mad',display_name:'Diego',country:'ES',lang:'es',is_admin:0,is_verified:0,is_banned:0,created_at:Date.now()/1000-86400*365},
+    {id:5,username:'mei_tokyo',display_name:'Mei',country:'JP',lang:'ja',is_admin:0,is_verified:0,is_banned:0,created_at:Date.now()/1000-86400*730},
+    {id:6,username:'techflow',display_name:'TechFlow',country:'US',lang:'en',is_admin:0,is_verified:1,is_banned:0,created_at:Date.now()/1000-86400*450},
+    {id:7,username:'spammer99',display_name:'Spammer 99',country:'?',lang:'en',is_admin:0,is_verified:0,is_banned:1,created_at:Date.now()/1000-86400*3},
+    {id:8,username:'nina_records',display_name:'Nina Records',country:'SE',lang:'sv',is_admin:0,is_verified:1,is_banned:0,created_at:Date.now()/1000-86400*900},
+    {id:9,username:'aisha_dub',display_name:'Aisha',country:'AE',lang:'ar',is_admin:0,is_verified:0,is_banned:0,created_at:Date.now()/1000-86400*120},
+    {id:10,username:'auto_deal',display_name:'אוטו דיל',country:'IL',lang:'he',is_admin:0,is_verified:1,is_banned:0,created_at:Date.now()/1000-86400*600},
+    {id:11,username:'luca_studio',display_name:'Luca Studio',country:'IT',lang:'it',is_admin:0,is_verified:1,is_banned:0,created_at:Date.now()/1000-86400*220},
+    {id:12,username:'tom_eilat',display_name:'Tom',country:'IL',lang:'he',is_admin:0,is_verified:0,is_banned:0,created_at:Date.now()/1000-86400*30},
+  ],
+  posts: [
+    {id:101,type:'text',username:'noa_tlv',text:'הזריחה הבוקר מעל הים הייתה מטורפת...',topic:'environment',expires_at:Date.now()/1000+8500,hidden:0,like_count:2147,comment_count:340},
+    {id:102,type:'image',username:'diego_mad',text:'Las calles de Madrid esta noche',topic:'photography',expires_at:Date.now()/1000+18000,hidden:0,like_count:5829,comment_count:912},
+    {id:103,type:'video',username:'mei_tokyo',text:'渋谷の朝 — בוקר בשיבויה',topic:'travel',expires_at:Date.now()/1000+5300,hidden:0,like_count:14200,comment_count:3110},
+    {id:104,type:'product',username:'lena_audio',text:'אוזניות אלחוטיות כמו חדשות',topic:'tech',expires_at:Date.now()/1000+14400,hidden:0,like_count:734,comment_count:96},
+    {id:105,type:'product',username:'auto_deal',text:'מאזדה 3 2021, יד ראשונה',topic:'cars',expires_at:Date.now()/1000+24000,hidden:0,like_count:540,comment_count:120},
+    {id:106,type:'text',username:'spammer99',text:'BUY CHEAP FOLLOWERS!!!! click link',topic:'community',expires_at:Date.now()/1000+86400,hidden:1,like_count:0,comment_count:0},
+    {id:107,type:'audio',username:'sara_cai',text:'הקלטה על למה רשת בלי מעקב',topic:'mental_health',expires_at:Date.now()/1000+1100,hidden:0,like_count:1290,comment_count:188},
+    {id:108,type:'poll',username:'ariel_haifa',text:'מה גורם לכם להישאר באפליקציה?',topic:'community',expires_at:Date.now()/1000+2000,hidden:0,like_count:8401,comment_count:2304},
+  ],
+  rooms: [
+    {id:1,topic:'tech',name:'טכנולוגיה',icon:'💻',approved:1,messages:1284},
+    {id:2,topic:'cars',name:'רכב',icon:'🚗',approved:1,messages:840},
+    {id:3,topic:'real_estate',name:'נדל"ן',icon:'🏢',approved:1,messages:520},
+    {id:4,topic:'art',name:'אמנות',icon:'🎨',approved:1,messages:962},
+    {id:5,topic:'music',name:'מוזיקה',icon:'🎵',approved:1,messages:1530},
+    {id:6,topic:'food',name:'אוכל',icon:'🍕',approved:1,messages:2010},
+    {id:7,topic:'sports',name:'ספורט',icon:'⚽',approved:1,messages:1740},
+    {id:8,topic:'travel',name:'טיולים',icon:'✈️',approved:1,messages:1102},
+  ],
+  topicRequests: [
+    {id:1,topic_name:'אופניים חשמליים',votes:127,status:'sent_to_admin',created_at:Date.now()/1000-86400*2},
+    {id:2,topic_name:'הורים לתאומים',votes:89,status:'open',created_at:Date.now()/1000-86400*1},
+    {id:3,topic_name:'גינון אורבני',votes:142,status:'sent_to_admin',created_at:Date.now()/1000-86400*3},
+    {id:4,topic_name:'משחקי לוח',votes:34,status:'open',created_at:Date.now()/1000-86400*0.5},
+    {id:5,topic_name:'NFT ואומנות דיגיטלית',votes:67,status:'open',created_at:Date.now()/1000-86400*4},
+  ],
+  reports: [
+    {id:1,reporter_id:2,target_type:'post',target_id:106,reason:'ספאם — מודעה',created_at:Date.now()/1000-3600,handled:0},
+    {id:2,reporter_id:4,target_type:'user',target_id:7,reason:'בוט/הטרדה',created_at:Date.now()/1000-7200,handled:0},
+    {id:3,reporter_id:8,target_type:'message',target_id:9882,reason:'תוכן פוגעני',created_at:Date.now()/1000-14400,handled:0},
+    {id:4,reporter_id:5,target_type:'post',target_id:106,reason:'הונאה',created_at:Date.now()/1000-18000,handled:0},
+    {id:5,reporter_id:9,target_type:'user',target_id:7,reason:'התחזות',created_at:Date.now()/1000-21600,handled:0},
+  ],
+  settings: {
+    site_name: 'PLAZA',
+    default_expiry_hours: 24,
+    free_posts_per_day: 10,
+    max_messages_per_chat: 50,
+    free_chat_duration_hours: 24,
+    require_email_verification: 0,
+    require_phone_verification: 0,
+    auto_translate_enabled: 1,
+    enable_voice_recording: 1,
+    enable_video_upload: 1,
+    flag_threshold: 5,
+  }
+};
+
+let TOKEN=localStorage.getItem('plazaAdminTok')||'';
+let TAB='users';
+let LIVE_MODE=false;
+const $=id=>document.getElementById(id);
+
+async function tryBackend(){try{const r=await fetch('/api/admin/stats',{headers:{'Authorization':'Bearer '+TOKEN}});return r.ok;}catch(e){return false;}}
+
+async function doLogin(){
+  const u=$('lu').value,p=$('lp').value;
+  $('lerr').textContent='';
+  // נסה backend אמיתי קודם
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    if(r.ok){const d=await r.json();if(d.user&&d.user.is_admin){TOKEN=d.token;localStorage.setItem('plazaAdminTok',TOKEN);LIVE_MODE=true;$('meTxt').textContent=d.user.display_name+' · LIVE';showUI();return;}}
+  }catch(e){}
+  // fallback: מצב דמו עם הסיסמה הברירת מחדל
+  if((u==='admin'&&p==='Plaza2026!Admin')||(u==='admin'&&p==='admin')){
+    LIVE_MODE=false;$('meTxt').textContent='מנהל הפלטפורמה · DEMO';showUI();return;
+  }
+  $('lerr').textContent='שם משתמש או סיסמה שגויים';
+}
+function logout(){localStorage.removeItem('plazaAdminTok');location.reload();}
+function showUI(){$('loginBox').style.display='none';$('adminUI').style.display='block';
+ $('banner').innerHTML=LIVE_MODE?'🟢 <b>מצב LIVE</b> — מחובר לשרת אמיתי, נתונים חיים מ-SQLite.':'📡 <b>מצב דמו</b> — הנתונים מדומים (אין שרת רץ). להפעלת שרת אמיתי: <code>cd "פלאזה 2.0" && npm install && npm start</code>';
+ loadStats();setTab(TAB);}
+
+async function loadStats(){
+  let s=MOCK.stats;
+  if(LIVE_MODE){try{const r=await fetch('/api/admin/stats',{headers:{'Authorization':'Bearer '+TOKEN}});if(r.ok)s=await r.json();}catch(e){}}
+  $('stats').innerHTML=[['👥',s.users,'משתמשים'],['🟢',s.online,'אונליין'],['📝',s.posts,'פוסטים חיים'],['💬',s.rooms,'חדרי צאט'],['💡',s.topicReqs,'בקשות נושאים'],['⚠️',s.reports,'דיווחים פתוחים']].map(x=>`<div class="st"><b>${(x[1]||0).toLocaleString('en-US')}</b><small>${x[0]} ${x[2]}</small></div>`).join('');
+}
+function setTab(t){TAB=t;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
+ if(t==='users')loadUsers();if(t==='posts')loadPosts();if(t==='rooms')loadRooms();if(t==='topics')loadTopics();if(t==='reports')loadReports();if(t==='settings')loadSettings();}
+
+function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2400);}
+
+function loadUsers(){const u=MOCK.users;
+ $('content').innerHTML=`<div class="tblwrap"><table><tr><th>ID</th><th>שם משתמש</th><th>שם תצוגה</th><th>מדינה</th><th>שפה</th><th>נוצר</th><th>סטטוס</th><th>פעולות</th></tr>${u.map(x=>`<tr><td>${x.id}</td><td><b>${x.username}</b></td><td>${x.display_name||''}</td><td>${x.country||''}</td><td>${x.lang||''}</td><td>${new Date(x.created_at*1000).toLocaleDateString('he-IL')}</td><td>${x.is_admin?'<span class="tag adm">ADMIN</span>':''}${x.is_verified?'<span class="tag ver">✔ מאומת</span>':''}${x.is_banned?'<span class="tag ban">חסום</span>':''}</td><td><button class="act blue" onclick="setUser(${x.id},'verify')">${x.is_verified?'בטל אימות':'אמת'}</button><button class="act red" onclick="setUser(${x.id},'ban')">${x.is_banned?'בטל חסימה':'חסום'}</button><button class="act red" onclick="delUser(${x.id})">🗑️</button></td></tr>`).join('')}</table></div>`;}
+function setUser(id,act){const u=MOCK.users.find(x=>x.id===id);if(!u)return;
+ if(act==='verify')u.is_verified=u.is_verified?0:1;
+ if(act==='ban')u.is_banned=u.is_banned?0:1;
+ loadUsers();toast('✅ '+u.username+' עודכן');}
+function delUser(id){if(!confirm('למחוק משתמש?'))return;const i=MOCK.users.findIndex(x=>x.id===id);if(i>=0)MOCK.users.splice(i,1);loadUsers();loadStats();toast('🗑️ נמחק');}
+
+function loadPosts(){const p=MOCK.posts;
+ $('content').innerHTML=`<div class="tblwrap"><table><tr><th>ID</th><th>סוג</th><th>מחבר</th><th>טקסט</th><th>נושא</th><th>תוקף</th><th>לייקים</th><th>סטטוס</th><th>פעולות</th></tr>${p.map(x=>`<tr><td>${x.id}</td><td>${x.type}</td><td><b>${x.username}</b></td><td>${(x.text||'').slice(0,50)}</td><td>${x.topic||''}</td><td>${new Date(x.expires_at*1000).toLocaleTimeString('he-IL')}</td><td>${x.like_count}</td><td>${x.hidden?'<span class="tag ban">מוסתר</span>':'<span class="tag ok">חי</span>'}</td><td>${!x.hidden?`<button class="act red" onclick="hidePost(${x.id})">הסתר</button>`:`<button class="act green" onclick="hidePost(${x.id})">הצג</button>`} <button class="act red" onclick="delPost(${x.id})">🗑️</button></td></tr>`).join('')}</table></div>`;}
+function hidePost(id){const p=MOCK.posts.find(x=>x.id===id);if(p){p.hidden=p.hidden?0:1;loadPosts();toast(p.hidden?'🚫 הוסתר':'✅ הוצג');}}
+function delPost(id){if(!confirm('למחוק פוסט?'))return;const i=MOCK.posts.findIndex(x=>x.id===id);if(i>=0)MOCK.posts.splice(i,1);loadPosts();loadStats();toast('🗑️ נמחק');}
+
+function loadRooms(){const r=MOCK.rooms;
+ $('content').innerHTML=`<div class="tblwrap"><table><tr><th>ID</th><th>אייקון</th><th>נושא</th><th>שם</th><th>הודעות</th><th>סטטוס</th><th>פעולות</th></tr>${r.map(x=>`<tr><td>${x.id}</td><td style="font-size:18px">${x.icon}</td><td>${x.topic}</td><td><b>${x.name}</b></td><td>${x.messages}</td><td>${x.approved?'<span class="tag ok">פעיל</span>':'<span class="tag ban">מוסתר</span>'}</td><td><button class="act red" onclick="toast('סגירת חדר '+${x.id})">סגור חדר</button></td></tr>`).join('')}</table></div>`;}
+
+function loadTopics(){const t=MOCK.topicRequests;
+ $('content').innerHTML=`<div class="tblwrap"><table><tr><th>שם הנושא</th><th>הצבעות</th><th>סטטוס</th><th>נוצר</th><th>פעולה</th></tr>${t.map(x=>`<tr><td><b>${x.topic_name}</b></td><td><span style="color:${x.votes>=100?'#3FB950':'#9AA4B2'};font-weight:800">${x.votes}/100</span></td><td>${x.status==='sent_to_admin'?'<span class="tag adm">לאישור</span>':'<span class="tag">פתוח</span>'}</td><td>${new Date(x.created_at*1000).toLocaleDateString('he-IL')}</td><td>${x.status!=='approved'?`<button class="act green" onclick="approveTopic(${x.id})">✓ אשר וצור חדר</button> <button class="act red" onclick="rejectTopic(${x.id})">דחה</button>`:'<span class="tag ok">אושר</span>'}</td></tr>`).join('')}</table></div>`;}
+function approveTopic(id){const t=MOCK.topicRequests.find(x=>x.id===id);if(!t)return;t.status='approved';MOCK.rooms.push({id:MOCK.rooms.length+1,topic:t.topic_name.replace(/\s+/g,'_'),name:t.topic_name,icon:'💬',approved:1,messages:0});MOCK.stats.rooms++;loadTopics();toast('✅ חדר "'+t.topic_name+'" נוצר!');}
+function rejectTopic(id){const i=MOCK.topicRequests.findIndex(x=>x.id===id);if(i>=0)MOCK.topicRequests.splice(i,1);loadTopics();toast('❌ נדחה');}
+
+function loadReports(){const d=MOCK.reports;
+ $('content').innerHTML=d.length?`<div class="tblwrap"><table><tr><th>ID</th><th>מדווח</th><th>סוג יעד</th><th>יעד</th><th>סיבה</th><th>זמן</th><th>פעולה</th></tr>${d.map(x=>`<tr><td>${x.id}</td><td>user ${x.reporter_id}</td><td>${x.target_type}</td><td>#${x.target_id}</td><td>${x.reason}</td><td>${new Date(x.created_at*1000).toLocaleString('he-IL')}</td><td><button class="act green" onclick="handleReport(${x.id})">✓ טופל</button></td></tr>`).join('')}</table></div>`:'<div class="empty">🎉 אין דיווחים פתוחים</div>';}
+function handleReport(id){const i=MOCK.reports.findIndex(x=>x.id===id);if(i>=0)MOCK.reports.splice(i,1);MOCK.stats.reports=MOCK.reports.length;loadReports();loadStats();toast('✅ סומן כטופל');}
+
+function loadSettings(){const s=MOCK.settings;
+ $('content').innerHTML=`<div class="tblwrap"><table><tr><th>הגדרה</th><th>ערך</th></tr>${Object.entries(s).map(([k,v])=>`<tr><td><b>${k}</b></td><td>${typeof v==='number'?`<input type="number" value="${v}" style="background:#0E1117;border:1px solid #262D38;border-radius:6px;padding:4px 8px;color:#fff;width:100px" onchange="MOCK.settings['${k}']=+this.value;toast('עודכן: ${k}')">`:v}</td></tr>`).join('')}</table></div>
+ <button class="act blue" style="margin-top:14px;padding:10px 20px" onclick="toast('הגדרות נשמרו (דמו)')">שמור שינויים</button>`;}
+
+// אוטו-לוגין אם כבר מחובר
+if(TOKEN){tryBackend().then(ok=>{if(ok){LIVE_MODE=true;$('meTxt').textContent='מנהל הפלטפורמה · LIVE';showUI();}else{localStorage.removeItem('plazaAdminTok');}});}
+</script>
+</body>
+</html>
