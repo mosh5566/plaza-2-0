@@ -1,0 +1,23 @@
+{
+  "name": "PLAZA — הכיכר הדיגיטלית הגלובלית",
+  "short_name": "PLAZA",
+  "description": "קבוצה עולמית · אין אלגוריתם · הכל נעלם תוך 24 שעות",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E1117",
+  "theme_color": "#4F46E5",
+  "lang": "he",
+  "dir": "rtl",
+  "categories": ["social", "lifestyle", "communication"],
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "חדרי צאט", "url": "/?go=rooms", "icons": [{ "src": "/icon.svg", "sizes": "192x192" }] },
+    { "name": "צור פוסט", "url": "/?go=create", "icons": [{ "src": "/icon.svg", "sizes": "192x192" }] }
+  ]
+}
