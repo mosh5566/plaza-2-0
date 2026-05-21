@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>פלאזה — המסע שלנו</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F0A1F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Heebo',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#0a0612;color:#fff}
+body{display:flex;flex-direction:column}
+
+/* ===== Top progress bar ===== */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(180deg,rgba(10,6,18,.95),rgba(10,6,18,0));backdrop-filter:blur(8px)}
+.logo{display:flex;align-items:center;gap:7px;color:#fff;font-weight:900;font-size:15px;letter-spacing:1px}
+.progress{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:9999px;overflow:hidden}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,#4F46E5,#06B6D4);width:6%;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.counter{color:rgba(255,255,255,.6);font-size:12px;font-weight:600;min-width:40px;text-align:left}
+
+/* ===== Slides container ===== */
+.deck{flex:1;position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 100px;opacity:0;transform:translateX(60px);transition:opacity .5s ease,transform .5s cubic-bezier(.22,1,.36,1);pointer-events:none;overflow-y:auto}
+.slide.on{opacity:1;transform:translateX(0);pointer-events:auto}
+.slide.prev{transform:translateX(-60px)}
+
+/* slide backgrounds */
+.slide.bg1{background:radial-gradient(circle at 30% 20%,#1e1147 0%,#0a0612 60%)}
+.slide.bg2{background:radial-gradient(circle at 70% 30%,#0e3a4c 0%,#0a0612 60%)}
+.slide.bg3{background:radial-gradient(circle at 50% 80%,#3a1147 0%,#0a0612 60%)}
+.slide.bg4{background:radial-gradient(circle at 20% 80%,#0f4a3c 0%,#0a0612 60%)}
+.slide.bg5{background:radial-gradient(circle at 80% 70%,#4a2a0f 0%,#0a0612 60%)}
+
+/* ===== Typography ===== */
+.eyebrow{color:#7ddfff;font-size:12px;font-weight:700;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase}
+h1{font-size:clamp(28px,7vw,52px);font-weight:900;line-height:1.15;margin-bottom:14px;background:linear-gradient(135deg,#fff,#bcdcff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;max-width:900px}
+h2{font-size:clamp(22px,5.5vw,40px);font-weight:900;line-height:1.2;margin-bottom:18px;text-align:center;color:#fff;max-width:900px}
+h3{font-size:clamp(18px,4vw,24px);font-weight:700;margin-bottom:10px;color:#fff}
+.lead{font-size:clamp(15px,3.6vw,19px);color:rgba(255,255,255,.78);line-height:1.65;text-align:center;max-width:760px;margin-bottom:20px}
+.huge{font-size:clamp(56px,14vw,120px);line-height:1;font-weight:900;margin-bottom:18px}
+.small{font-size:12.5px;color:rgba(255,255,255,.55)}
+
+/* ===== Cards/blocks ===== */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;max-width:1000px;width:100%;margin-top:8px}
+.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:20px 18px;backdrop-filter:blur(10px);transition:transform .25s ease,background .25s}
+.card:hover{transform:translateY(-4px);background:rgba(255,255,255,.1)}
+.card .ic{font-size:36px;margin-bottom:10px;display:block}
+.card b{font-size:16px;font-weight:800;color:#fff;display:block;margin-bottom:6px}
+.card p{font-size:13.5px;color:rgba(255,255,255,.7);line-height:1.55}
+
+/* ===== Lists ===== */
+.list{max-width:780px;width:100%;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px}
+.item .ic{font-size:24px;width:34px;text-align:center;flex:0 0 auto}
+.item .tx{flex:1;color:rgba(255,255,255,.9);font-size:14.5px;line-height:1.5}
+.item .tx b{color:#fff;display:block;font-weight:800;font-size:15px;margin-bottom:2px}
+.item .badge{background:#22C55E;color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:9999px}
+.item .badge.todo{background:#F59E0B}
+
+/* ===== Flow diagram ===== */
+.flow{display:flex;align-items:stretch;gap:6px;max-width:900px;width:100%;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.flow .step{flex:1;min-width:140px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:16px 12px;text-align:center}
+.flow .step .ic{font-size:34px;display:block;margin-bottom:6px}
+.flow .step b{display:block;color:#fff;font-size:14px;font-weight:800;margin-bottom:3px}
+.flow .step small{color:rgba(255,255,255,.65);font-size:12px}
+.flow .arr{display:flex;align-items:center;color:#4F46E5;font-size:24px;font-weight:900}
+@media(max-width:540px){.flow .arr{display:none}.flow{gap:8px}}
+
+/* ===== Cost tables ===== */
+.tbl{width:100%;max-width:920px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;margin-top:6px}
+.tbl .row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:0;border-bottom:1px solid rgba(255,255,255,.08)}
+.tbl .row:last-child{border-bottom:0}
+.tbl .row.h{background:rgba(255,255,255,.07);font-weight:800}
+.tbl .row > div{padding:11px 13px;color:rgba(255,255,255,.85);font-size:13px;line-height:1.4;display:flex;align-items:center}
+.tbl .row > div:first-child{font-weight:700;color:#fff}
+.tbl .row > div b{color:#7ddfff}
+.tbl .row > div.free{color:#7df3a0}
+.tbl .row > div.cheap{color:#ffd86b}
+.tbl .row > div.rec{color:#bcdcff}
+@media(max-width:600px){.tbl .row{grid-template-columns:1.3fr 1fr 1fr;font-size:11.5px}.tbl .row > div.rec{display:none}.tbl .row > div{padding:9px 8px;font-size:11.5px}}
+
+/* ===== Plans (3 boxes) ===== */
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;max-width:1000px;width:100%;margin-top:8px}
+.plan{background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.12);border-radius:18px;padding:22px 18px;position:relative}
+.plan.featured{border-color:#7ddfff;background:linear-gradient(160deg,rgba(125,223,255,.1),rgba(125,223,255,.02))}
+.plan .tag{position:absolute;top:-11px;right:18px;background:#7ddfff;color:#0a0612;font-size:11px;font-weight:800;padding:4px 10px;border-radius:9999px}
+.plan .ttl{color:#fff;font-size:18px;font-weight:900;margin-bottom:4px}
+.plan .price{color:#7ddfff;font-size:28px;font-weight:900;margin-bottom:14px}
+.plan .price small{color:rgba(255,255,255,.6);font-size:13px;font-weight:600}
+.plan ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.plan li{color:rgba(255,255,255,.85);font-size:13px;line-height:1.5;padding-right:18px;position:relative}
+.plan li::before{content:"✓";position:absolute;right:0;color:#22C55E;font-weight:900}
+.plan li.x::before{content:"✕";color:#f87171}
+
+/* ===== Architecture diagram ===== */
+.arch{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:760px;width:100%;margin-top:10px}
+.arch .box{background:rgba(255,255,255,.07);border:2px dashed rgba(255,255,255,.2);border-radius:16px;padding:20px 14px;text-align:center}
+.arch .box .em{font-size:46px;display:block;margin-bottom:7px}
+.arch .box b{display:block;color:#7ddfff;font-size:15px;font-weight:800;margin-bottom:4px}
+.arch .box small{color:rgba(255,255,255,.7);font-size:12.5px;line-height:1.5;display:block}
+@media(max-width:560px){.arch{grid-template-columns:1fr}}
+
+/* ===== Timeline ===== */
+.tline{max-width:900px;width:100%;position:relative;padding-right:28px;margin-top:8px}
+.tline::before{content:"";position:absolute;top:0;bottom:0;right:9px;width:3px;background:linear-gradient(180deg,#4F46E5,#06B6D4);border-radius:9999px}
+.tline .pt{position:relative;padding-bottom:14px}
+.tline .pt::before{content:"";position:absolute;right:-25px;top:6px;width:18px;height:18px;border-radius:50%;background:#4F46E5;border:3px solid #0a0612}
+.tline .pt.done::before{background:#22C55E}
+.tline .pt b{display:block;color:#fff;font-size:15px;font-weight:800}
+.tline .pt p{color:rgba(255,255,255,.7);font-size:13px;margin-top:3px;line-height:1.5}
+
+/* ===== Buttons ===== */
+.btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#fff;font-weight:800;font-size:15px;padding:14px 26px;border-radius:9999px;border:none;cursor:pointer;text-decoration:none;margin-top:20px;box-shadow:0 12px 30px rgba(79,70,229,.4);transition:transform .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn.g{background:rgba(255,255,255,.1);box-shadow:none}
+
+/* ===== Navigation ===== */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 18px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(0deg,rgba(10,6,18,.95),rgba(10,6,18,.5));backdrop-filter:blur(8px)}
+.nav button{width:48px;height:48px;border-radius:50%;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.nav button:hover{background:rgba(255,255,255,.2)}
+.nav button:disabled{opacity:.3;cursor:not-allowed}
+.dots{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;flex:1;max-width:300px;margin:0 14px}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:.2s}
+.dot.on{background:#7ddfff;width:26px;border-radius:4px}
+
+.kbd{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:2px 7px;border-radius:5px;font-family:monospace;font-size:11px;color:#7ddfff}
+.note{background:rgba(125,223,255,.08);border:1px solid rgba(125,223,255,.3);border-radius:12px;padding:13px 16px;color:rgba(255,255,255,.85);font-size:13.5px;line-height:1.5;margin-top:14px;max-width:780px}
+.note b{color:#7ddfff}
+
+/* scrollbar */
+.slide::-webkit-scrollbar{width:6px}
+.slide::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:9999px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">🌍 PLAZA</div>
+  <div class="progress"><i id="prog"></i></div>
+  <div class="counter"><span id="curN">1</span> / <span id="totN">15</span></div>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- ============ SLIDE 1: COVER ============ -->
+<section class="slide bg1 on">
+  <div class="huge">🌍</div>
+  <h1>פלאזה: המסע שלנו</h1>
+  <p class="lead">מקוד במחשב <span style="color:#7ddfff">→</span> פלטפורמה באוויר <span style="color:#7ddfff">→</span> מיליון משתמשים</p>
+  <p class="lead" style="font-size:14px;color:rgba(255,255,255,.5);margin-top:8px">לחץ ▶ למעבר · גלול עם המקלדת ← →</p>
+  <p class="lead" style="font-size:13px;margin-top:24px;color:rgba(255,255,255,.7)">📍 אנחנו עכשיו ב-<b style="color:#7ddfff">https://plaza-0n30.onrender.com</b></p>
+</section>
+
+<!-- ============ SLIDE 2: WHAT IS AN APP ============ -->
+<section class="slide bg2">
+  <div class="eyebrow">פרק 1 — מאפס</div>
+  <h2>מה זו בכלל אפליקציה?</h2>
+  <p class="lead">דמיין <b>מחברת קסם ענקית</b> ⚡ — לכל אחד בעולם יש עיפרון, וכולם יכולים לכתוב ולקרוא באותה מחברת בו-זמנית. <br><br>אבל המחברת לא נמצאת אצלך — היא נמצאת ב<b>מקום מיוחד באינטרנט</b>, וכל הדפדפנים והטלפונים בעולם יכולים לפתוח אותה.</p>
+  <div class="cards" style="margin-top:14px">
+    <div class="card"><span class="ic">📝</span><b>אפליקציה = מחברת קסם</b><p>שכולם יכולים לקרוא, לכתוב, ולשתף בה — בכל רגע</p></div>
+    <div class="card"><span class="ic">🌍</span><b>קיימת בענן</b><p>לא במחשב שלך — במחשב גדול באינטרנט שדולק 24/7</p></div>
+    <div class="card"><span class="ic">📱</span><b>נכנסים מכל מכשיר</b><p>טלפון, מחשב, טאבלט — אותה מחברת בדיוק</p></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 3: WHAT'S IT MADE OF ============ -->
+<section class="slide bg3">
+  <div class="eyebrow">פרק 1 — מאפס</div>
+  <h2>ממה אפליקציה בנויה? 🧱</h2>
+  <p class="lead">בדיוק כמו מסעדה. 3 חלקים שעובדים ביחד:</p>
+  <div class="arch">
+    <div class="box"><span class="em">🪟</span><b>1. ויטרינה</b><small>מה שאתה רואה: הכפתורים, הטקסט, התמונות. <br>זה ה<b style="color:#7ddfff">"חזית"</b> (Frontend)</small></div>
+    <div class="box"><span class="em">👨‍🍳</span><b>2. מטבח</b><small>המוח של האפליקציה: מקבל בקשות, מבשל תשובות. <br>זה ה<b style="color:#7ddfff">"שרת"</b> (Backend)</small></div>
+    <div class="box"><span class="em">🧊</span><b>3. מקרר</b><small>שומר את כל המידע — משתמשים, פוסטים, הודעות. <br>זה ה<b style="color:#7ddfff">"מסד נתונים"</b> (DB)</small></div>
+  </div>
+  <div class="note"><b>דוגמה:</b> אתה לוחץ "פוסט חדש" בוויטרינה → המטבח מקבל את התוכן → שם אותו במקרר → מאשר חזרה לוויטרינה → כל המשתמשים בעולם רואים את הפוסט החדש.</div>
+</section>
+
+<!-- ============ SLIDE 4: HOW DOES "LOGIN" WORK ============ -->
+<section class="slide bg4">
+  <div class="eyebrow">פרק 1 — מאפס</div>
+  <h2>מה קורה כשאני לוחץ "כניסה"? 🔓</h2>
+  <p class="lead">הסיפור בן חצי שנייה:</p>
+  <div class="flow">
+    <div class="step"><span class="ic">👆</span><b>1. אתה</b><small>לוחץ "כניסה" בדפדפן</small></div>
+    <div class="arr">→</div>
+    <div class="step"><span class="ic">🌐</span><b>2. אינטרנט</b><small>מעביר את הבקשה למחשב באינטרנט</small></div>
+    <div class="arr">→</div>
+    <div class="step"><span class="ic">👨‍🍳</span><b>3. השרת</b><small>בודק "האם הסיסמה נכונה?"</small></div>
+    <div class="arr">→</div>
+    <div class="step"><span class="ic">🧊</span><b>4. המקרר</b><small>"כן, מצאתי את המשתמש"</small></div>
+    <div class="arr">→</div>
+    <div class="step"><span class="ic">🪟</span><b>5. חזרה אליך</b><small>"ברוך הבא!" + טוקן זהות</small></div>
+  </div>
+  <div class="note">⚡ <b>כל זה קורה בפחות מ-1 שנייה!</b> אבל אם השרת ישן (תוכנית חינמית) — הצעד 2-3 לוקח 30 שניות עד שמתעורר.</div>
+</section>
+
+<!-- ============ SLIDE 5: WHERE DOES IT LIVE ============ -->
+<section class="slide bg5">
+  <div class="eyebrow">פרק 1 — מאפס</div>
+  <h2>איפה האפליקציה חיה? ☁️</h2>
+  <p class="lead">ב<b>ענן</b> — לא בעננים בשמיים אלא במחשבי ענק של חברות גדולות בעולם.</p>
+  <div class="cards">
+    <div class="card"><span class="ic">🏢</span><b>חוות שרתים</b><p>בניין ענק עם אלפי מחשבים שדולקים 24/7. ממוזג, מאובטח, עם חשמל גיבוי</p></div>
+    <div class="card"><span class="ic">🤝</span><b>חברות שמשכירות</b><p>אמזון (AWS), גוגל, מיקרוסופט, Render — מוכרים לנו "פיסת מחשב" בחודש</p></div>
+    <div class="card"><span class="ic">🌎</span><b>גישה מכל מקום</b><p>כל מי שיש לו אינטרנט — בארץ, ביפן, בארה"ב — יכול להיכנס לאתר שלך</p></div>
+  </div>
+  <div class="note"><b>שלנו ספציפית:</b> השרת חי על מחשב של חברת <b>Render</b> בארה"ב. לוקח לו ~150ms להגיע אליך בישראל.</div>
+</section>
+
+<!-- ============ SLIDE 6: PLAZA'S STACK ============ -->
+<section class="slide bg1">
+  <div class="eyebrow">פרק 2 — שלנו</div>
+  <h2>ממה פלאזה בנויה? 🔧</h2>
+  <p class="lead">החלקים שעובדים יחד כדי שתעבוד:</p>
+  <div class="list">
+    <div class="item"><span class="ic">🪟</span><div class="tx"><b>HTML + CSS + JavaScript (חזית)</b>כל מה שאתה רואה בדפדפן — הפיד, הצ'אט, ההרשמה. קובץ אחד גדול של 145KB.</div></div>
+    <div class="item"><span class="ic">👨‍🍳</span><div class="tx"><b>Node.js + Express (שרת)</b>המוח של הפלטפורמה. JavaScript שרץ במחשב באינטרנט, מקבל בקשות מהדפדפן ועונה.</div></div>
+    <div class="item"><span class="ic">🧊</span><div class="tx"><b>SQLite (מסד נתונים)</b>קובץ אחד שמכיל את כל המשתמשים, הפוסטים, הצ'אטים. פשוט אבל מספיק עד 1,000 משתמשים פעילים.</div></div>
+    <div class="item"><span class="ic">⚡</span><div class="tx"><b>Socket.io (זמן אמת)</b>קסם שגורם לצ'אטים להופיע מיד אצל כולם — בלי שצריך לרענן את הדף.</div></div>
+    <div class="item"><span class="ic">📱</span><div class="tx"><b>PWA (גרסה למובייל)</b>מאפשר התקנה כאפליקציה רגילה על טלפון — בלי לעבור דרך החנות.</div></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 7: GITHUB ============ -->
+<section class="slide bg2">
+  <div class="eyebrow">פרק 2 — שלנו</div>
+  <h2>מה זה GitHub? 📦</h2>
+  <p class="lead">חברה שנותנת לך <b>מחסן חינמי</b> לקוד שלך. שלוש משימות חיוניות:</p>
+  <div class="cards">
+    <div class="card"><span class="ic">💾</span><b>גיבוי</b><p>אם המחשב שלך נשרף — הקוד עדיין שם. תוריד למחשב חדש ב-2 דקות.</p></div>
+    <div class="card"><span class="ic">📜</span><b>היסטוריה</b><p>כל שינוי שעשיתי נשמר. אם משהו נשבר — חוזרים אחורה.</p></div>
+    <div class="card"><span class="ic">🚀</span><b>פריסה אוטומטית</b><p>אני דוחף שינוי → Render מתעדכן אוטומטית תוך 3 דקות. בלי כפתורים, בלי שום דבר.</p></div>
+  </div>
+  <p class="lead" style="margin-top:20px;font-size:14px">הקוד שלך נמצא ב: <b style="color:#7ddfff">github.com/mosh5566/plaza-2-0</b></p>
+</section>
+
+<!-- ============ SLIDE 8: WHAT WE DID ============ -->
+<section class="slide bg3">
+  <div class="eyebrow">פרק 3 — מה עברנו</div>
+  <h2>מה עשינו עד היום ✅</h2>
+  <div class="tline">
+    <div class="pt done"><b>שלב 1: דמו קונספט</b><p>בנינו אב-טיפוס HTML יחיד — להוכיח את הרעיון של "אין אלגוריתם, הכל נעלם תוך 24-48 שעות"</p></div>
+    <div class="pt done"><b>שלב 2: 30+ פיצ'רים</b><p>פיד, חדרי צ'אט, פרופילים עסקיים, תרגום, מיקום, הקלטות, וידאו, סקרים — הכל לחיץ ועובד</p></div>
+    <div class="pt done"><b>שלב 3: Backend אמיתי</b><p>שרת Node.js + SQLite + Socket.io עם 30+ endpoints — הרשמה, פוסטים, צ'אטים, אדמין</p></div>
+    <div class="pt done"><b>שלב 4: חיבור חזית ↔ שרת</b><p>החזית עברה ממצב "דמו עם localStorage" ל"מצב LIVE" — נתונים אמיתיים נשמרים</p></div>
+    <div class="pt done"><b>שלב 5: פריסה לענן</b><p>הקוד עלה ל-GitHub → נפרס ב-Render → URL ציבורי חי 24/7</p></div>
+    <div class="pt done"><b>שלב 6: גרסה למובייל (PWA)</b><p>מניפסט + Service Worker + אייקונים → אפשר להתקין כאפליקציה רגילה בטלפון</p></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 9: WHERE WE ARE ============ -->
+<section class="slide bg4">
+  <div class="eyebrow">פרק 4 — איפה אנחנו</div>
+  <h2>איפה אנחנו עכשיו? 📍</h2>
+  <div class="cards">
+    <div class="card"><span class="ic">🟢</span><b>חי באינטרנט</b><p>https://plaza-0n30.onrender.com</p></div>
+    <div class="card"><span class="ic">📱</span><b>מותקן כאפליקציה</b><p>בטלפון: Add to Home Screen → עובד כמו אפליקציה רגילה</p></div>
+    <div class="card"><span class="ic">🆓</span><b>תוכנית חינמית</b><p>0$/חודש (אבל DB נמחק כל פעם שהשרת נרדם — לא לקבל משתמשים אמיתיים עדיין)</p></div>
+    <div class="card"><span class="ic">🔐</span><b>אדמין פעיל</b><p>plaza-0n30.onrender.com/admin <br>admin / Plaza2026!Admin</p></div>
+    <div class="card"><span class="ic">🌍</span><b>55 חדרי צ'אט</b><p>טכנולוגיה, רכב, מוזיקה, ספורט... כולם פעילים</p></div>
+    <div class="card"><span class="ic">🔄</span><b>Auto-deploy</b><p>כל שינוי שאני עושה → מתעדכן אוטומטית בענן תוך 3 דקות</p></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 10: WHAT'S LEFT ============ -->
+<section class="slide bg5">
+  <div class="eyebrow">פרק 5 — מה נשאר</div>
+  <h2>מה נשאר עד החנויות? 🗺️</h2>
+  <div class="list">
+    <div class="item"><span class="ic">1️⃣</span><div class="tx"><b>יציבות</b>שדרוג ל-$7/חודש + דומיין משלך ($15/שנה). השרת תמיד ער, המידע נשמר.</div><span class="badge todo">2 שבועות</span></div>
+    <div class="item"><span class="ic">2️⃣</span><div class="tx"><b>מסמכים משפטיים</b>תנאי שימוש + מדיניות פרטיות (GDPR). חינמי בתבנית.</div><span class="badge todo">3 ימים</span></div>
+    <div class="item"><span class="ic">3️⃣</span><div class="tx"><b>אימות משתמשים</b>SMS או אימייל לפני הרשמה — נגד בוטים. <span style="color:#7ddfff">או טלגרם בוט חינמי!</span></div><span class="badge todo">שבוע</span></div>
+    <div class="item"><span class="ic">4️⃣</span><div class="tx"><b>סקייל</b>כשיש 1,000+ משתמשים: PostgreSQL + S3. נעשה רק כשנצטרך.</div><span class="badge todo">בעתיד</span></div>
+    <div class="item"><span class="ic">5️⃣</span><div class="tx"><b>הכנה לחנויות (PWABuilder)</b>ממיר את ה-PWA לחבילת iOS + Android. חינמי, 5 דקות.</div><span class="badge todo">שבועיים</span></div>
+    <div class="item"><span class="ic">6️⃣</span><div class="tx"><b>העלאה לחנויות</b>Apple Developer ($99/שנה) + Google Play ($25 חד-פעמי). אישור 2-6 שבועות.</div><span class="badge todo">חודש</span></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 11: STAGE DETAILS ============ -->
+<section class="slide bg1">
+  <div class="eyebrow">פרק 5 — מה נשאר</div>
+  <h2>פירוט כל שלב 📋</h2>
+  <div class="list" style="max-width:900px">
+    <div class="item"><span class="ic">🌐</span><div class="tx"><b>שלב 1: דומיין משלך</b>קונים ב-Cloudflare (~$10/שנה) או חינמי .eu.org. הופך את `plaza-0n30.onrender.com` ל-`plaza.app` או דומה.</div></div>
+    <div class="item"><span class="ic">📜</span><div class="tx"><b>שלב 2: תנאי שימוש + פרטיות</b>נכנסים ל-termly.io, ממלאים שאלון 10 שאלות, מקבלים מסמכים מוכנים. מדביקים ל-/terms ו-/privacy.</div></div>
+    <div class="item"><span class="ic">📱</span><div class="tx"><b>שלב 3: אימות</b>אפשרויות: Twilio SMS ($15 חינם בהתחלה) · Resend Email (3K/חודש חינם) · <b style="color:#7ddfff">Telegram Bot</b> (חינמי לגמרי, מתאים לישראל).</div></div>
+    <div class="item"><span class="ic">📦</span><div class="tx"><b>שלב 5: PWABuilder</b>נכנסים ל-pwabuilder.com, מכניסים את ה-URL, לוחצים "Package for stores". מקבלים IPA לאפל + APK לאנדרואיד.</div></div>
+    <div class="item"><span class="ic">🍎</span><div class="tx"><b>שלב 6: חנויות</b>פותחים חשבון Apple Developer ($99/שנה) + Google Play ($25 חד-פעמי). מעלים את הקבצים. ממתינים לאישור (אפל: 1-3 ימים, גוגל: שעות).</div></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 12: COST RESEARCH ============ -->
+<section class="slide bg2">
+  <div class="eyebrow">פרק 6 — חיסכון חכם</div>
+  <h2>💰 איפה לחסוך — לכל עלות יש חינמי!</h2>
+  <p class="lead">חקרתי לעומק כל פריט. הנה התוצאות:</p>
+  <div class="tbl">
+    <div class="row h"><div>מה צריך</div><div class="free">🆓 חינמי</div><div class="cheap">💸 זול</div><div class="rec">⭐ מומלץ</div></div>
+    <div class="row"><div>מסד נתונים</div><div class="free"><b>Turso</b> 9GB</div><div class="cheap">Supabase 500MB</div><div class="rec">Render disk $7</div></div>
+    <div class="row"><div>תמונות/וידאו</div><div class="free"><b>Cloudflare R2</b> 10GB<br>או Google Drive 15GB</div><div class="cheap">Backblaze B2 $0.005/GB</div><div class="rec">S3 $0.02/GB</div></div>
+    <div class="row"><div>שרת</div><div class="free"><b>Render Free</b></div><div class="cheap">Render Starter $7</div><div class="rec">Hetzner VPS $5</div></div>
+    <div class="row"><div>אימייל</div><div class="free"><b>Brevo</b> 9K/חודש<br>או Resend 3K/חודש</div><div class="cheap">SendGrid $20</div><div class="rec">AWS SES $0.10/1K</div></div>
+    <div class="row"><div>SMS</div><div class="free"><b>Telegram Bot</b> אינסופי<br>(לא ממש SMS אבל עובד)</div><div class="cheap">Twilio ~5¢/הודעה</div><div class="rec">Twilio Verify $0.05/אימות</div></div>
+    <div class="row"><div>דומיין</div><div class="free"><b>.eu.org</b> אינסופי<br>או .onrender.com</div><div class="cheap">Cloudflare .com $10/שנה</div><div class="rec">Namecheap .app $20/שנה</div></div>
+    <div class="row"><div>CDN</div><div class="free"><b>Cloudflare</b> כולל DDoS</div><div class="cheap">— (חינמי מספיק)</div><div class="rec">Cloudflare Pro $20</div></div>
+    <div class="row"><div>אנליטיקס</div><div class="free"><b>Cloudflare Analytics</b><br>או Umami self-hosted</div><div class="cheap">Plausible $9</div><div class="rec">Mixpanel חינמי 100K</div></div>
+    <div class="row"><div>ניטור</div><div class="free"><b>UptimeRobot</b> + Sentry 5K</div><div class="cheap">BetterStack $0</div><div class="rec">Datadog $15</div></div>
+    <div class="row"><div>חנויות</div><div class="free">— (אין דרך לחסוך)</div><div class="cheap">Google Play $25 חד"פ</div><div class="rec">Apple $99/שנה</div></div>
+  </div>
+  <div class="note"><b>🎯 הטריק הכי חכם:</b> השתמש ב-<b>בוט טלגרם</b> במקום SMS. רוב הישראלים יש להם טלגרם, אתה חוסך $50-200/חודש על SMS, ולמשתמש זה אפילו יותר נוח.</div>
+</section>
+
+<!-- ============ SLIDE 13: 3 PLANS ============ -->
+<section class="slide bg3">
+  <div class="eyebrow">פרק 6 — חיסכון חכם</div>
+  <h2>3 תוכניות חבילה 📦</h2>
+  <p class="lead">בחר את הגודל שמתאים לך:</p>
+  <div class="plans">
+    <div class="plan">
+      <div class="ttl">🆓 סופר-חסכן</div>
+      <div class="price">$0<small>/חודש</small></div>
+      <ul>
+        <li>Render Free (נרדם 15 דק')</li>
+        <li>Turso DB 9GB</li>
+        <li>Cloudflare R2 10GB מדיה</li>
+        <li>Cloudflare CDN + Analytics</li>
+        <li>Brevo 9K מיילים/חודש</li>
+        <li>Telegram Bot במקום SMS</li>
+        <li>.eu.org דומיין חינמי</li>
+        <li class="x">השרת נרדם → בקשה ראשונה איטית</li>
+      </ul>
+    </div>
+    <div class="plan featured">
+      <div class="tag">מומלץ להתחלה</div>
+      <div class="ttl">⭐ מאוזן</div>
+      <div class="price">$8<small>/חודש</small></div>
+      <ul>
+        <li>Render Starter ($7) — תמיד ער</li>
+        <li>DB נשמר תמידי</li>
+        <li>Cloudflare R2 10GB (חינמי)</li>
+        <li>דומיין .com ב-Cloudflare ($1/חודש)</li>
+        <li>Brevo + Telegram Bot</li>
+        <li>UptimeRobot + Sentry</li>
+        <li>מספיק עד 1,000 משתמשים פעילים יומיים</li>
+      </ul>
+    </div>
+    <div class="plan">
+      <div class="ttl">🚀 מקצועי</div>
+      <div class="price">$32<small>/חודש</small></div>
+      <ul>
+        <li>Render Plus ($25)</li>
+        <li>Twilio SMS אמיתי ($5)</li>
+        <li>Cloudflare R2 50GB ($1)</li>
+        <li>Sentry Team ($10) — אופציונלי</li>
+        <li>דומיין .app ($1.5/חודש)</li>
+        <li>מספיק עד 5,000 משתמשים יומיים</li>
+        <li>כל ההגנות, ניטור מלא</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 14: SCALE LADDER ============ -->
+<section class="slide bg4">
+  <div class="eyebrow">פרק 7 — סקייל</div>
+  <h2>הסולם המלא — מ-0 עד מיליון 📈</h2>
+  <p class="lead">איך העלויות גדלות עם המשתמשים:</p>
+  <div class="tbl" style="max-width:880px">
+    <div class="row h"><div>גודל</div><div>משתמשים</div><div>חודשי</div><div class="rec">חד-פעמי</div></div>
+    <div class="row"><div>🌱 0 (היום)</div><div>0-50 חברים</div><div class="free">$0</div><div class="rec">$0</div></div>
+    <div class="row"><div>🌿 1 (התחלה)</div><div>50-1,000</div><div class="cheap">$8</div><div class="rec">$15 (דומיין)</div></div>
+    <div class="row"><div>🌳 2 (קהילה)</div><div>1K-5K</div><div class="cheap">$32</div><div class="rec">$124 (חנויות)</div></div>
+    <div class="row"><div>🌲 3 (גדל)</div><div>10K-50K</div><div>$200</div><div class="rec">—</div></div>
+    <div class="row"><div>🌴 4 (סטארטאפ)</div><div>50K-250K</div><div>$1,200</div><div class="rec">$2K DevOps</div></div>
+    <div class="row"><div>🌌 5 (רציני)</div><div>250K-1M</div><div>$7K-45K</div><div class="rec">צוות</div></div>
+    <div class="row"><div>🌠 6 (ענק)</div><div>1M-10M+</div><div>$170K-870K</div><div class="rec">גיוס הון</div></div>
+  </div>
+  <div class="note"><b>שורה תחתונה:</b> שנה ראשונה ריאלית (תגיע ל-1,000 משתמשים) = ~$235 סך הכל. פחות מ-$20/חודש בממוצע. <b>פחות מ-Netflix</b>.</div>
+</section>
+
+<!-- ============ SLIDE 15: NEXT STEP ============ -->
+<section class="slide bg5">
+  <div class="eyebrow">פרק 8 — קדימה</div>
+  <h2>🚀 הצעד הבא שלך</h2>
+  <p class="lead">לפי הסדר, מה אני ממליץ לעשות עכשיו:</p>
+  <div class="list" style="max-width:780px">
+    <div class="item"><span class="ic">📲</span><div class="tx"><b>1. תתקין את האפליקציה בטלפון שלך עכשיו</b>פתח plaza-0n30.onrender.com בטלפון → תוסיף למסך הבית → תראה איך זה נראה כאפליקציה אמיתית</div></div>
+    <div class="item"><span class="ic">👥</span><div class="tx"><b>2. תזמין 5-10 חברים</b>שלח להם את הקישור. תקבל פידבק אמיתי. עדיין חינמי — אין סיכון.</div></div>
+    <div class="item"><span class="ic">⭐</span><div class="tx"><b>3. כשהפידבק חיובי → שדרג לתוכנית "מאוזן" ($8/חודש)</b>המידע מפסיק להימחק. השרת תמיד ער. מוכן לקבל משתמשים אמיתיים.</div></div>
+    <div class="item"><span class="ic">📜</span><div class="tx"><b>4. תנאי שימוש + פרטיות</b>30 דקות ב-termly.io, חינמי. לפני שיש לך 100+ משתמשים.</div></div>
+    <div class="item"><span class="ic">📦</span><div class="tx"><b>5. PWABuilder → Apple/Google</b>חודש 2-3. כשהקהילה מספיק רצינית.</div></div>
+  </div>
+  <a href="https://plaza-0n30.onrender.com" target="_blank" class="btn">🌍 פתח את האפליקציה</a>
+  <p class="small" style="margin-top:14px">פלאזה · הכיכר הדיגיטלית הגלובלית · קוד פתוח</p>
+</section>
+
+</div>
+
+<div class="nav">
+  <button id="prev" title="הקודם">←</button>
+  <div class="dots" id="dots"></div>
+  <button id="next" title="הבא">→</button>
+</div>
+
+<script>
+const slides=document.querySelectorAll('.slide');
+const dots=document.getElementById('dots');
+const prog=document.getElementById('prog');
+const curN=document.getElementById('curN');
+const totN=document.getElementById('totN');
+const prevBtn=document.getElementById('prev');
+const nextBtn=document.getElementById('next');
+let i=0;
+totN.textContent=slides.length;
+slides.forEach((_,k)=>{const d=document.createElement('div');d.className='dot'+(k===0?' on':'');d.onclick=()=>go(k);dots.appendChild(d);});
+function go(k){if(k<0||k>=slides.length)return;slides[i].classList.remove('on');slides[i].classList.add('prev');setTimeout(()=>slides[i].classList.remove('prev'),500);i=k;slides[i].classList.add('on');slides[i].scrollTop=0;[...dots.children].forEach((d,n)=>d.classList.toggle('on',n===i));prog.style.width=((i+1)/slides.length*100)+'%';curN.textContent=i+1;prevBtn.disabled=i===0;nextBtn.disabled=i===slides.length-1;}
+prevBtn.onclick=()=>go(i-1);
+nextBtn.onclick=()=>go(i+1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ')go(i-1);else if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(i+1);else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);});
+let tx=0;document.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>60){if(d>0)go(i+1);else go(i-1);}},{passive:true});
+go(0);
+</script>
+</body>
+</html>
