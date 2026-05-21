@@ -20,13 +20,13 @@ kill_signal = "SIGTERM"
   auto_stop_machines = "stop"
   auto_start_machines = true
   min_machines_running = 0
-  [http_service.checks]
-    [http_service.checks.health]
-      grace_period = "10s"
-      interval = "30s"
-      method = "GET"
-      timeout = "5s"
-      path = "/api/health"
+
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/api/health"
 
 [[vm]]
   cpu_kind = "shared"
