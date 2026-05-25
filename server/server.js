@@ -33,6 +33,15 @@ const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
+// מיגרציות קלות — מוסיף עמודות חדשות אם חסרות (בלי לאבד נתונים)
+function ensureCol(table,col,def){try{const cols=db.prepare(`PRAGMA table_info(${table})`).all();if(!cols.find(c=>c.name===col))db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`);}catch(e){console.warn('migrate',table,col,e.message);}}
+ensureCol('posts','gender',"TEXT DEFAULT 'all'");
+ensureCol('posts','archived',"INTEGER DEFAULT 0");
+ensureCol('private_chats','a_archived',"INTEGER DEFAULT 0");
+ensureCol('private_chats','b_archived',"INTEGER DEFAULT 0");
+ensureCol('users','gender',"TEXT");
+ensureCol('users','is_business',"INTEGER DEFAULT 0");
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
@@ -80,11 +89,113 @@ app.post('/api/register',(req,res)=>{
 });
 app.post('/api/login',(req,res)=>{
   const {username,password}=req.body;
-  const u=db.prepare('SELECT * FROM users WHERE username=?').get(username);
-  if(!u||!bcrypt.compareSync(password,u.password_hash))return res.status(401).json({error:'bad credentials'});
+  const login=(req.body.login||username||'').trim();
+  // התחברות לפי שם משתמש או אימייל
+  const u=db.prepare('SELECT * FROM users WHERE username=? OR email=?').get(login,login.toLowerCase());
+  if(!u||!u.password_hash||!bcrypt.compareSync(password,u.password_hash))return res.status(401).json({error:'bad credentials'});
   if(u.is_banned)return res.status(403).json({error:'banned'});
   db.prepare('UPDATE users SET last_seen=? WHERE id=?').run(now(),u.id);
   res.json({token:sign(u),user:{id:u.id,username:u.username,display_name:u.display_name,is_admin:u.is_admin}});
+});
+
+// ─── Public config (which social logins are enabled) ───
+app.get('/api/config',(_,res)=>{
+  res.json({
+    googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+    telegramBot: process.env.TELEGRAM_BOT_ID || '',     // מזהה מספרי של הבוט (לא הטוקן)
+    emailEnabled: !!(process.env.RESEND_API_KEY || process.env.SENDGRID_API_KEY),
+  });
+});
+
+// ─── Sounds library (פרוקסי ל-Jamendo — מוזיקת CC חינמית, מפתח חינם) ───
+app.get('/api/sounds',async(req,res)=>{
+  const key=process.env.JAMENDO_CLIENT_ID;
+  if(!key)return res.json({hits:[]}); // אין מפתח → הלקוח משתמש בספרייה המקומית
+  try{
+    const q=encodeURIComponent(req.query.q||'');
+    const url=`https://api.jamendo.com/v3.0/tracks/?client_id=${key}&format=json&limit=40&audioformat=mp32&order=popularity_total${q?'&search='+q:''}`;
+    const r=await fetch(url);const j=await r.json();
+    const hits=(j.results||[]).filter(t=>t.audio).map(t=>({n:'🎵 '+t.name+' · '+(t.artist_name||''),d:t.duration?Math.floor(t.duration/60)+':'+String(t.duration%60).padStart(2,'0'):'',url:t.audio}));
+    res.json({hits});
+  }catch(e){res.json({hits:[]});}
+});
+
+// ─── Password reset (קוד 6 ספרות) ───
+const resetCodes = new Map(); // email -> {code, exp}
+function genCode(){return String(Math.floor(100000+Math.random()*900000));}
+async function sendEmail(to,subject,text){
+  // שליחה אמיתית דרך Resend אם מוגדר; אחרת מחזיר false (מצב פיתוח)
+  const key=process.env.RESEND_API_KEY;
+  if(!key)return false;
+  try{
+    await fetch('https://api.resend.com/emails',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},
+      body:JSON.stringify({from:process.env.MAIL_FROM||'PLAZA <onboarding@resend.dev>',to,subject,text})});
+    return true;
+  }catch(e){return false;}
+}
+app.post('/api/forgot',async(req,res)=>{
+  const email=(req.body.email||'').trim().toLowerCase();
+  const u=db.prepare('SELECT id FROM users WHERE email=?').get(email);
+  // לא חושפים אם המייל קיים — תמיד מחזירים ok
+  if(!u)return res.json({ok:1});
+  const code=genCode();
+  resetCodes.set(email,{code,exp:now()+15*60});
+  const sent=await sendEmail(email,'איפוס סיסמה — PLAZA','קוד האיפוס שלך: '+code+'\n\nתקף ל-15 דקות.');
+  res.json({ok:1, devCode: sent?undefined:code}); // ללא שירות מייל — מחזירים קוד לבדיקה
+});
+app.post('/api/reset',(req,res)=>{
+  const email=(req.body.email||'').trim().toLowerCase(),{code,password}=req.body;
+  const rec=resetCodes.get(email);
+  if(!rec||rec.code!==code||rec.exp<now())return res.status(400).json({error:'bad code'});
+  if(!password||password.length<6)return res.status(400).json({error:'password too short'});
+  const u=db.prepare('SELECT * FROM users WHERE email=?').get(email);
+  if(!u)return res.status(400).json({error:'bad code'});
+  db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(bcrypt.hashSync(password,10),u.id);
+  resetCodes.delete(email);
+  res.json({token:sign(u),user:{id:u.id,username:u.username,display_name:u.display_name,is_admin:u.is_admin}});
+});
+
+// ─── Google sign-in (מאמת את id_token מול גוגל) ───
+function userToken(u){db.prepare('UPDATE users SET last_seen=? WHERE id=?').run(now(),u.id);return {token:sign(u),user:{id:u.id,username:u.username,display_name:u.display_name,is_admin:u.is_admin}};}
+function findOrCreateOAuth(email,name,avatar){
+  let u=email?db.prepare('SELECT * FROM users WHERE email=? OR username=?').get(email,email):null;
+  if(u)return u;
+  const uname=email||('user'+Date.now());
+  const r=db.prepare('INSERT INTO users(username,password_hash,display_name,email,avatar_url,lang,country) VALUES(?,?,?,?,?,?,?)')
+    .run(uname,'',name||uname,email||null,avatar||null,'he','IL');
+  return db.prepare('SELECT * FROM users WHERE id=?').get(r.lastInsertRowid);
+}
+app.post('/api/auth/google',async(req,res)=>{
+  const {credential}=req.body;
+  if(!credential)return res.status(400).json({error:'no credential'});
+  try{
+    const r=await fetch('https://oauth2.googleapis.com/tokeninfo?id_token='+encodeURIComponent(credential));
+    const g=await r.json();
+    if(!g||!g.email)return res.status(401).json({error:'invalid google token'});
+    if(process.env.GOOGLE_CLIENT_ID && g.aud!==process.env.GOOGLE_CLIENT_ID)return res.status(401).json({error:'wrong audience'});
+    const u=findOrCreateOAuth(g.email.toLowerCase(),g.name,g.picture);
+    if(u.is_banned)return res.status(403).json({error:'banned'});
+    res.json(userToken(u));
+  }catch(e){res.status(500).json({error:'google auth failed'});}
+});
+
+// ─── Telegram login (מאמת hash מול טוקן הבוט) ───
+const crypto=require('crypto');
+app.post('/api/auth/telegram',(req,res)=>{
+  const token=process.env.TELEGRAM_BOT_TOKEN;
+  if(!token)return res.status(400).json({error:'telegram not configured'});
+  const data={...req.body};const hash=data.hash;delete data.hash;
+  const checkString=Object.keys(data).sort().map(k=>`${k}=${data[k]}`).join('\n');
+  const secret=crypto.createHash('sha256').update(token).digest();
+  const hmac=crypto.createHmac('sha256',secret).update(checkString).digest('hex');
+  if(hmac!==hash)return res.status(401).json({error:'bad telegram hash'});
+  const uname='tg_'+data.id;
+  let u=db.prepare('SELECT * FROM users WHERE username=?').get(uname);
+  if(!u){const r=db.prepare('INSERT INTO users(username,password_hash,display_name,avatar_url,lang,country) VALUES(?,?,?,?,?,?)')
+    .run(uname,'',[data.first_name,data.last_name].filter(Boolean).join(' ')||uname,data.photo_url||null,'he','IL');
+    u=db.prepare('SELECT * FROM users WHERE id=?').get(r.lastInsertRowid);}
+  if(u.is_banned)return res.status(403).json({error:'banned'});
+  res.json(userToken(u));
 });
 app.get('/api/me',auth,(req,res)=>{const u=db.prepare('SELECT id,username,display_name,email,phone,avatar_url,location,country,lang,bio,profession,hobby,wa_dial,wa_num,biz_email,biz_phone,biz_web,is_admin,is_verified,prefs FROM users WHERE id=?').get(req.user.id);res.json(u);});
 app.put('/api/me',auth,(req,res)=>{
@@ -92,6 +203,25 @@ app.put('/api/me',auth,(req,res)=>{
   const set=f.filter(k=>k in req.body).map(k=>`${k}=?`).join(',');
   if(!set)return res.json({ok:1});
   db.prepare(`UPDATE users SET ${set} WHERE id=?`).run(...f.filter(k=>k in req.body).map(k=>typeof req.body[k]==='object'?JSON.stringify(req.body[k]):req.body[k]),req.user.id);
+  res.json({ok:1});
+});
+
+// ─── GDPR: ייצוא ומחיקת חשבון ───
+app.get('/api/me/export',auth,(req,res)=>{
+  const u=db.prepare('SELECT id,username,display_name,email,phone,bio,country,lang,created_at FROM users WHERE id=?').get(req.user.id);
+  const posts=db.prepare('SELECT * FROM posts WHERE user_id=?').all(req.user.id);
+  const comments=db.prepare('SELECT * FROM comments WHERE user_id=?').all(req.user.id);
+  res.setHeader('Content-Disposition','attachment; filename=plaza-data.json');
+  res.json({profile:u,posts,comments});
+});
+app.post('/api/me/delete',auth,(req,res)=>{
+  const id=req.user.id;
+  try{
+    db.prepare('DELETE FROM posts WHERE user_id=?').run(id);
+    db.prepare('DELETE FROM comments WHERE user_id=?').run(id);
+    db.prepare('DELETE FROM private_messages WHERE user_id=?').run(id);
+    db.prepare('DELETE FROM users WHERE id=?').run(id);
+  }catch(e){}
   res.json({ok:1});
 });
 
@@ -112,12 +242,19 @@ app.get('/api/posts',(req,res)=>{
   res.json(rows.map(r=>({...r,media_urls:r.media_urls?JSON.parse(r.media_urls):null,product_data:r.product_data?JSON.parse(r.product_data):null,job_data:r.job_data?JSON.parse(r.job_data):null,poll_data:r.poll_data?JSON.parse(r.poll_data):null,loc_data:r.loc_data?JSON.parse(r.loc_data):null})));
 });
 app.post('/api/posts',auth,(req,res)=>{
-  const {type='text',text,topic,lang,country,media_urls,video_url,sound_url,audio_url,link,product_data,job_data,poll_data,loc_data,expiry_hours,auto_extend,scheduled_at}=req.body;
+  const {type='text',text,topic,lang,country,gender,media_urls,video_url,sound_url,audio_url,link,product_data,job_data,poll_data,loc_data,expiry_hours,auto_extend,scheduled_at}=req.body;
   const exp=now()+(expiry_hours===48?48:24)*3600;
-  const r=db.prepare(`INSERT INTO posts(user_id,type,text,topic,lang,country,media_urls,video_url,sound_url,audio_url,link,product_data,job_data,poll_data,loc_data,expires_at,auto_extend,scheduled_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-    .run(req.user.id,type,text||null,topic||null,lang||null,country||null,media_urls?JSON.stringify(media_urls):null,video_url||null,sound_url||null,audio_url||null,link||null,product_data?JSON.stringify(product_data):null,job_data?JSON.stringify(job_data):null,poll_data?JSON.stringify(poll_data):null,loc_data?JSON.stringify(loc_data):null,exp,auto_extend?1:0,scheduled_at||null);
+  const r=db.prepare(`INSERT INTO posts(user_id,type,text,topic,lang,country,gender,media_urls,video_url,sound_url,audio_url,link,product_data,job_data,poll_data,loc_data,expires_at,auto_extend,scheduled_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+    .run(req.user.id,type,text||null,topic||null,lang||null,country||null,gender||'all',media_urls?JSON.stringify(media_urls):null,video_url||null,sound_url||null,audio_url||null,link||null,product_data?JSON.stringify(product_data):null,job_data?JSON.stringify(job_data):null,poll_data?JSON.stringify(poll_data):null,loc_data?JSON.stringify(loc_data):null,exp,auto_extend?1:0,scheduled_at||null);
   io.emit('post:new',{id:r.lastInsertRowid,topic});
   res.json({id:r.lastInsertRowid});
+});
+app.put('/api/posts/:id',auth,(req,res)=>{
+  const p=db.prepare('SELECT user_id FROM posts WHERE id=?').get(req.params.id);
+  if(!p||(p.user_id!==req.user.id&&!req.user.is_admin))return res.status(403).json({error:'forbidden'});
+  const {text}=req.body;
+  db.prepare('UPDATE posts SET text=COALESCE(?,text) WHERE id=?').run(text??null,req.params.id);
+  res.json({ok:1});
 });
 app.delete('/api/posts/:id',auth,(req,res)=>{
   const p=db.prepare('SELECT user_id FROM posts WHERE id=?').get(req.params.id);
@@ -219,6 +356,8 @@ setInterval(()=>{
 // ─── Pages ───────────────────────────────────────
 app.get('/admin',(_,res)=>res.sendFile(path.join(PUBLIC_DIR,'admin.html')));
 app.get('/login',(_,res)=>res.sendFile(path.join(PUBLIC_DIR,'login.html')));
+app.get('/privacy',(_,res)=>res.sendFile(path.join(PUBLIC_DIR,'privacy.html')));
+app.get('/terms',(_,res)=>res.sendFile(path.join(PUBLIC_DIR,'terms.html')));
 app.get('*',(req,res)=>{if(req.path.startsWith('/api'))return res.status(404).json({error:'not found'});res.sendFile(path.join(PUBLIC_DIR,'index.html'));});
 
 server.listen(PORT,()=>{

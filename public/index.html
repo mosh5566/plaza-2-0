@@ -86,6 +86,13 @@
   .pcd{display:flex;align-items:center;gap:4px;background:var(--surface2);color:var(--sub);font-size:10.5px;font-weight:700;padding:4px 8px;border-radius:8px;flex:0 0 auto}
   .pcd.urg{background:rgba(229,72,77,.15);color:var(--bad)}
   .ptx{color:var(--text);font-size:14.5px;line-height:1.6;padding:0 13px 11px}
+  .ptx .ptxt.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+  .ptx a{color:var(--acc);text-decoration:underline;word-break:break-word}
+  .fb.fbvideo .ptx a{color:#bcdcff}
+  .moreb{color:var(--acc);font-weight:700;cursor:pointer;font-size:12.5px;display:inline-block;margin-top:3px}
+  .fbh .pmenu{flex:0 0 auto;color:var(--mut);font-size:21px;cursor:pointer;padding:0 4px;line-height:.6;align-self:flex-start}
+  .fbh .pmenu:active{color:var(--text)}
+  .eyev{display:inline-flex;align-items:center;gap:4px}.eyev svg{width:13px;height:13px;stroke:var(--ok);fill:none;stroke-width:2}
   .media img,.media video{display:block;width:100%}
   .media video{background:#000;max-height:62vh}
   .fbg{display:grid;gap:3px}
@@ -347,8 +354,10 @@
       <div class="chat" id="chat"></div>
       <div class="composer">
         <button class="snd" onclick="sendMsg()">➤</button>
-        <input class="cinp" id="cin" placeholder="כתוב..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <input class="cinp" id="cin" placeholder="כתוב הודעה..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <span class="i" onclick="chatEmoji()" title="אימוג׳י">😀</span>
         <span class="i" onclick="pickChatImg()" title="תמונה">📷</span>
+        <span class="i" onclick="pickChatFile()" title="קובץ">📎</span>
         <span class="i" id="recBtn" onclick="recVoice()" title="הקלטה">🎙️</span>
       </div>
     </section>
@@ -396,7 +405,7 @@
   <div class="iv" id="iv"><span class="x" onclick="document.getElementById('iv').classList.remove('on')">✕</span><div class="c" id="ivc">🖼️</div><div class="nav2" id="ivnav" style="display:none"><span onclick="galStep(1)">‹</span><span onclick="galStep(-1)">›</span></div></div>
   <div class="toast" id="toast"><span class="e" id="te">⏳</span><div id="tt"></div></div>
   <input type="file" id="fileIn" style="display:none">
-  <div class="recOv" id="recOv"><div class="mic">🎙️</div><div class="bars">${'<i></i>'.repeat(0)}</div><div class="tm" id="recTm">0:00</div><div class="ht">מקליט בזמן אמת — הקש שוב על המיקרופון לעצור</div></div>
+  <div class="recOv" id="recOv" onclick="stopAnyRec()"><div class="mic">🎙️</div><div class="bars">${'<i></i>'.repeat(0)}</div><div class="tm" id="recTm">0:00</div><div class="ht">🔴 מקליט... הקש בכל מקום כדי לעצור ולשמוע</div><button style="margin-top:6px;background:var(--bad);color:#fff;border:none;border-radius:10px;padding:11px 26px;font-weight:800;font-size:14px;cursor:pointer">⏹ עצור הקלטה</button></div>
   <div class="inapp" id="inapp"><div class="inapp-bar"><button onclick="closeInApp()">← חזור לאפליקציה</button><span id="inappUrl"></span></div><iframe id="inappFrame" src="about:blank" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe></div>
 </div>
 <script src="/socket.io/socket.io.js" onerror="window._noSock=1"></script>
@@ -410,7 +419,7 @@ const API = {
       const r = await fetch('/api/health',{cache:'no-store'});
       this.ok = r.ok;
     }catch(e){ this.ok=false; }
-    if(this.ok && !this.token){ location.href='/login.html'; return; }
+    if(this.ok && !this.token && !localStorage.getItem('plazaGuest')){ location.href='/login.html'; return; }
     if(this.ok && this.token){
       try{
         const r = await fetch('/api/me',{headers:{Authorization:'Bearer '+this.token}});
@@ -496,6 +505,14 @@ function applyLang(){const RTL=['he','ar','fa','ur','yi','ps','ckb'];const dir=R
  const t=I18N[S.lang]||I18N.en,set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
  set('subt',t.subt);set('lblReg',t.reg);set('lblOnl',t.onl);set('lblP48',t.p48);set('filtHint',t.filtHint);set('brandTxt',t.brand);try{nav();}catch(e){}}
 setTimeout(applyLang,0);
+/* ===== הארכה אוטומטית בתשלום מדורג — קוד מוכן, מוסתר מהממשק (לא מוצג בבטא) =====
+   כרגע: הארכה חופשית של עד יום אחד נוסף (autoExt). הלוגיקה למטה מוכנה לחשיפה עתידית:
+   המחיר עולה מדורג ככל שמאריכים יותר ימים — כמו תקציב קמפיין ממומן בפייסבוק. */
+const AUTO_EXTEND_PRICING={
+ enabled:false, freeDays:1, currency:'USD', base:2,
+ priceForDay(d){if(d<=this.freeDays)return 0;return Math.round((this.base*(d-this.freeDays)+(d-this.freeDays)*(d-this.freeDays-1)/2)*100)/100;},
+ quote(days){let total=0;const rows=[];for(let d=1;d<=days;d++){const p=this.priceForDay(d);total+=p;rows.push({day:d,dayPrice:p,cumulative:Math.round(total*100)/100});}return rows;}
+}; // חשיפה עתידית: AUTO_EXTEND_PRICING.quote(n) → להציג למשתמש לפני חיוב.
 let curRoom='tech',trAll=false,privCtx=null;
 function tp(id){return TOPICS.find(x=>x[0]===id);}
 function isImg(s){return typeof s==='string'&&(s.startsWith('blob:')||s.startsWith('data:')||s.startsWith('http'));}
@@ -511,10 +528,13 @@ function mediaBlock(p,i){
   return `<div class="media"><div class="fbg n${n}">`+sh.map((m,k)=>`<div onclick="galView(${i},${k})">${cell(m)}${(k===3&&im.length>4)?`<span class="more">+${im.length-4}</span>`:''}</div>`).join('')+`</div></div>`;}
  if(p.type==='video'){if(p.vidUrl)return `<div class="media"><video src="${p.vidUrl}" controls playsinline></video></div>`;
   return `<div class="media"><div class="vidwrap"><div class="ph" onclick="toast('🎬','וידאו לדוגמה — בפלטפורמה האמיתית יתנגן')">${p.e}<div class="pl">▶</div></div></div></div>`;}
- if(p.type==='poll')return `<div style="padding:0 13px 11px">`+p.poll.map(o=>`<div class="poll-o" onclick="this.querySelector('.f').style.width='${o.p}%';this.querySelector('.pc').textContent='${o.p}%'"><div class="f"></div><div class="l"><span>${o.t}</span><span class="pc"></span></div></div>`).join('')+`</div>`;
+ if(p.type==='poll'){const tot=p.poll.reduce((a,o)=>a+(o.v||0),0);const k=p._sid?'s'+p._sid:'i'+i;const voted=S.pollVotes&&S.pollVotes[k]!=null;
+  return `<div style="padding:0 13px 11px">`+p.poll.map((o,oi)=>{const pct=tot?Math.round((o.v||0)/tot*100):0;return `<div class="poll-o${voted&&S.pollVotes[k]===oi?' my':''}" onclick="votePoll(${i},${oi})"><div class="f" style="width:${voted?pct:0}%"></div><div class="l"><span>${voted&&S.pollVotes[k]===oi?'✓ ':''}${o.t}</span><span class="pc">${voted?pct+'%':''}</span></div></div>`;}).join('')+`<div style="color:var(--mut);font-size:11px;margin-top:6px">${tot.toLocaleString('en-US')} הצבעות${voted?'':' · הקש להצביע'}</div></div>`;}
  if(p.type==='product'){const g=p.imgs&&p.imgs.length?`<div class="media"><div class="fbg n${Math.min(p.imgs.length,4)}">`+p.imgs.slice(0,4).map((m,k)=>`<div onclick="galView(${i},${k})">${cell(m)}${(k===3&&p.imgs.length>4)?`<span class="more">+${p.imgs.length-4}</span>`:''}</div>`).join('')+`</div></div>`:'';
-  return g+`<div class="ibx"><div class="t">${p.prod.title}</div><div class="d">${p.prod.desc}</div><div class="pr">${p.prod.price}</div>${p.prod.ship?`<div class="sh">🚚 ${p.prod.ship}</div>`:''}<button onclick="contactSeller('${p.nm}')">💬 צור קשר עם המוכר/ת</button></div>`;}
- if(p.type==='job')return `<div class="ibx"><div class="t">${p.job.title}</div><div class="d">${p.job.company}</div><div class="sl">💰 ${p.job.sal}</div><button onclick="toast('✅','המועמדות נשלחה!')">הגש מועמדות</button></div>`;
+  return g+`<div class="ibx"><div class="t" style="font-size:15px">${p.prod.title}</div>${p.prod.desc?`<div class="d">${linkify(p.prod.desc)}</div>`:''}<div class="pr">${p.prod.price}</div>${p.prod.ship?`<div class="sh">🚚 ${p.prod.ship}</div>`:''}<button onclick="contactSeller('${p.nm}')">💬 צור קשר עם המוכר/ת</button></div>`;}
+ if(p.type==='job'){const j=p.job||{};const applyWa=j.apply==='wa'&&j.wa;
+  return `<div class="ibx" style="border-color:#1D9BF0"><div class="t">${j.title||'משרה'}</div><div class="d">${j.company||''}${j.location?' · 📍 '+j.location:''}</div>${j.sal?`<div class="sl">💰 ${j.sal}</div>`:''}<button onclick="${applyWa?`window.open('https://wa.me/${j.wa}?text='+encodeURIComponent('שלום, מעוניין/ת במשרה: '+${JSON.stringify(j.title||'')}),'_blank')`:`applyJob(${i})`}">${applyWa?'🟢 שלח מועמדות בוואטסאפ':'📥 הגש מועמדות'}</button></div>`;}
+ if(p.type==='file'&&p.files&&p.files.length)return '<div style="padding:0 13px 11px">'+p.files.map(fl=>`<div style="display:flex;align-items:center;gap:11px;background:var(--surface2);border:1px solid var(--line);border-radius:11px;padding:11px;margin-bottom:7px">${fl.type&&fl.type.startsWith('image')?`<img src="${fl.url}" style="width:48px;height:48px;border-radius:8px;object-fit:cover">`:`<div style="width:48px;height:48px;border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:24px">${fileIcon(fl.type)}</div>`}<div style="flex:1;min-width:0"><div style="color:var(--text);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${fl.name}</div><div style="color:var(--mut);font-size:11px">${fmtSize(fl.size)} · ${((fl.type||'').split('/')[1]||'').toUpperCase()}</div></div><a href="${fl.url}" download="${fl.name}" style="color:var(--acc);font-size:20px;text-decoration:none">⬇️</a></div>`).join('')+'</div>';
  if(p.type==='location')return `<div class="ibx" style="padding:0;overflow:hidden">${p.loc.lat&&p.loc.lat!=='—'?`<iframe style="width:100%;height:160px;border:none" src="https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(p.loc.lng)-0.02},${parseFloat(p.loc.lat)-0.01},${parseFloat(p.loc.lng)+0.02},${parseFloat(p.loc.lat)+0.01}&marker=${p.loc.lat},${p.loc.lng}"></iframe>`:`<div style="height:90px;background:linear-gradient(160deg,#1c2b40,#13324a);display:flex;align-items:center;justify-content:center;font-size:30px">🗺️📍</div>`}<div class="d" style="padding:8px 12px;margin:0;display:flex;justify-content:space-between"><span>📍 ${p.loc.place}</span><span>${p.loc.dist}</span></div></div>`;
  if(p.type==='audio')return `<div class="ibx">${p.audioUrl?`<audio controls src="${p.audioUrl}" style="width:100%"></audio>`:`<div class="vc"><button class="vp" onclick="pa(${i},this)">▶</button><div class="wv" id="w${i}">${'<i></i>'.repeat(20)}</div><span style="color:var(--sub);font-size:11px">${p.voice.dur}</span></div>`}<div class="vtool"><button onclick="vs(${i},'tr',this)">📝 תמלול חי</button><button onclick="vs(${i},'tl',this)">🌐 תרגום</button></div><div class="vout" id="vo${i}"></div></div>`;
  return '';
@@ -523,22 +543,22 @@ function postCard(p,i){if(p.type==='video')return videoCard(p,i);
  const tot=p.mins<60?60:48*60,t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&pr.wa?waLink('',pr.wa):'';
  return `<div class="fb" data-i="${i}">
   <div class="fbh"><div class="av" onclick="openProf('${p.nm}')">${avH(p)}</div>
-   <div class="who" onclick="openProf('${p.nm}')"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}</div></div>
-   <div class="pcd"><span class="cdt">--</span> ⏳</div></div>
-  ${p.text?`<div class="ptx">${p.text}<div style="margin-top:6px;font-size:11px"><span style="color:var(--acc);font-weight:700;cursor:pointer" onclick="translatePost(${i},this)">🌐 תרגם את הפוסט</span><div style="display:none;margin-top:6px;padding:8px 10px;background:var(--surface2);border-radius:8px;color:var(--text);font-size:13px"></div></div></div>`:''}
+   <div class="who" onclick="openProf('${p.nm}')"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}</div></div>
+   <div class="pcd"><span class="cdt">--</span> ⏳</div><span class="pmenu" onclick="postMenu(${i})">⋯</span></div>
+  ${postText(p,i)}
   ${mediaBlock(p,i)}
-  ${p.snd?`<div class="vsnd"><audio controls src="${p.snd}"></audio></div>`:''}
+  ${p.snd&&String(p.snd).startsWith('http')?`<div class="vsnd"><audio controls src="${p.snd}"></audio></div>`:''}
   ${p.link?`<div class="lk-card" onclick="openInApp('${p.link}')"><span class="lic">🔗</span><div><div class="lt">קישור מצורף — נפתח באפליקציה</div><div class="lu">${p.link}</div></div></div>`:''}
   ${wa?`<div class="wabtn" onclick="window.open('${wa}','_blank')"><span>🟢</span> צור קשר ב-WhatsApp</div>`:''}
   <div style="padding:0 13px 9px;display:flex;gap:6px;flex-wrap:wrap;font-size:11px">
-   <span style="background:var(--surface2);color:var(--ok);font-weight:700;padding:3px 8px;border-radius:7px;display:inline-flex;align-items:center;gap:4px"><span class="live"></span>${postViewers(i)} צופים</span>
+   ${eyeHtml(i)}
    ${p.autoExt?'<span style="background:var(--acc-soft);color:var(--acc);font-weight:700;padding:3px 8px;border-radius:7px">♻️ הארכה אוטו׳</span>':''}
    ${p.sched?'<span style="background:var(--surface2);color:var(--warn);font-weight:700;padding:3px 8px;border-radius:7px">⏰ תוזמן</span>':''}
   </div>
   <div class="fbf">
    <div class="fa lk" onclick="like(${i},this)"><span class="ic">🤍</span><span id="lk${i}">${(p.likes/1000).toFixed(1)}K</span></div>
    <div class="fa" onclick="openCom(${i})">💬 <span id="cm${i}">${p.com}</span></div>
-   <div class="fa" onclick="openShare()">↗️ שתף</div>
+   <div class="fa" onclick="sharePost(${i})">↗️ שתף</div>
    <div class="fa bk" onclick="bk(${i},this)">🔖 שמור</div>
   </div></div>`;
 }
@@ -548,17 +568,21 @@ function videoCard(p,i){const t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&p
   ${p.snd?`<audio src="${p.snd}" autoplay loop></audio>`:''}
   <div class="vhd"><div class="av" onclick="openProf('${p.nm}')">${avH(p)}</div>
    <div class="who" onclick="openProf('${p.nm}')" style="flex:1"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}</div></div>
-   <div class="pcd"><span class="cdt">--</span> ⏳</div></div>
-  <div class="vfoot"><div class="ptx">${p.text||''}</div>${p.link?`<div class="lk-card" style="margin:8px 0 0;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.2)" onclick="openInApp('${p.link}')"><span class="lic">🔗</span><div><div class="lt" style="color:#fff">קישור</div><div class="lu" style="color:#ddd">${p.link}</div></div></div>`:''}</div>
+   <div class="pcd"><span class="cdt">--</span> ⏳</div><span class="pmenu" style="color:#fff" onclick="postMenu(${i})">⋯</span></div>
+  <div class="vfoot"><div class="ptx" style="padding:0">${linkify(p.text||'')}</div>${p.link?`<div class="lk-card" style="margin:8px 0 0;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.2)" onclick="openInApp('${p.link}')"><span class="lic">🔗</span><div><div class="lt" style="color:#fff">קישור</div><div class="lu" style="color:#ddd">${p.link}</div></div></div>`:''}</div>
   <div class="vacts">
    <div class="va lk" onclick="like(${i},this)"><span class="ic">🤍</span><small id="lk${i}">${(p.likes/1000).toFixed(1)}K</small></div>
    <div class="va" onclick="openCom(${i})">💬<small id="cm${i}">${p.com}</small></div>
-   <div class="va" onclick="openShare()">↗️<small>שתף</small></div>
+   <div class="va" onclick="sharePost(${i})">↗️<small>שתף</small></div>
    <div class="va bk" onclick="bk(${i},this)">🔖<small>שמור</small></div>
    ${wa?`<div class="va" onclick="window.open('${wa}','_blank')" style="background:var(--wa)">🟢<small>וואטסאפ</small></div>`:''}
   </div></div>`;
 }
-function passes(p){return (!S.fP.length||S.fP.includes(p.type))&&(!S.fL.length||S.fL.includes(p.lang))&&(!S.fC.length||S.fC.includes(p.country))&&(!S.fT.length||S.fT.includes(p.topicId));}
+function passes(p){const key=p._sid?'s'+p._sid:'i'+POSTS.indexOf(p);
+ if(S.hidden&&S.hidden.includes(key))return false;
+ if(S.blocked&&S.blocked.includes(p.nm))return false;
+ if(S.fG&&S.fG!=='all'&&p.gender&&p.gender!=='all'&&p.gender!==S.fG)return false;
+ return (!S.fP.length||S.fP.includes(p.type))&&(!S.fL.length||S.fL.includes(p.lang))&&(!S.fC.length||S.fC.includes(p.country))&&(!S.fT.length||S.fT.includes(p.topicId));}
 function buildFeed(){const f=POSTS.filter(passes);
  feed.innerHTML=f.length?f.map(p=>postCard(p,POSTS.indexOf(p))).join(''):`<div class="empty"><div class="e">🌫️</div><p>אין פוסטים בסינון הזה</p></div>`;
  for(const k in S.likes){if(S.likes[k]){const e=document.querySelector(`.fb[data-i="${k}"] .lk`);if(e){e.classList.add('on');e.querySelector('.ic').textContent='❤️';}}}
@@ -588,7 +612,8 @@ async function bootApp(){
         POSTS = real.map(r=>({
           _sid:r.id, e:r.type==='image'?'🖼️':r.type==='video'?'🎬':'📝',
           av:'👤', avImg:r.avatar_url||'', nm:r.display_name||r.username, meta:(r.country||'')+' · '+new Date(r.created_at*1000).toLocaleString('he-IL'),
-          type:r.type, topicId:r.topic||'community', lang:r.lang||'he', country:r.country||'IL',
+          type:r.type, topicId:r.topic||'community', lang:r.lang||'he', country:r.country||'IL', gender:r.gender||'all',
+          _mine:!!(API.user&&(r.user_id===API.user.id||r.username===API.user.username)),
           text:r.text||'', mins:Math.max(1,(r.expires_at-Math.floor(Date.now()/1000))/60),
           likes:r.like_count||0, com:r.comment_count||0,
           imgs:r.media_urls||undefined, vidUrl:r.video_url||undefined, audioUrl:r.audio_url||undefined, snd:r.sound_url||undefined,
@@ -671,16 +696,25 @@ function openPChat(nm){privCtx={nm};document.getElementById('rTitle').textConten
  const chat=document.getElementById('chat');chat.innerHTML='';addMsg({w:nm,t:'היי! קיבלתי את ההודעה 👋'});
  cur='room';document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-room').classList.add('on');nav();chat.scrollTop=chat.scrollHeight;}
 setInterval(()=>{if(cur==='room'&&!privCtx)addMsg(GENERIC[Math.floor(Math.random()*GENERIC.length)]);},4500);
-function linkify(t){if(!t)return '';return String(t).replace(/(https?:\/\/[^\s]+|(?:www\.|[\w-]+\.(?:com|net|org|co\.il|io|app|shop|art|se|de|fr|es|it|jp|cn|br))[^\s]*)/g,u=>{const url=u.startsWith('http')?u:'https://'+u;return `<a onclick="openInApp('${url}');return false" href="#" style="color:#bcdcff;text-decoration:underline">${u}</a>`;});}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function linkify(t){if(!t)return '';let s=esc(String(t)).replace(/\n/g,'<br>');return s.replace(/(https?:\/\/[^\s<]+|(?:www\.|[\w-]+\.(?:com|net|org|co\.il|io|app|shop|art|se|de|fr|es|it|jp|cn|br))[^\s<]*)/g,u=>{const url=u.startsWith('http')?u:'https://'+u;return `<a onclick="openInApp('${url.replace(/'/g,"%27")}');return false" href="#" style="color:var(--acc);text-decoration:underline">${u}</a>`;});}
 function addMsg(m,me){const chat=document.getElementById('chat');const id='x'+(Math.random()*1e9|0);
- const tl=m.tl?`<span class="trb" onclick="trln('${id}',this,'${encodeURIComponent(m.tl)}')">🌐 תרגם</span><div class="tro" id="${id}"></div>`:'';
  const el=document.createElement('div');el.className='msg'+(me?' me':'');
- const body=m.img?`<img src="${m.img}">`:(m.audio?`<audio controls src="${m.audio}"></audio>`:(m.voiceSim?`🎙️ הודעה קולית · 0:${String(m.voiceSim).padStart(2,'0')}`:linkify(m.t||'')));
- el.innerHTML=`<div class="w" onclick="${me?'':`msgMenu('${(m.w||'').replace(/'/g,'')}')`}">${m.w||'אתה'}${me?'':' ⋯'}</div><div class="b">${body}</div>${tl}`;
- chat.appendChild(el);if(trAll&&m.tl){const o=document.getElementById(id);o.textContent='🌐 '+m.tl;o.classList.add('show');}chat.scrollTop=chat.scrollHeight;}
-function trln(id,b,e){const o=document.getElementById(id);if(o.classList.contains('show')){o.classList.remove('show');b.textContent='🌐 תרגם';return;}o.textContent='🌐 '+decodeURIComponent(e);o.classList.add('show');b.textContent='הסתר';}
-function trAllToggle(){trAll=!trAll;document.getElementById('rTrAll').textContent=trAll?'🌐 תרגום: פעיל':'🌐 תרגם הכל';document.querySelectorAll('#chat .msg').forEach(m=>{const o=m.querySelector('.tro'),b=m.querySelector('.trb');if(!o)return;if(trAll){o.classList.add('show');if(!o.textContent)o.textContent='🌐 (תרגום אוטומטי)';if(b)b.textContent='הסתר';}else{o.classList.remove('show');if(b)b.textContent='🌐 תרגם';}});toast('🌐',trAll?'תרגום אוטומטי פעיל':'כבוי');}
-function sendMsg(){const i=document.getElementById('cin');if(!i.value.trim())return;const text=i.value.trim();addMsg({w:'אתה'},true);const last=document.querySelector('#chat .msg.me:last-child');last.querySelector('.b').textContent=text;i.value='';
+ const isText=!m.img&&!m.audio&&!m.voiceSim&&m.t;
+ const body=m.file?`<a href="${m.file.url}" download="${m.file.name}" style="display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none"><span style="font-size:24px">${fileIcon(m.file.type)}</span><span style="word-break:break-all">${m.file.name}</span></a>`:(m.img?`<img src="${m.img}">`:(m.audio?`<audio controls src="${m.audio}"></audio>`:(m.voiceSim?`🎙️ הודעה קולית · 0:${String(m.voiceSim).padStart(2,'0')}`:linkify(m.t||''))));
+ const trBtn=isText?`<span class="trb" data-src="${encodeURIComponent(m.t)}" data-lng="${m.lng||''}" onclick="trMsg(this)">🌐 תרגם</span><div class="tro" id="${id}"></div>`:'';
+ el.innerHTML=`<div class="w" onclick="${me?'':`msgMenu('${(m.w||'').replace(/'/g,'')}')`}">${m.w||'אתה'}${me?'':' ⋯'}</div><div class="b">${body}</div>${trBtn}`;
+ chat.appendChild(el);if(trAll&&isText)trMsg(el.querySelector('.trb'),true);chat.scrollTop=chat.scrollHeight;}
+async function trMsg(b,auto){if(!b)return;const o=b.nextElementSibling;if(!o)return;
+ if(!auto&&o.classList.contains('show')){o.classList.remove('show');b.textContent='🌐 תרגם';return;}
+ const src=decodeURIComponent(b.dataset.src||'');o.textContent='⏳ מתרגם...';o.classList.add('show');
+ try{const tr=await translateText(src,S.lang,b.dataset.lng||undefined);o.textContent='🌐 '+tr;}catch(e){o.textContent='שגיאת תרגום';}
+ if(!auto)b.textContent='הסתר';}
+function trAllToggle(){trAll=!trAll;document.getElementById('rTrAll').textContent=trAll?'🌐 תרגום: פעיל':'🌐 תרגם הכל';
+ if(trAll){document.querySelectorAll('#chat .msg .trb').forEach(b=>trMsg(b,true));}
+ else{document.querySelectorAll('#chat .tro').forEach(o=>o.classList.remove('show'));document.querySelectorAll('#chat .trb').forEach(b=>b.textContent='🌐 תרגם');}
+ toast('🌐',trAll?'תרגום אוטומטי פעיל — כל ההודעות מתורגמות לשפה שלך':'תרגום כבוי');}
+function sendMsg(){const i=document.getElementById('cin');if(!i.value.trim())return;const text=i.value.trim();addMsg({w:'אתה',t:text},true);i.value='';const eb=document.getElementById('chatEmojiBar');if(eb)eb.remove();
  if(IS_SERVER()&&!privCtx&&curRoom){API.req('/rooms/'+curRoom+'/messages',{method:'POST',body:{text}}).catch(()=>{});}
  if(privCtx){const chat=document.getElementById('chat');
   const sn=document.createElement('div');sn.style.cssText='align-self:flex-start;color:var(--mut);font-size:10px;padding:0 6px';sn.textContent='נשלח';chat.appendChild(sn);chat.scrollTop=chat.scrollHeight;
@@ -689,9 +723,20 @@ function sendMsg(){const i=document.getElementById('cin');if(!i.value.trim())ret
   setTimeout(()=>{chat.appendChild(tp);chat.scrollTop=chat.scrollHeight;let n=1;tp._t=setInterval(()=>{n=n%3+1;const d=document.getElementById('td');if(d)d.textContent='.'.repeat(n);},350);},1500);
   setTimeout(()=>{clearInterval(tp._t);tp.remove();addMsg({w:privCtx.nm,t:'תודה! 🙏 קיבלתי, אחזור אליך בקרוב'});},3600);}}
 function pickChatImg(){fileInput('image/*',false,f=>{addMsg({w:'אתה',img:URL.createObjectURL(f[0])},true);toast('📷','התמונה נשלחה');});}
+function pickChatFile(){fileInput('*/*',false,f=>{const fl=f[0];addMsg({w:'אתה',file:{name:fl.name,url:URL.createObjectURL(fl),type:fl.type}},true);toast('📎','הקובץ נשלח');});}
+function chatEmoji(){let bar=document.getElementById('chatEmojiBar');if(bar){bar.remove();return;}const set='😀 😂 🤣 ❤️ 🔥 👍 🙏 🎉 😍 🤔 👏 😢 🙌 💯 ✨ 😎 🥳 😮 😅 🤝 💪 👀 ✅ 🤯 🙈 😴 🤩 😭 🥰 😡 🥳 🫶'.split(' ');bar=document.createElement('div');bar.id='chatEmojiBar';bar.style.cssText='display:flex;flex-wrap:wrap;gap:4px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--line);max-height:120px;overflow-y:auto';bar.innerHTML=set.map(e=>`<span style="font-size:23px;cursor:pointer;padding:2px" onclick="var c=document.getElementById('cin');c.value+='${e}';c.focus()">${e}</span>`).join('');const comp=document.querySelector('#s-room .composer');if(comp)comp.parentElement.insertBefore(bar,comp);}
 let mediaRec=null,recChunks=[],recTimer=null,recSecs=0;
 function showRecOv(){const o=document.getElementById('recOv');o.classList.add('on');o.querySelector('.bars').innerHTML='<i></i>'.repeat(28);let s=0;clearInterval(o._t);document.getElementById('recTm').textContent='0:00';o._t=setInterval(()=>{s++;document.getElementById('recTm').textContent='0:'+String(s).padStart(2,'0');},1000);}
 function hideRecOv(){const o=document.getElementById('recOv');o.classList.remove('on');clearInterval(o._t);}
+/* עצירת כל הקלטה פעילה (שכבת ההקלטה מכסה את כפתור העצירה — לחיצה עליה עוצרת) */
+function stopAnyRec(){
+ if(typeof mediaRec!=='undefined'&&mediaRec&&mediaRec.state==='recording'){try{mediaRec.stop();}catch(e){}return;}
+ if(typeof cRec!=='undefined'&&cRec&&cRec.state==='recording'){try{cRec.stop();}catch(e){}return;}
+ if(typeof pcRec!=='undefined'&&pcRec&&pcRec.state==='recording'){try{pcRec.stop();}catch(e){}return;}
+ if(typeof pmRec!=='undefined'&&pmRec&&pmRec.state==='recording'){try{pmRec.stop();}catch(e){}return;}
+ const rb=document.getElementById('recBtn');if(rb&&rb._sim){rb._sim();return;}
+ const cb=document.getElementById('cRec');if(cb&&cb._sim){cb._sim();return;}
+ hideRecOv();}
 function recVoice(){const btn=document.getElementById('recBtn');
  if(btn._sim){btn._sim();return;}
  if(mediaRec&&mediaRec.state==='recording'){try{mediaRec.stop();}catch(e){}return;}
@@ -733,23 +778,39 @@ function renderCreate(){const g=document.getElementById('createGrid');
  const draft=S.draft?`<div class="card" style="grid-column:1/-1;cursor:pointer;border-color:var(--acc)" onclick="resumeDraft()"><div class="row"><span style="font-size:20px">💾</span><div style="flex:1"><b style="color:var(--text);font-size:13px">המשך טיוטה שמורה</b><div style="color:var(--sub);font-size:12px;margin-top:2px">${S.draft.label||'פוסט'} · ${(S.draft.text||'').slice(0,40)||'ללא טקסט'}</div></div><span style="color:var(--acc);font-weight:700">המשך ›</span></div></div>`:'';
  g.innerHTML=draft+PTYPES.map(c=>`<div class="rm" onclick="createKind('${c[0]}','${c[1]}','${c[2]}')"><div class="ic">${c[2]}</div><div class="nm2">${c[1]}</div><div class="mt">${(c[0]==='image'||c[0]==='video'||c[0]==='file'||c[0]==='product')?'📂 גלריה':'צור'}</div></div>`).join('');}
 let C={type:'text',label:'טקסט',em:'📝',exp:24,picks:[],vid:'',topic:'community',country:'IL',lang:'he',ship:SHIP[0],text:'',pT:'',pP:'',link:'',audio:'',audioSecs:0,audioDur:''};
-function createKind(id,label,em){C={type:id,label,em,exp:24,picks:[],vid:'',topic:'',country:'IL',lang:S.lang||'he',ship:SHIP[0],text:'',pT:'',pP:'',link:'',audio:'',audioSecs:0,audioDur:'',snd:'',sched:'',autoExt:false};
- if(id==='image'||id==='product'){fileInput('image/*',true,f=>{C.picks=f.map(x=>URL.createObjectURL(x));compose();});}
- else if(id==='video'){fileInput('video/*',false,f=>{C.vid=URL.createObjectURL(f[0]);compose();});}
- else if(id==='file'){fileInput('*/*',true,f=>{C.picks=f.map(x=>'📎 '+x.name);compose();});}
- else if(id==='location'){if(navigator.geolocation){toast('📍','מבקש גישה למיקום...');navigator.geolocation.getCurrentPosition(async pos=>{const lat=pos.coords.latitude.toFixed(5),lng=pos.coords.longitude.toFixed(5);let addr='';try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${S.lang||'he'}`);const j=await r.json();addr=j&&j.display_name||'';}catch(e){}C.loc={lat,lng,addr};compose();toast('📍','המיקום זוהה: '+(addr.split(',')[0]||lat+', '+lng));},()=>{C.loc={lat:'—',lng:'—',addr:'אין הרשאת מיקום'};compose();toast('📍','אין הרשאת מיקום — אפשר ידנית');});}else compose();}
- else compose();}
-function grab(){const g=id=>(document.getElementById(id)||{}).value;C.text=g('cText')??C.text;C.pT=g('pT')??C.pT;C.pP=g('pP')??C.pP;C.link=g('cLink')??C.link;}
+function createKind(id,label,em){C={type:id,label,em,exp:24,picks:[],files:[],vid:'',gender:'all',topic:'',country:'IL',lang:S.lang||'he',ship:SHIP[0],text:'',pT:'',pP:'',link:'',audio:'',audioSecs:0,audioDur:'',snd:'',sched:'',autoExt:false};
+ // תמיד פותחים את חלון העריכה קודם — כך הכפתור "פרסם" תמיד זמין גם אם מבטלים בחירת קובץ
+ compose();
+ if(id==='image'){setTimeout(()=>fileInput('image/*,video/*',true,f=>{C.picks=C.picks.concat(f.map(x=>URL.createObjectURL(x)));compose();}),80);}
+ else if(id==='product'){setTimeout(()=>fileInput('image/*,video/*',true,f=>{C.picks=C.picks.concat(f.map(x=>URL.createObjectURL(x)));compose();}),80);}
+ else if(id==='video'){setTimeout(()=>fileInput('video/*',false,f=>{C.vid=URL.createObjectURL(f[0]);compose();toast('🎬','הסרטון נטען — מעלה ברקע');}),80);}
+ else if(id==='file'){setTimeout(()=>fileInput('*/*',true,f=>{C.files=f.map(x=>({name:x.name,size:x.size,type:x.type,url:URL.createObjectURL(x)}));C.picks=C.files.map(x=>'📎 '+x.name);compose();}),80);}
+ else if(id==='location'){geoLocate();}}
+function geoLocate(){if(navigator.geolocation){toast('📍','מבקש גישה למיקום...');navigator.geolocation.getCurrentPosition(async pos=>{const lat=pos.coords.latitude.toFixed(5),lng=pos.coords.longitude.toFixed(5);let addr='';try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=${S.lang||'he'}`);const j=await r.json();addr=j&&j.display_name||'';}catch(e){}C.loc={lat,lng,addr};compose();toast('📍','המיקום זוהה: '+(addr.split(',')[0]||lat+', '+lng));},()=>{C.loc={lat:'—',lng:'—',addr:''};compose();toast('📍','אין הרשאת מיקום — הקלד כתובת ידנית');});}else{C.loc={lat:'—',lng:'—',addr:''};compose();}}
+function grab(){const g=id=>(document.getElementById(id)||{}).value;
+ C.text=g('cText')??C.text;C.pT=g('pT')??C.pT;C.pP=g('pP')??C.pP;C.link=g('cLink')??C.link;
+ if(C.type==='poll')C.pollOpts=['po1','po2','po3','po4'].map(g);
+ if(C.type==='job'){C.jT=g('jT')??C.jT;C.jC=g('jC')??C.jC;C.jLoc=g('jLoc')??C.jLoc;C.jSal=g('jSal')??C.jSal;C.jWa=g('jWa')??C.jWa;}
+ if(C.type==='location'){const a=g('locAddr');if(a!=null)C.loc=Object.assign({lat:'—',lng:'—'},C.loc,{addr:a});}}
+function fileIcon(t){t=t||'';if(t.startsWith('image'))return '🖼️';if(t.startsWith('video'))return '🎬';if(t.startsWith('audio'))return '🎵';if(t.includes('pdf'))return '📕';if(t.includes('word')||t.includes('document'))return '📘';if(t.includes('sheet')||t.includes('excel')||t.includes('csv'))return '📗';if(t.includes('presentation')||t.includes('powerpoint'))return '📙';if(t.includes('zip')||t.includes('rar')||t.includes('compressed'))return '🗜️';if(t.includes('text'))return '📃';return '📄';}
+function fmtSize(b){if(!b)return '';if(b<1024)return b+'B';if(b<1048576)return Math.round(b/1024)+'KB';return (b/1048576).toFixed(1)+'MB';}
 function compose(){const em=C.em,label=C.label,id=C.type;
- const prev=C.picks.length?`<div class="prev">${C.picks.map(p=>`<div class="pv">${isImg(p)?`<img src="${p}">`:(p[0]=='📎'?'📎':em)}</div>`).join('')}</div>`:(C.vid?`<div class="prev"><div class="pv"><video src="${C.vid}"></video></div></div>`:'');
- let f=`<div class="sh-h" style="margin-top:0">כתוב כיתוב / הסבר — יופיע מעל המדיה (כמו פייסבוק)</div><textarea id="cText" maxlength="500" placeholder="מה אתה משתף? ספר/הסבר...">${C.text}</textarea>`;
- if(id==='poll')f+='<input class="inp" id="po1" placeholder="אפשרות 1"><input class="inp" id="po2" placeholder="אפשרות 2"><input class="inp" id="po3" placeholder="אפשרות 3 (לא חובה)">';
+ let prev='';
+ if(id==='file'&&C.files&&C.files.length){
+  prev='<div style="margin-bottom:10px">'+C.files.map((fl,k)=>`<div style="display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:10px;margin-bottom:7px">${fl.type&&fl.type.startsWith('image')?`<img src="${fl.url}" style="width:46px;height:46px;border-radius:8px;object-fit:cover">`:`<div style="width:46px;height:46px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px">${fileIcon(fl.type)}</div>`}<div style="flex:1;min-width:0"><div style="color:var(--text);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${fl.name}</div><div style="color:var(--mut);font-size:11px">${fmtSize(fl.size)} · ${((fl.type||'').split('/')[1]||'קובץ').toUpperCase()}</div></div><span onclick="C.files.splice(${k},1);C.picks.splice(${k},1);compose()" style="color:var(--bad);cursor:pointer;font-size:16px;padding:4px">✕</span></div>`).join('')+'</div>';
+ } else {
+  prev=C.picks.length?`<div class="prev">${C.picks.map((p,k)=>`<div class="pv" style="position:relative">${isImg(p)?`<img src="${p}">`:em}<span onclick="C.picks.splice(${k},1);compose()" style="position:absolute;top:-5px;left:-5px;background:var(--bad);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">✕</span></div>`).join('')}</div>`:(C.vid?`<div class="prev"><div class="pv"><video src="${C.vid}"></video></div></div>`:'');
+ }
+ let f=`<div class="sh-h" style="margin-top:0">${id==='product'?'תיאור המוצר':id==='poll'?'שאלת הסקר':'כתוב כיתוב / הסבר — אפשר טקסט ארוך'}</div>
+  <div style="position:relative"><textarea id="cText" maxlength="5000" style="height:110px" placeholder="${id==='poll'?'מה השאלה?':'מה אתה משתף? ספר בהרחבה...'}">${C.text}</textarea><span onclick="grab();emojiPick()" style="position:absolute;bottom:16px;left:10px;font-size:21px;cursor:pointer" title="אימוג׳ים">😀</span></div>`;
+ if(id==='poll'){const o=C.pollOpts||['','','',''];f+=[0,1,2,3].map(i=>`<input class="inp" id="po${i+1}" value="${o[i]||''}" placeholder="אפשרות ${i+1}${i>1?' (לא חובה)':''}">`).join('');}
  if(id==='product')f+=`<input class="inp" id="pT" value="${C.pT}" placeholder="שם המוצר"><input class="inp" id="pP" value="${C.pP}" placeholder="מחיר ₪"><div class="mi" onclick="grab();pickShip()"><span class="mc">🚚</span>אפשרות משלוח<span class="mv" id="shLbl">${C.ship} ›</span></div><div class="mi" onclick="grab();fileInput('image/*',true,f=>{C.picks=C.picks.concat(f.map(x=>URL.createObjectURL(x)));compose();})"><span class="mc">🖼️</span>הוסף תמונות/וידאו מהגלריה<span class="mv">${C.picks.length} ›</span></div>`;
- if(id==='job')f+='<input class="inp" placeholder="כותרת המשרה"><input class="inp" placeholder="חברה / מיקום"><input class="inp" placeholder="טווח שכר">';
- if(id==='location')f+=`<div class="ibx" style="margin:0 0 8px;padding:0;overflow:hidden">${C.loc&&C.loc.lat!=='—'?`<iframe style="width:100%;height:160px;border:none" src="https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(C.loc.lng)-0.02},${parseFloat(C.loc.lat)-0.01},${parseFloat(C.loc.lng)+0.02},${parseFloat(C.loc.lat)+0.01}&marker=${C.loc.lat},${C.loc.lng}"></iframe>`:`<div style="height:90px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:28px">🗺️📍</div>`}<div class="d" style="padding:8px 12px;margin:0">${C.loc?'📍 '+(C.loc.addr||C.loc.lat+', '+C.loc.lng):'לחץ "פרסם" — תתבקש לאשר גישה למיקום'}</div></div>`;
+ if(id==='job')f+=`<input class="inp" id="jT" value="${C.jT||''}" placeholder="כותרת המשרה"><input class="inp" id="jC" value="${C.jC||''}" placeholder="שם החברה"><input class="inp" id="jLoc" value="${C.jLoc||''}" placeholder="מיקום / מרחוק"><input class="inp" id="jSal" value="${C.jSal||''}" placeholder="טווח שכר (לא חובה)"><div class="sh-h">איך מגישים מועמדות</div><div class="seg"><b class="${(C.jApply||'profile')==='profile'?'on':''}" onclick="grab();C.jApply='profile';compose()">📥 לפרופיל בפלאזה</b><b class="${C.jApply==='wa'?'on':''}" onclick="grab();C.jApply='wa';compose()">🟢 לוואטסאפ</b></div>${C.jApply==='wa'?`<input class="inp" id="jWa" value="${C.jWa||''}" placeholder="מספר וואטסאפ (לדוגמה 972501234567)">`:''}`;
+ if(id==='location')f+=`<div class="ibx" style="margin:0 0 8px;padding:0;overflow:hidden">${C.loc&&C.loc.lat&&C.loc.lat!=='—'?`<iframe style="width:100%;height:170px;border:none" src="https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(C.loc.lng)-0.01},${parseFloat(C.loc.lat)-0.006},${parseFloat(C.loc.lng)+0.01},${parseFloat(C.loc.lat)+0.006}&marker=${C.loc.lat},${C.loc.lng}&layer=mapnik"></iframe>`:`<div style="height:120px;background:linear-gradient(160deg,#1c2b40,#13324a);display:flex;align-items:center;justify-content:center;font-size:34px">🗺️📍</div>`}</div><input class="inp" id="locAddr" value="${(C.loc&&C.loc.addr)||''}" placeholder="שם המקום / כתובת"><div class="seg"><b onclick="grab();geoLocate()">📍 אתר אותי אוטומטית</b></div>`;
  if(id==='video')f+=`<div class="mi" onclick="grab();fileInput('audio/*',false,fs=>{C.snd=URL.createObjectURL(fs[0]);C.sndName=fs[0].name;compose();toast('🎵','סאונד נטען');})"><span class="mc">🎵</span>הוסף סאונד מהגלריה<span class="mv">${(C.snd&&!String(C.snd).startsWith('lib:'))?'✓ '+(C.sndName||'נטען'):'בחר קובץ ›'}</span></div><div class="mi" onclick="grab();openSounds()"><span class="mc">🎶</span>ספריית סאונדים (Pixabay/YouTube*)<span class="mv">${(C.snd&&String(C.snd).startsWith('lib:'))?'✓ '+(C.sndName||''):'פתח ›'}</span></div>${(C.snd&&!String(C.snd).startsWith('lib:'))?`<audio controls src="${C.snd}" style="width:100%;margin-bottom:8px"></audio>`:''}`;
  if(id==='audio')f+=`<div class="ibx" style="text-align:center;margin:0 0 8px"><button class="vp" id="cRec" style="width:54px;height:54px;font-size:20px" onclick="recCreate()">🎙️</button><div id="cRecS" style="color:var(--sub);font-size:12px;margin-top:8px">${C.audio?'✓ הוקלט · '+(C.audioDur||'')+' — הקש להקליט מחדש':'הקש להקלטה אמיתית'}</div>${C.audio?`<audio controls src="${C.audio}" style="width:100%;margin-top:8px"></audio>`:''}</div>`;
- f+=`<input class="inp" id="cLink" value="${C.link}" placeholder="🔗 קישור (לא חובה — יופיע ככפתור מתחת לפוסט)">`;
+ f+=`<input class="inp" id="cLink" value="${C.link}" placeholder="🔗 קישור (יופיע ככפתור לחיץ מתחת לפוסט)">`;
+ f+=`<div class="sh-h">למי הפוסט מיועד</div><div class="seg" id="gseg"><b class="${(C.gender||'all')==='all'?'on':''}" onclick="C.gender='all';document.querySelectorAll('#gseg b').forEach(b=>b.classList.remove('on'));this.classList.add('on')">👥 לכולם</b><b class="${C.gender==='male'?'on':''}" onclick="C.gender='male';document.querySelectorAll('#gseg b').forEach(b=>b.classList.remove('on'));this.classList.add('on')">👨 גברים</b><b class="${C.gender==='female'?'on':''}" onclick="C.gender='female';document.querySelectorAll('#gseg b').forEach(b=>b.classList.remove('on'));this.classList.add('on')">👩 נשים</b></div>`;
  openSheet(`<div class="sh-hd"><h3>${em} פוסט ${label} חדש</h3><span class="x" onclick="closeSheet()">✕</span></div>
   <div class="sh-b">${prev}${f}
    <div class="mi" onclick="grab();pickMeta('topic')"><span class="mc">🏷️</span>נושא<span class="mv">${(tp(C.topic)||['','בחר',''])[2]} ${(tp(C.topic)||['','בחר'])[1]} ›</span></div>
@@ -768,18 +829,27 @@ function pickMeta(kind){const src=kind==='topic'?TOPICS:kind==='country'?COUNTRI
 function selSheet(title,arr,cv,cb){openSheet(`<div class="sh-hd"><h3>${title}</h3><span class="x" onclick="compose()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="ssq" placeholder="חיפוש..." oninput="document.getElementById('ssl').innerHTML=selItems(window._ssA,'${cv}',this.value)"></div><div class="fl tall" id="ssl">${selItems(arr,cv,'')}</div></div>`);window._ssA=arr;window._ssCb=cb;}
 function selItems(arr,cv,q){q=(q||'').trim().toLowerCase();return arr.filter(it=>!q||(it[1]+'').toLowerCase().includes(q)).map(it=>`<div class="fi ${it[0]===cv?'on':''}" onclick="window._ssCb('${it[0]}')"><span>${it[2]||'•'}</span><span class="l">${it[1]}</span><span class="k">${it[0]===cv?'✓':''}</span></div>`).join('');}
 function em0(){return C.picks[0]&&!isImg(C.picks[0])?'📎':C.em;}
-function makeNP(){const me=S.me,np={e:em0(),av:me.av,avImg:me.avImg,nm:me.nm,meta:'🇮🇱 עכשיו',type:C.type,topicId:C.topic,lang:C.lang,country:C.country,text:C.text,mins:C.exp*60,likes:0,com:0,link:(C.link||'').trim()};
+function makeNP(){const me=S.me,np={e:em0(),av:me.av,avImg:me.avImg,nm:me.nm,meta:'🇮🇱 עכשיו',type:C.type,topicId:C.topic,lang:C.lang,country:C.country,text:C.text,mins:C.exp*60,likes:0,com:0,link:(C.link||'').trim(),gender:C.gender||'all'};
  if(C.type==='image'&&C.picks.length)np.imgs=C.picks;
  if(C.type==='video')np.vidUrl=C.vid;
- if(C.type==='poll'){const o=['po1','po2','po3'].map(x=>(document.getElementById(x)||{}).value).filter(Boolean);np.poll=(o.length?o:['כן','לא']).map((t,k)=>({t,p:k===0?60:Math.round(40/Math.max(1,o.length-1))}));}
- if(C.type==='product'){np.imgs=C.picks;np.prod={title:C.pT||'מוצר',desc:C.text||'תיאור',price:C.pP||'₪—',ship:C.ship};}
- if(C.type==='job')np.job={title:'משרה',company:'החברה שלי',sal:'—'};
+ if(C.type==='poll'){const o=(C.pollOpts||['po1','po2','po3','po4'].map(x=>(document.getElementById(x)||{}).value)).filter(Boolean);np.poll=(o.length?o:['כן','לא']).map((t,k)=>({t,p:0,v:0}));}
+ if(C.type==='product'){np.imgs=C.picks;np.prod={title:C.pT||'מוצר',desc:C.text||'',price:C.pP||'₪—',ship:C.ship};}
+ if(C.type==='job')np.job={title:C.jT||'משרה',company:C.jC||'',location:C.jLoc||'',sal:C.jSal||'',apply:C.jApply||'profile',wa:(C.jWa||'').replace(/\D/g,'')};
  if(C.type==='location')np.loc={place:(C.loc&&C.loc.addr)||'המיקום שלי',dist:C.loc?(C.loc.lat+', '+C.loc.lng):'—',lat:C.loc&&C.loc.lat,lng:C.loc&&C.loc.lng};
  if(C.type==='audio')np.voice={dur:C.audioDur||'0:0'+(C.audioSecs||5),tr:'(תמלול בזמן אמת)',tl:'(תרגום)'};if(C.type==='audio'&&C.audio&&C.audio!=='sim')np.audioUrl=C.audio;
+ if(C.type==='file'&&C.files&&C.files.length)np.files=C.files;
  if(C.snd)np.snd=C.snd;if(C.sched)np.sched=C.sched;if(C.autoExt)np.autoExt=1;
  return np;}
-function publish(){grab();if(C.type==='text'&&!C.text.trim()){toast('✏️','כתוב משהו לפני פרסום');return;}
- const np=makeNP();window._np=np;
+function publish(){grab();
+ const needsText=C.type==='text'||C.type==='poll';
+ if(needsText&&!C.text.trim()){toast('✏️',C.type==='poll'?'כתוב את שאלת הסקר':'כתוב משהו לפני פרסום');return;}
+ if(C.type==='poll'&&(C.pollOpts||[]).filter(Boolean).length<2){toast('📊','סקר צריך לפחות 2 אפשרויות');return;}
+ if(C.type==='image'&&!C.picks.length){toast('📷','הוסף לפחות תמונה אחת');return;}
+ if(C.type==='video'&&!C.vid){toast('🎥','בחר סרטון להעלאה');return;}
+ if(C.type==='file'&&!(C.files&&C.files.length)){toast('📎','בחר קובץ לצירוף');return;}
+ if(C.type==='audio'&&!C.audio){toast('🎙️','הקלט שמע לפני פרסום');return;}
+ let np;try{np=makeNP();}catch(e){console.warn('makeNP',e);toast('⚠️','שגיאה בהכנת הפוסט — נסה שוב');return;}
+ window._np=np;
  openSheet(`<div class="sh-hd"><h3>👁️ תצוגה מקדימה — כך זה ייראה</h3><span class="x" onclick="closeSheet()">✕</span></div>
   <div class="sh-b" style="background:var(--bg)"><div class="feed" style="padding:0;overflow:visible">${postCard(np,'-1')}</div>
   <div class="note">כך הפוסט יוצג בכיכר. נעלם תוך ${C.exp} שעות.</div></div>
@@ -797,7 +867,7 @@ async function confirmPublish(){const np=window._np,me=S.me;
    }
    if(C.vid&&C.vid.startsWith('blob:')){const b=await fetch(C.vid).then(r=>r.blob());const f=new File([b],'video.webm',{type:b.type});const up=await API.upload([f]); if(up&&up.urls)vidUrl=up.urls[0];}
    if(C.audio&&C.audio.startsWith('blob:')){const b=await fetch(C.audio).then(r=>r.blob());const f=new File([b],'audio.webm',{type:b.type});const up=await API.upload([f]); if(up&&up.urls)audioUrl=up.urls[0];}
-   const body={type:np.type, text:np.text, topic:np.topicId||null, lang:np.lang, country:np.country, media_urls:imgs||null, video_url:vidUrl||null, sound_url:np.snd||null, audio_url:audioUrl||null, link:np.link||null, product_data:np.prod||null, job_data:np.job||null, poll_data:np.poll||null, loc_data:np.loc||null, expiry_hours:C.exp, auto_extend:C.autoExt?1:0, scheduled_at:C.sched?Math.floor(new Date(C.sched).getTime()/1000):null};
+   const body={type:np.type, text:np.text, topic:np.topicId||null, lang:np.lang, country:np.country, gender:np.gender||'all', media_urls:imgs||null, video_url:vidUrl||null, sound_url:np.snd||null, audio_url:audioUrl||null, link:np.link||null, product_data:np.prod||null, job_data:np.job||null, poll_data:np.poll||null, loc_data:np.loc||null, expiry_hours:C.exp, auto_extend:C.autoExt?1:0, scheduled_at:C.sched?Math.floor(new Date(C.sched).getTime()/1000):null};
    const res=await API.req('/posts',{method:'POST',body});
    if(res&&res.id){np._sid=res.id; np.imgs=imgs; np.vidUrl=vidUrl; np.audioUrl=audioUrl;}
    toast('💾','נשמר בשרת');
@@ -845,8 +915,19 @@ function renderMsgs(){document.getElementById('reqN').textContent=S.reqN?`(${S.r
   if(S.reqN>=1)pend+=`<div class="req"><div class="ra">🧑</div><div class="rb"><b>Daniel 🇩🇪 · 💻 טכנולוגיה</b><p>"הפתרון שהצעת ל-React עבד, אפשר להתייעץ?"</p><div class="ba"><button class="y" onclick="reqAcc('Daniel')">✓ אשר</button><button class="n" onclick="reqDec()">דחה</button><button class="bl" onclick="reqDec(1)">חסום</button></div></div></div>`;
   if(S.reqN>=2)pend+=`<div class="req"><div class="ra">👩</div><div class="rb"><b>Lucia 🇮🇹 · 🎨 אמנות</b><p>"היצירה שלך מהממת — הזמנת עבודה?"</p><div class="ba"><button class="y" onclick="reqAcc('Lucia')">✓ אשר</button><button class="n" onclick="reqDec()">דחה</button><button class="bl" onclick="reqDec(1)">חסום</button></div></div></div>`;
  }
- const chats=S.pchats.length?`<div class="sh-h">צ'אטים פעילים</div>`+S.pchats.map(c=>`<div class="card" style="cursor:pointer" onclick="openPChat('${c.nm}')"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">💬</span><div style="flex:1"><b style="color:var(--text);font-size:13px">${c.nm}</b><div style="color:var(--sub);font-size:12px;margin-top:2px">${c.last}</div></div>${c.nw?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad)"></span>':''}</div></div>`).join(''):(pend?'':`<div class="empty"><div class="e">💌</div><p>אין צ'אטים פרטיים עדיין<br>אשר בקשת הודעה או צור קשר עם מוכר</p></div>`);
- L.innerHTML=pend+chats;}
+ const arch=(S.archived||[]).length;
+ const toolbar=S.pchats.length?`<div style="display:flex;gap:8px;margin:0 0 10px"><button class="bt dim" style="padding:8px;font-size:12px" onclick="toggleChatSel()">${chatSelMode?'✕ בטל בחירה':'☑️ בחר'}</button><button class="bt dim" style="padding:8px;font-size:12px" onclick="showArchive()">🗂️ ארכיון${arch?' ('+arch+')':''}</button></div>`:(arch?`<div style="margin-bottom:10px"><button class="bt dim" style="padding:8px;font-size:12px" onclick="showArchive()">🗂️ ארכיון (${arch})</button></div>`:'');
+ const list=S.pchats.length?S.pchats.map(c=>{const nm=(c.nm||'').replace(/'/g,'');const sel=chatSel.includes(nm);return `<div class="card" style="cursor:pointer" onclick="${chatSelMode?`selChat('${nm}')`:`openPChat('${nm}')`}"><div class="row">${chatSelMode?`<span style="width:22px;height:22px;border-radius:6px;border:2px solid ${sel?'var(--acc)':'var(--mut)'};background:${sel?'var(--acc)':'transparent'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex:0 0 auto">${sel?'✓':''}</span>`:`<span class="av" style="width:38px;height:38px;font-size:16px">💬</span>`}<div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${nm}</b><div style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.last||''}</div></div>${c.nw&&!chatSelMode?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad);flex:0 0 auto"></span>':''}${!chatSelMode?`<span onclick="event.stopPropagation();chatMenu('${nm}')" style="color:var(--mut);font-size:20px;padding:0 6px;cursor:pointer;flex:0 0 auto">⋯</span>`:''}</div></div>`;}).join(''):(pend?'':`<div class="empty"><div class="e">💌</div><p>אין צ'אטים פרטיים עדיין<br>אשר בקשת הודעה או צור קשר עם מוכר</p></div>`);
+ const bulk=(chatSelMode&&chatSel.length)?`<div style="position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:var(--bg)"><button class="bt dim" style="flex:1" onclick="archiveChats(chatSel.slice())">🗂️ לארכיון (${chatSel.length})</button><button class="bt" style="flex:1;background:var(--bad)" onclick="deleteChats(chatSel.slice())">🗑️ מחק (${chatSel.length})</button></div>`:'';
+ L.innerHTML=pend+(S.pchats.length?`<div class="sh-h">צ'אטים פעילים</div>`:'')+toolbar+list+bulk;}
+let chatSelMode=false,chatSel=[];
+function toggleChatSel(){chatSelMode=!chatSelMode;chatSel=[];renderMsgs();}
+function selChat(nm){const i=chatSel.indexOf(nm);if(i>=0)chatSel.splice(i,1);else chatSel.push(nm);renderMsgs();}
+function archiveChats(names){S.archived=S.archived||[];names.forEach(nm=>{if(!S.archived.includes(nm))S.archived.push(nm);});S.pchats=S.pchats.filter(c=>!names.includes(c.nm));chatSel=[];chatSelMode=false;sv();renderMsgs();toast('🗂️','הועבר לארכיון');}
+function deleteChats(names){S.pchats=S.pchats.filter(c=>!names.includes(c.nm));S.archived=(S.archived||[]).filter(a=>!names.includes(a));chatSel=[];chatSelMode=false;sv();renderMsgs();toast('🗑️','הצ׳אטים נמחקו');}
+function restoreChat(nm){S.archived=(S.archived||[]).filter(a=>a!==nm);if(!S.pchats.find(c=>c.nm===nm))S.pchats.unshift({nm,last:'שוחזר מהארכיון',nw:0});sv();showArchive();toast('↩️','שוחזר');}
+function chatMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="mi" onclick="closeSheet();openPChat('${nm}')"><span class="mc">💬</span>פתח צ׳אט<span class="mv">›</span></div><div class="mi" onclick="closeSheet();archiveChats(['${nm}'])"><span class="mc">🗂️</span>העבר לארכיון<span class="mv">›</span></div><div class="mi" onclick="closeSheet();deleteChats(['${nm}'])"><span class="mc" style="color:var(--bad)">🗑️</span><span style="color:var(--bad)">מחק צ׳אט</span><span class="mv">›</span></div></div>`);}
+function showArchive(){const L=document.getElementById('msgBody');const a=S.archived||[];L.innerHTML=`<div class="sh-h" style="margin-top:0"><span onclick="renderMsgs()" style="color:var(--acc);cursor:pointer">← חזרה לצ׳אטים</span></div>`+(a.length?a.map(nm=>`<div class="card"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">🗂️</span><b style="flex:1;color:var(--text);font-size:13px">${nm}</b><button class="bt dim" style="flex:0 0 auto;padding:7px 12px;font-size:12px" onclick="restoreChat('${nm}')">↩️ שחזר</button><button class="bt" style="flex:0 0 auto;padding:7px 12px;font-size:12px;background:var(--bad)" onclick="deleteChats(['${nm}'])">🗑️</button></div></div>`).join(''):`<div class="empty"><div class="e">🗂️</div><p>הארכיון ריק</p></div>`);}
 function reqAcc(nm){if(S.reqN>0)S.reqN--;S.pchats.unshift({nm,last:'הבקשה אושרה — התחילו לשוחח 👋',nw:1});sv();mbadge();toast('✅','אושר! הצ׳אט קפץ לכפתור ההודעות העגול למעלה (תג אדום)');mTab='c';msgTab('c');}
 function reqDec(b){if(S.reqN>0)S.reqN--;sv();renderMsgs();mbadge();toast(b?'🚫':'✖️',b?'נחסם ודווח':'נדחה');}
 function contactSeller(nm){if(!S.pchats.find(c=>c.nm===nm)){S.pchats.unshift({nm,last:'שיחה עם המוכר/ת נפתחה',nw:1});sv();}mbadge();toast('💬','נפתחה שיחה — מופיעה למעלה בכפתור ההודעות');}
@@ -856,33 +937,46 @@ function renderNt(){document.getElementById('ntList').innerHTML=[['❤️','נו
 
 /* ===== PROFILE ===== */
 function nmList(a){return a.length?(a.length+' נבחרו'):'לא הוגדר';}
+let profTab='profile';
+function setProfTab(t){profTab=t;renderProfile();}
 function renderProfile(){const ln=(LANGS.find(l=>l[0]===S.lang)||['','עברית'])[1],mute=S.muteAll,me=S.me,wal=waLink(me.waD,me.waN);
- const head=`<div class="pf-cov bz"><div class="pf-av" onclick="pickAvatar()">${me.avImg?`<img src="${me.avImg}">`:me.av}</div></div>
+ const tabsBar=`<div class="tabs" style="padding:0 0 6px"><div class="tab ${profTab==='profile'?'on':''}" onclick="setProfTab('profile')">👤 הפרופיל שלי</div><div class="tab ${profTab==='settings'?'on':''}" onclick="setProfTab('settings')">⚙️ הגדרות</div></div>`;
+ const head=`<div class="pf-cov bz"><div class="pf-av" onclick="pickAvatar()">${me.avImg?`<img src="${me.avImg}">`:me.av}<span style="position:absolute;bottom:-2px;left:-2px;background:var(--acc);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--bg)">✏️</span></div></div>
    <div class="pf-nm">${me.bnm||me.nm}</div><div class="pf-s">${me.loc} · 🗣️ ${me.lng||'—'}${me.hobby?' · 🎯 '+me.hobby:''}</div>
    ${me.bpr?`<div class="pf-p">${me.bpr}</div>`:''}<div class="pf-bio">${me.bbio||''}</div>
-   <div class="pf-act"><button onclick="editBiz()">✏️ ערוך פרופיל</button><button class="g" onclick="addPort()">＋ תיק עבודות</button>${wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:''}${me.bph?`<button class="g" onclick="window.open('tel:${me.bph}')">📞 חייג</button>`:''}${me.bem?`<button class="g" onclick="window.open('mailto:${me.bem}')">✉️ אימייל</button>`:''}${me.bweb?`<button class="g" onclick="toast('🔗','${me.bweb}')">🔗 ${me.bweb}</button>`:''}<button class="g" onclick="showQR()">📱 QR</button></div>
-   <div class="sh-h">🗂️ תיק עבודות (לחיצה להוספה אמיתית)</div><div class="fbg n3" style="border-radius:10px;overflow:hidden">${me.port.slice(0,6).map(w=>`<div onclick="zoomOne('${w}')" style="aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden">${isImg(w)?`<img src="${w}" style="width:100%;height:100%;object-fit:cover">`:w}</div>`).join('')}</div>
-   <div class="sh-h">🛠️ שירותים/מוצרים (תמונה/וידאו + טקסט + קישור)</div>${me.svc.map((s,k)=>`<div class="svc"><div class="sr">${s.m&&!isImg(s.m)?s.m:'🛠️'} ${s.t}<span class="pr">${s.p}</span></div>${isImg(s.m)?`<div class="sm">${s.m.includes('video')?`<video src="${s.m}" controls></video>`:`<img src="${s.m}">`}</div>`:''}${s.d?`<div class="sd">${s.d}</div>`:''}${s.l?`<a class="slk" onclick="openInApp('${s.l}');return false" href="#">🔗 ${s.l}</a>`:''}<div style="display:flex;gap:7px;margin-top:8px"><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcMedia(${k})">📷 מדיה</button><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcEdit(${k})">✏️ ערוך</button></div></div>`).join('')}<div class="svc" onclick="addSvc()" style="cursor:pointer;color:var(--acc);text-align:center">＋ הוסף שירות / מוצר</div>`;
- document.getElementById('pWrap').innerHTML=`${head}
- <div class="sh-h">התוכן שלי</div>
- <div class="mi" onclick="go('myposts')"><span class="mc">📝</span>הפוסטים שלי<span class="mv">${S.mine.length+1} ›</span></div>
- <div class="mi" onclick="go('bm')"><span class="mc">🔖</span>סימניות<span class="mv">${Object.values(S.bk).filter(Boolean).length} ›</span></div>
- <div class="mi" onclick="go('msgs')"><span class="mc">💌</span>הודעות פרטיות<span class="mv">${S.reqN} בקשות ›</span></div>
- <div class="sh-h">סינוני ברירת מחדל</div>
- <div class="mi" onclick="pick('prefC',COUNTRIES,'מדינות')"><span class="mc">🌍</span>מדינות מועדפות<span class="mv">${nmList(S.prefC)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
- <div class="mi" onclick="pick('prefL',LANGS,'שפות')"><span class="mc">🗣️</span>שפות מועדפות<span class="mv">${nmList(S.prefL)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
- <div class="mi" onclick="pick('prefT',TOPICS,'תחומים')"><span class="mc">🏷️</span>תחומים מועדפים<span class="mv">${nmList(S.prefT)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
- <div class="sh-h">מראה</div>
- <div class="mi"><span class="mc">🌙</span>מצב כהה<div class="sw ${S.th==='dark'?'on':''}" onclick="setTh()"><i></i></div></div>
- <div class="mi" onclick="pickLang()"><span class="mc">🌐</span>שפת ממשק<span class="mv">${ln} ›</span></div>
- <div class="sh-h">התראות</div>
- <div class="mi"><span class="mc">🔢</span>הסתר מונה הודעות שלא נקראו<div class="sw ${S.hideBadge?'on':''}" onclick="S.hideBadge=!S.hideBadge;sv();mbadge();renderProfile()"><i></i></div></div>
- <div class="mi"><span class="mc">🔕</span>השתק את כל ההתראות<div class="sw ${mute?'on':''}" onclick="setMute()"><i></i></div></div>
- <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">💬</span>תגובות לפוסטים שלך<div class="sw ${!mute&&S.nf.comments?'on':''}" onclick="setNf('comments')"><i></i></div></div>
- <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">💌</span>צ'אטים<div class="sw ${!mute&&S.nf.chats?'on':''}" onclick="setNf('chats')"><i></i></div></div>
- <div class="sh-h">חשבון</div>
- <div class="mi" onclick="toast('🔒','אפס מעקב · אפס פרסום · קוד פתוח')"><span class="mc">🔒</span>פרטיות<span class="mv">›</span></div>
- <div class="mi" onclick="IS_SERVER()?API.logout():toast('👋','התנתקת (דמו)')"><span class="mc">🚪</span>התנתק<span class="mv">›</span></div>`;}
+   <div class="pf-act"><button onclick="editBiz()">✏️ ערוך פרופיל</button>${wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:''}${me.bph?`<button class="g" onclick="window.open('tel:${me.bph}')">📞 חייג</button>`:''}${me.bem?`<button class="g" onclick="window.open('mailto:${me.bem}')">✉️ אימייל</button>`:''}${me.bweb?`<button class="g" onclick="openInApp('${me.bweb}')">🔗 אתר</button>`:''}<button class="g" onclick="showQR()">📱 QR</button></div>`;
+ const portfolio=`<div class="sh-h">🗂️ תיק עבודות / גלריה <span style="float:left;color:var(--acc);cursor:pointer" onclick="addPort()">＋ הוסף</span></div><div class="fbg n3" style="border-radius:10px;overflow:hidden">${me.port.map((w,k)=>`<div style="position:relative;aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden"><div onclick="zoomOne('${w}')" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">${isImg(w)?`<img src="${w}" style="width:100%;height:100%;object-fit:cover">`:w}</div><span onclick="delPort(${k})" style="position:absolute;top:3px;left:3px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">✕</span></div>`).join('')||'<div style="grid-column:1/-1;color:var(--mut);text-align:center;padding:18px;font-size:12px">אין עדיין — לחץ "הוסף"</div>'}</div>`;
+ // גלריה בסגנון אינסטגרם: תמונה/וידאו גדול + כיתוב + מחיר + קישור, עם עריכה/מחיקה
+ const gallery=`<div class="sh-h">🛍️ גלריה / מוצרים ושירותים</div>${me.svc.map((s,k)=>`<div class="svc">${isImg(s.m)?`<div class="sm" style="min-height:160px;border-radius:10px;margin-bottom:8px">${String(s.m).includes('video')?`<video src="${s.m}" controls style="width:100%"></video>`:`<img src="${s.m}" style="width:100%">`}</div>`:''}<div class="sr">${s.m&&!isImg(s.m)?s.m:'🏷️'} ${s.t}${s.p?`<span class="pr">${s.p}</span>`:''}</div>${s.d?`<div class="sd">${linkify(s.d)}</div>`:''}${s.l?`<a class="slk" onclick="openInApp('${s.l}');return false" href="#">🔗 ${s.l}</a>`:''}<div style="display:flex;gap:7px;margin-top:8px"><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcMedia(${k})">📷 מדיה</button><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcEdit(${k})">✏️ ערוך</button><button class="bt" style="padding:7px;font-size:11px;flex:0 0 auto;background:var(--bad)" onclick="delSvc(${k})">🗑️</button></div></div>`).join('')}<div class="svc" onclick="addSvc()" style="cursor:pointer;color:var(--acc);text-align:center">＋ הוסף לגלריה (תמונה + טקסט + מחיר)</div>`;
+ const content=`<div class="sh-h">התוכן שלי</div>
+  <div class="mi" onclick="go('myposts')"><span class="mc">📝</span>הפוסטים שלי<span class="mv">${S.mine.length+1} ›</span></div>
+  <div class="mi" onclick="go('bm')"><span class="mc">🔖</span>סימניות<span class="mv">${Object.values(S.bk).filter(Boolean).length} ›</span></div>
+  <div class="mi" onclick="go('msgs')"><span class="mc">💌</span>הודעות פרטיות<span class="mv">${S.reqN} בקשות ›</span></div>`;
+ const profileView=head+content+portfolio+gallery;
+ const settingsView=`<div class="sh-h" style="margin-top:0">סינוני ברירת מחדל</div>
+  <div class="mi" onclick="pick('prefC',COUNTRIES,'מדינות')"><span class="mc">🌍</span>מדינות מועדפות<span class="mv">${nmList(S.prefC)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
+  <div class="mi" onclick="pick('prefL',LANGS,'שפות')"><span class="mc">🗣️</span>שפות מועדפות<span class="mv">${nmList(S.prefL)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
+  <div class="mi" onclick="pick('prefT',TOPICS,'תחומים')"><span class="mc">🏷️</span>תחומים מועדפים<span class="mv">${nmList(S.prefT)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
+  <div class="sh-h">מראה ושפה</div>
+  <div class="mi"><span class="mc">🌙</span>מצב כהה<div class="sw ${S.th==='dark'?'on':''}" onclick="setTh()"><i></i></div></div>
+  <div class="mi" onclick="pickLang()"><span class="mc">🌐</span>שפת ממשק<span class="mv">${ln} ›</span></div>
+  <div class="sh-h">התראות</div>
+  <div class="mi"><span class="mc">🔢</span>הסתר מונה הודעות שלא נקראו<div class="sw ${S.hideBadge?'on':''}" onclick="S.hideBadge=!S.hideBadge;sv();mbadge();renderProfile()"><i></i></div></div>
+  <div class="mi"><span class="mc">🔕</span>השתק את כל ההתראות<div class="sw ${mute?'on':''}" onclick="setMute()"><i></i></div></div>
+  <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">💬</span>תגובות לפוסטים שלך<div class="sw ${!mute&&S.nf.comments?'on':''}" onclick="setNf('comments')"><i></i></div></div>
+  <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">💌</span>צ'אטים<div class="sw ${!mute&&S.nf.chats?'on':''}" onclick="setNf('chats')"><i></i></div></div>
+  <div class="sh-h">חשבון ופרטיות</div>
+  <div class="mi" onclick="openInApp(location.origin+'/privacy')"><span class="mc">🔒</span>מדיניות פרטיות<span class="mv">›</span></div>
+  <div class="mi" onclick="openInApp(location.origin+'/terms')"><span class="mc">📜</span>תנאי שימוש<span class="mv">›</span></div>
+  <div class="mi" onclick="exportData()"><span class="mc">📥</span>ייצא את הנתונים שלי<span class="mv">›</span></div>
+  <div class="mi" onclick="deleteAccount()"><span class="mc" style="color:var(--bad)">⚠️</span><span style="color:var(--bad)">מחק את החשבון שלי</span><span class="mv">›</span></div>
+  <div class="mi" onclick="IS_SERVER()?API.logout():(localStorage.removeItem('plazaGuest'),location.href='/login.html')"><span class="mc">🚪</span>התנתק<span class="mv">›</span></div>`;
+ document.getElementById('pWrap').innerHTML=tabsBar+(profTab==='profile'?profileView:settingsView);}
+function delPort(k){S.me.port.splice(k,1);sv();renderProfile();toast('🗑️','הוסר מהתיק');}
+function delSvc(k){S.me.svc.splice(k,1);sv();renderProfile();toast('🗑️','נמחק מהגלריה');}
+function exportData(){const data={profile:S.me,prefs:{countries:S.prefC,langs:S.prefL,topics:S.prefT},myPosts:S.mine,bookmarks:S.bk};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='plaza-my-data.json';a.click();toast('📥','הנתונים שלך הורדו (GDPR)');}
+function deleteAccount(){openSheet(`<div class="sh-hd"><h3>⚠️ מחיקת חשבון</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><p style="color:var(--text);font-size:14px;line-height:1.7">פעולה זו תמחק לצמיתות את החשבון, הפוסטים, וההודעות שלך. לא ניתן לשחזר.</p></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" style="background:var(--bad)" onclick="doDeleteAccount()">מחק לצמיתות</button></div>`);}
+function doDeleteAccount(){if(IS_SERVER())API.req('/me/delete',{method:'POST'}).catch(()=>{});localStorage.clear();closeSheet();toast('👋','החשבון נמחק');setTimeout(()=>location.href='/login.html',900);}
 function zoomOne(m){document.getElementById('ivc').innerHTML=isImg(m)?`<img src="${m}">`:`<span style="font-size:150px">${m}</span>`;document.getElementById('ivnav').style.display='none';document.getElementById('iv').classList.add('on');}
 function pickAvatar(){fileInput('image/*',false,f=>{S.me.avImg=URL.createObjectURL(f[0]);sv();renderProfile();toast('🖼️','תמונת הפרופיל עודכנה');});}
 function editReg(){openSheet(`<div class="sh-hd"><h3>✏️ עריכת פרופיל רגיל</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="text-align:center;margin-bottom:12px"><div class="pf-av" style="position:relative;margin:0 auto;right:auto;bottom:auto" onclick="pickAvatar()">${S.me.avImg?`<img src="${S.me.avImg}">`:S.me.av}</div><div style="color:var(--sub);font-size:11px;margin-top:6px">לחץ להחלפת תמונה (גלריה אמיתית)</div></div>
@@ -937,17 +1031,40 @@ function openProf(nm){const p=PROF[nm]||PROF[Object.keys(PROF).find(k=>k.startsW
 const ov=document.getElementById('ov'),sh=document.getElementById('sh'),shi=document.getElementById('shIn');
 function openSheet(h){shi.innerHTML=h;ov.classList.add('on');sh.classList.add('on');}
 function closeSheet(){ov.classList.remove('on');sh.classList.remove('on');document.getElementById('iv').classList.remove('on');}
-function openCom(i){const a=COM[i]||[{a:'🌍',n:'World',t:'first!',m:'עכשיו'}];openSheet(`<div class="sh-hd"><h3>💬 תגובות (${document.getElementById('cm'+i).textContent})</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b" id="cb">${a.map(c=>`<div class="row" style="align-items:flex-start;margin-bottom:13px"><div class="av" style="width:32px;height:32px;font-size:14px">${c.a}</div><div><b style="color:var(--text);font-size:12px">${c.n}</b><div style="color:var(--text);font-size:13px;margin-top:2px">${c.t}</div><div style="color:var(--mut);font-size:10.5px;margin-top:3px">${c.m}</div></div></div>`).join('')}</div><div class="sh-foot"><button class="bt" style="flex:0 0 auto;padding:13px 18px" onclick="addCom(${i})">שלח</button><button class="bt dim" style="flex:0 0 auto;padding:13px 14px" onclick="recPostComment(${i})">🎙️</button><input class="inp" id="ci" style="margin:0" placeholder="הגב או הקלט תגובה קולית..." onkeydown="if(event.key==='Enter')addCom(${i})"></div>`);}
-function addCom(i){const v=document.getElementById('ci');if(!v.value.trim())return;document.getElementById('cb').insertAdjacentHTML('beforeend',`<div class="row" style="align-items:flex-start;margin-bottom:13px"><div class="av" style="width:32px;height:32px;font-size:14px">🦊</div><div><b style="color:var(--text);font-size:12px">משה (אתה)</b><div style="color:var(--text);font-size:13px;margin-top:2px">${v.value.trim()}</div><div style="color:var(--mut);font-size:10.5px;margin-top:3px">עכשיו</div></div></div>`);const c=document.getElementById('cm'+i);c.textContent=parseInt(c.textContent)+1;v.value='';document.getElementById('cb').scrollTop=9e9;}
+let _comReply=null;
+async function openCom(i){let list=COM[i]||[];
+ if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid){try{const cs=await API.req('/posts/'+POSTS[i]._sid+'/comments');if(Array.isArray(cs)){list=cs.map(c=>({a:'👤',n:c.display_name||'משתמש',t:c.audio_url?('🎙️ <audio controls src="'+c.audio_url+'" style="max-width:200px"></audio>'):linkify(c.text||''),m:''}));COM[i]=list;}}catch(e){}}
+ _comReply=null;const cnt=(document.getElementById('cm'+i)||{}).textContent||list.length;
+ openSheet(`<div class="sh-hd"><h3>💬 תגובות (${cnt})</h3><span class="x" onclick="closeSheet()">✕</span></div>
+  <div class="sh-b" id="cb">${list.length?list.map((c,ci)=>comRow(i,c,ci)).join(''):'<div class="empty"><div class="e">💬</div><p>היה/י הראשון/ה להגיב</p></div>'}</div>
+  <div class="sh-foot"><span onclick="emojiCom()" style="font-size:21px;cursor:pointer;align-self:center" title="אימוג׳ים">😀</span><button class="bt dim" style="flex:0 0 auto;padding:13px 13px" onclick="recPostComment(${i})">🎙️</button><input class="inp" id="ci" style="margin:0" placeholder="הגב/י..." onkeydown="if(event.key==='Enter')addCom(${i})"><button class="bt" style="flex:0 0 auto;padding:13px 16px" onclick="addCom(${i})">שלח</button></div>`);
+ setTimeout(()=>{const cb=document.getElementById('cb');if(cb)cb.scrollTop=cb.scrollHeight;},60);}
+function comRow(i,c,ci){return `<div class="row" style="align-items:flex-start;margin-bottom:13px${c.reply?';margin-right:30px;border-right:2px solid var(--line);padding-right:8px':''}"><div class="av" style="width:32px;height:32px;font-size:14px">${c.a||'👤'}</div><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:12px">${c.n}</b><div style="color:var(--text);font-size:13px;margin-top:2px;word-break:break-word">${c.t}</div><div style="margin-top:3px;display:flex;gap:14px;align-items:center"><span style="color:var(--mut);font-size:10.5px">${c.m||'עכשיו'}</span><span style="color:var(--acc);font-size:11px;font-weight:700;cursor:pointer" onclick="replyTo(${i},'${(c.n||'').replace(/'/g,'').split(' ')[0]}')">↩️ השב</span></div></div></div>`;}
+function replyTo(i,nm){_comReply=nm;const ci=document.getElementById('ci');if(ci){ci.placeholder='תגובה ל-'+nm+'...';ci.focus();}toast('↩️','משיב/ה ל-'+nm);}
+function emojiCom(){let bar=document.getElementById('emojiBar');if(bar){bar.remove();return;}const set='😀 😂 🤣 ❤️ 🔥 👍 🙏 🎉 😍 🤔 👏 😢 🙌 💯 ✨ 😎 🥳 😮 😅 🤝 💪 👀 ✅ 🤯 🙈 😴 🤩 😭'.split(' ');bar=document.createElement('div');bar.id='emojiBar';bar.style.cssText='display:flex;flex-wrap:wrap;gap:4px;padding:8px 12px;border-top:1px solid var(--line);max-height:130px;overflow-y:auto';bar.innerHTML=set.map(e=>`<span style="font-size:23px;cursor:pointer;padding:2px" onclick="var c=document.getElementById('ci');c.value+='${e}';c.focus()">${e}</span>`).join('');const foot=document.querySelector('#sh .sh-foot');if(foot)foot.parentElement.insertBefore(bar,foot);}
+function addCom(i){const v=document.getElementById('ci');if(!v.value.trim())return;const txt=v.value.trim();const full=(_comReply?'<b style="color:var(--acc)">@'+_comReply+'</b> ':'')+linkify(txt);
+ COM[i]=COM[i]||[];COM[i].push({a:'🦊',n:(S.me.nm||'אתה')+' (אתה)',t:full,m:'עכשיו',reply:!!_comReply});
+ const cb=document.getElementById('cb');const wasEmpty=cb.querySelector('.empty');if(wasEmpty)cb.innerHTML='';
+ cb.insertAdjacentHTML('beforeend',comRow(i,COM[i][COM[i].length-1],COM[i].length-1));
+ const c=document.getElementById('cm'+i);if(c)c.textContent=parseInt(c.textContent||0)+1;
+ if(_comReply)toast('🔔',_comReply+' יקבל התראה על התגובה שלך');
+ if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid)API.req('/posts/'+POSTS[i]._sid+'/comments',{method:'POST',body:{text:(_comReply?'@'+_comReply+' ':'')+txt}}).catch(()=>{});
+ _comReply=null;const eb=document.getElementById('emojiBar');if(eb)eb.remove();v.value='';v.placeholder='הגב/י...';cb.scrollTop=9e9;}
 function openShare(){openSheet(`<div class="sh-hd"><h3>↗️ שתף</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">${[['🔗','העתק'],['💬','צ׳אט'],['🟢','WhatsApp'],['📸','סטורי'],['✈️','Telegram'],['🐦','X'],['📧','מייל'],['🔖','שמור']].map(s=>`<div style="text-align:center;cursor:pointer" onclick="toast('${s[0]}','${s[1]}')"><div style="width:48px;height:48px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:21px;margin:0 auto">${s[0]}</div><div style="color:var(--text);font-size:11px;margin-top:6px">${s[1]}</div></div>`).join('')}</div></div>`);}
 let tT;function toast(e,t){const x=document.getElementById('toast');document.getElementById('te').textContent=e;document.getElementById('tt').innerHTML=t;x.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>x.classList.remove('on'),3200);}
 function filterApply(){}
-function openFilter(){let T={fL:[...S.fL],fC:[...S.fC],fT:[...S.fT],fP:[...S.fP]};window._T=T;
- openSheet(`<div class="sh-hd"><h3>פילטרים</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b">${acc('שפה','fL',LANGS)}${acc('מדינה','fC',COUNTRIES)}${acc('קטגוריה','fT',TOPICS)}${acc('סוג פוסט','fP',PTYPES)}</div><div class="sh-foot"><button class="bt g" onclick="fRst()">אפס</button><button class="bt" onclick="fApp()">✓ החל</button></div>`);}
-function acc(t,k,src){return `<div class="card" style="padding:0;overflow:hidden"><div style="padding:13px 14px;font-weight:700;color:var(--text);cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'">${t} ▾</div><div style="display:none;padding:0 12px 12px"><div class="fl">${src.map(it=>`<div class="fi ${window._T[k].includes(it[0])?'on':''}" onclick="fTg('${k}','${it[0]}',this)"><span>${it[2]||'•'}</span><span class="l">${it[1]}</span><span class="k">${window._T[k].includes(it[0])?'✓':''}</span></div>`).join('')}</div></div></div>`;}
-function fTg(k,id,el){const T=window._T,i=T[k].indexOf(id);if(i>=0){T[k].splice(i,1);el.classList.remove('on');el.querySelector('.k').textContent='';}else{T[k].push(id);el.classList.add('on');el.querySelector('.k').textContent='✓';}}
-function fRst(){window._T={fL:[],fC:[],fT:[],fP:[]};toast('♻️','אופס — לחץ החל');}
-function fApp(){const T=window._T;S.fL=[...T.fL];S.fC=[...T.fC];S.fT=[...T.fT];S.fP=[...T.fP];sv();closeSheet();chips();buildFeed();toast('✅','הסינון הוחל');}
+function openFilter(){window._T={fL:[...S.fL],fC:[...S.fC],fT:[...S.fT],fP:[...S.fP],fG:S.fG||'all'};const T=window._T;
+ openSheet(`<div class="sh-hd"><h3>פילטרים</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b">
+  <div class="sh-h" style="margin-top:0">👥 למי מיועד הפוסט</div>
+  <div class="seg" id="fgSeg"><b class="${T.fG==='all'?'on':''}" onclick="setFG('all',this)">👥 הכל</b><b class="${T.fG==='male'?'on':''}" onclick="setFG('male',this)">👨 גברים</b><b class="${T.fG==='female'?'on':''}" onclick="setFG('female',this)">👩 נשים</b></div>
+  ${acc('שפה','fL',LANGS,true)}${acc('מדינה','fC',COUNTRIES,true)}${acc('קטגוריה','fT',TOPICS,true)}${acc('סוג פוסט','fP',PTYPES,false)}</div>
+  <div class="sh-foot"><button class="bt g" onclick="fRst()">אפס</button><button class="bt" onclick="fApp()">✓ החל</button></div>`);}
+function setFG(g,el){window._T.fG=g;document.querySelectorAll('#fgSeg b').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');}
+function acc(t,k,src,withAll){const T=window._T;return `<div class="card" style="padding:0;overflow:hidden"><div style="padding:13px 14px;font-weight:700;color:var(--text);cursor:pointer;display:flex;justify-content:space-between" onclick="const n=this.nextElementSibling;n.style.display=n.style.display==='block'?'none':'block'"><span>${t}${T[k].length?' ('+T[k].length+')':''}</span><span>▾</span></div><div style="display:none;padding:0 12px 12px">${withAll?`<div class="seg" style="margin:8px 0 4px"><b data-allbtn="${k}" class="${T[k].length===0?'on':''}" onclick="selAllF('${k}')">🌐 כלול הכל (ברירת מחדל)</b></div>`:''}<div class="fl" data-k="${k}">${src.map(it=>`<div class="fi ${T[k].includes(it[0])?'on':''}" onclick="fTg('${k}','${it[0]}',this)"><span>${it[2]||'•'}</span><span class="l">${it[1]}</span><span class="k">${T[k].includes(it[0])?'✓':''}</span></div>`).join('')}</div></div></div>`;}
+function selAllF(k){window._T[k]=[];const c=document.querySelector('.fl[data-k="'+k+'"]');if(c)c.querySelectorAll('.fi').forEach(el=>{el.classList.remove('on');el.querySelector('.k').textContent='';});const ab=document.querySelector('[data-allbtn="'+k+'"]');if(ab)ab.classList.add('on');toast('🌐','כל הפריטים כלולים');}
+function fTg(k,id,el){const T=window._T,i=T[k].indexOf(id);if(i>=0){T[k].splice(i,1);el.classList.remove('on');el.querySelector('.k').textContent='';}else{T[k].push(id);el.classList.add('on');el.querySelector('.k').textContent='✓';}const ab=document.querySelector('[data-allbtn="'+k+'"]');if(ab)ab.classList.toggle('on',T[k].length===0);}
+function fRst(){window._T={fL:[],fC:[],fT:[],fP:[],fG:'all'};openFilter();toast('♻️','אופס — לחץ החל');}
+function fApp(){const T=window._T;S.fL=[...T.fL];S.fC=[...T.fC];S.fT=[...T.fT];S.fP=[...T.fP];S.fG=T.fG||'all';sv();closeSheet();chips();buildFeed();toast('✅','הסינון הוחל');}
 
 /* ===== In-app browser ===== */
 function openInApp(url){if(!/^https?:\/\//.test(url))url='https://'+url;document.getElementById('inappFrame').src=url;document.getElementById('inappUrl').textContent=url;document.getElementById('inapp').classList.add('on');}
@@ -957,9 +1074,48 @@ function closeInApp(){document.getElementById('inapp').classList.remove('on');do
 function showQR(){const me=S.me;const url='https://plaza-concept-demo-2026.netlify.app/';const qrPng='https://api.qrserver.com/v1/create-qr-code/?size=320x320&format=png&data='+encodeURIComponent(url);
  openSheet(`<div class="sh-hd"><h3>📱 QR לפרופיל</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b qrwrap"><div style="color:var(--text);font-size:15px;font-weight:800;margin-bottom:8px">${me.bnm||me.nm}</div><img id="qrImg" src="${qrPng}" alt="QR"><div class="note" style="margin-top:14px">סרוק כדי לפתוח את פלאזה ישירות במכשיר. שתף בכרטיס ביקור, שלט בחנות, פליירים.</div></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">סגור</button><button class="bt dim" onclick="dlQR('${qrPng}','plaza-qr.png')">⬇️ הורד תמונה</button><button class="bt" onclick="printQR('${qrPng}','${me.bnm||me.nm}')">🖨️ PDF/הדפס</button></div>`);}
 function dlQR(u,fn){fetch(u).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;document.body.appendChild(a);a.click();a.remove();toast('⬇️','הקובץ הורד');});}
-const SOUNDS=[{n:'🎵 Upbeat Pop',d:'0:15'},{n:'🎸 Indie Vibe',d:'0:22'},{n:'🥁 Drop Beat',d:'0:18'},{n:'🎬 Cinematic',d:'0:28'},{n:'🎉 Party',d:'0:20'},{n:'🌊 Chill Wave',d:'0:30'},{n:'🔥 Trap Beat',d:'0:16'},{n:'🎺 Jazz Loop',d:'0:24'},{n:'🌙 Ambient',d:'0:35'},{n:'⚡ Electronic',d:'0:19'},{n:'🎻 Classical',d:'0:32'},{n:'🌍 World Music',d:'0:26'},{n:'🎤 Hip Hop',d:'0:21'},{n:'🎹 Lo-Fi',d:'0:40'},{n:'🥳 Birthday',d:'0:12'},{n:'😱 Suspense',d:'0:18'}];
-function openSounds(){openSheet(`<div class="sh-hd"><h3>🎵 ספריית סאונדים</h3><span class="x" onclick="compose()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="snQ" placeholder="חפש סאונד..." oninput="document.getElementById('snL').innerHTML=sndList(this.value)"></div><div class="fl tall" id="snL">${sndList('')}</div><div class="note" style="margin-top:10px">בייצור: חיבור ל-Pixabay/YouTube/Soundstripe API לסאונדים אמיתיים עם רישיון</div></div>`);}
-function sndList(q){q=(q||'').toLowerCase();return SOUNDS.filter(s=>!q||s.n.toLowerCase().includes(q)).map((s,i)=>`<div class="fi" onclick="C.snd='lib:${i}';C.sndName='${s.n}';compose();toast('🎵','נבחר: ${s.n}')"><span>${s.n.split(' ')[0]}</span><span class="l">${s.n}</span><span style="color:var(--mut);font-size:11px">${s.d}</span></div>`).join('');}
+/* ===== ספריית סאונדים — מתנגנת אמיתית (CDN חינמי), עם הכנה ל-Pixabay ===== */
+let SOUNDS=[
+ {n:'🎵 Pop Energy',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'},
+ {n:'🎸 Indie Vibe',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'},
+ {n:'🥁 Drop Beat',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'},
+ {n:'🎬 Cinematic',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'},
+ {n:'🌊 Chill Wave',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'},
+ {n:'🔥 Trap',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3'},
+ {n:'🎺 Jazz Loop',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3'},
+ {n:'🌙 Ambient',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3'},
+ {n:'⚡ Electronic',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3'},
+ {n:'🎻 Orchestral',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3'},
+ {n:'🎤 Hip Hop',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3'},
+ {n:'🎹 Lo-Fi',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3'},
+];
+let _sndPreview=null;
+async function openSounds(){openSheet(`<div class="sh-hd"><h3>🎵 ספריית סאונדים</h3><span class="x" onclick="compose()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="snQ" placeholder="חפש סאונד (Pixabay)..." oninput="searchSounds(this.value)"></div><div class="fl tall" id="snL">${sndList('')}</div><div class="note" style="margin-top:10px">לאלפי סאונדים עם רישיון — הוסף מפתח חינמי של Pixabay בשרת (PIXABAY_API_KEY). כרגע פעילה ספרייה בסיסית שמתנגנת.</div></div>`);}
+let _sndT;function searchSounds(q){clearTimeout(_sndT);_sndT=setTimeout(async()=>{
+ try{const r=await fetch('/api/sounds?q='+encodeURIComponent(q||''));if(r.ok){const j=await r.json();if(j&&j.hits&&j.hits.length){SOUNDS=j.hits;}}}catch(e){}
+ const el=document.getElementById('snL');if(el)el.innerHTML=sndList(q);},350);}
+function sndPlay(i,el){const s=SOUNDS[i];if(!s||!s.url)return;if(_sndPreview){_sndPreview.pause();}if(el._on){el._on=false;el.textContent='▶';_sndPreview=null;return;}
+ _sndPreview=new Audio(s.url);_sndPreview.play().catch(()=>{});document.querySelectorAll('#snL .sndp').forEach(b=>{b.textContent='▶';b._on=false;});el.textContent='⏸';el._on=true;}
+function sndPick(i){const s=SOUNDS[i];if(!s)return;if(_sndPreview){_sndPreview.pause();_sndPreview=null;}C.snd=s.url||('lib:'+i);C.sndName=s.n;compose();toast('🎵','נבחר: '+s.n);}
+function sndList(q){q=(q||'').toLowerCase();return SOUNDS.filter(s=>!q||(s.n||'').toLowerCase().includes(q)).map((s,i)=>`<div class="fi"><span class="sndp" onclick="event.stopPropagation();sndPlay(${i},this)" style="cursor:pointer;font-size:16px;width:24px;text-align:center">▶</span><span class="l" onclick="sndPick(${i})" style="cursor:pointer">${s.n}</span>${s.d?`<span style="color:var(--mut);font-size:11px">${s.d}</span>`:''}<span class="k" onclick="sndPick(${i})" style="cursor:pointer">בחר</span></div>`).join('');}
+
+/* ===== ספריית אימוג׳ים ===== */
+const EMOJI={
+ '😀':'😀 😃 😄 😁 😆 😅 😂 🤣 🥲 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🥸 🤩 🥳 😏 😒 😞 😔 😟 😕 🙁 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕 🤑 🤠 😈 👿 👻 💀 👽 👾 🤖 🎃',
+ '👋':'👋 🤚 🖐 ✋ 🖖 👌 🤌 🤏 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 👇 ☝️ 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 👐 🤲 🤝 🙏 ✍️ 💅 🤳 💪 🦵 🦶 👂 👃 🧠 👀 👁 👅 👄 💋 🦷',
+ '❤️':'❤️ 🧡 💛 💚 💙 💜 🤎 🖤 🤍 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 💟 ☮️ ✝️ ☪️ 🔯 ✡️ ☯️ ⭐ 🌟 ✨ ⚡ 🔥 💥 💫 💯 ✅ ❌ ❗ ❓ 💢 💤',
+ '🐶':'🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🕷 🐢 🐍 🦎 🐙 🦑 🦐 🦀 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🦓 🦍 🐘 🦛 🦏 🐪 🦒 🐃 🐄 🐎 🐖 🐑 🐐 🦌 🐕 🐈 🐓 🦃 🦚 🦜 🐇',
+ '🍕':'🍏 🍎 🍐 🍊 🍋 🍌 🍉 🍇 🍓 🫐 🍈 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🍆 🥑 🥦 🥬 🥒 🌶 🌽 🥕 🧄 🧅 🥔 🍠 🥐 🍞 🥖 🧀 🥚 🍳 🥞 🧇 🥓 🍗 🍖 🌭 🍔 🍟 🍕 🥪 🌮 🌯 🥗 🍝 🍜 🍲 🍛 🍣 🍱 🥟 🍤 🍙 🍚 🍰 🎂 🍮 🍭 🍬 🍫 🍿 🍩 🍪 ☕ 🍵 🥤 🍺 🍻 🥂 🍷 🍸 🍹',
+ '⚽':'⚽ 🏀 🏈 ⚾ 🥎 🎾 🏐 🏉 🥏 🎱 🏓 🏸 🏒 🏑 🥍 🏏 🥅 ⛳ 🏹 🎣 🥊 🥋 🎽 🛹 🛼 ⛸ 🥌 🎿 🏂 🏋️ 🤼 🤸 ⛹️ 🤾 🏌️ 🏇 🧘 🏄 🏊 🚣 🧗 🚵 🚴 🏆 🥇 🥈 🥉 🏅 🎖 🎫 🤹 🎭 🎨 🎬 🎤 🎧 🎼 🎹 🥁 🎷 🎺 🎸 🎻 🎲 🎯 🎳 🎮',
+ '🌍':'🌍 🌎 🌏 🌐 🗺 🧭 🏔 ⛰ 🌋 🏕 🏖 🏜 🏝 🏞 🏟 🏛 🏗 🏘 🏠 🏡 🏢 🏣 🏥 🏦 🏨 🏩 🏪 🏫 🏬 🏭 🏯 🏰 💒 🗼 🗽 ⛪ 🕌 🛕 🕍 ⛩ ⛲ ⛺ 🌁 🌃 🌆 🌇 🌉 🎠 🎡 🎢 🚂 🚌 🚕 🚗 🚙 🚚 🏎 🏍 🛵 🚲 ✈️ 🚀 🛸 🚁 ⛵ 🚤 🛳 ⚓',
+ '🎉':'🎉 🎊 🎈 🎁 🎀 🪄 🎏 🎐 🧧 🏮 💡 🔦 🕯 📱 💻 🖥 🖨 🖱 💾 💿 📷 📸 📹 🎥 📞 ☎️ 📺 📻 🎙 ⏰ ⌛ ⏳ 📡 🔋 🔌 💎 ⚖️ 🔧 🔨 ⚙️ 🧲 🔫 🧨 🔪 🗡 🛡 🔑 🗝 🚪 🛏 🧸 🖼 🛍 🛒 💰 💵 💳 🧾 ✉️ 📩 📨 📦 📫 📅 📌 📎 ✂️ 📏 🔍 🔒 🔓',
+};
+function emojiPick(){const cats=Object.keys(EMOJI);
+ openSheet(`<div class="sh-hd"><h3>😀 הוסף אימוג׳ים</h3><span class="x" onclick="compose()">✕</span></div>
+  <div class="sh-b" style="padding-top:8px"><div id="emGrid" style="display:flex;flex-wrap:wrap;gap:2px">${emGridHtml(cats[0])}</div></div>
+  <div class="sh-foot" style="flex-direction:column;gap:8px"><div style="display:flex;gap:6px;overflow-x:auto;width:100%">${cats.map(c=>`<button class="bt dim" style="flex:0 0 auto;padding:7px 11px;font-size:18px" onclick="document.getElementById('emGrid').innerHTML=emGridHtml('${c}')">${c}</button>`).join('')}</div><button class="bt" style="width:100%" onclick="compose()">✓ סיום</button></div>`);}
+function emAdd(ch){C.text=(C.text||'')+ch;toast('😀',ch);}
+function emGridHtml(cat){return EMOJI[cat].split(/\s+/).filter(Boolean).map(ch=>`<span onclick="emAdd('${ch}')" style="font-size:25px;cursor:pointer;width:12.5%;text-align:center;padding:6px 0">${ch}</span>`).join('');}
 
 /* ===== Room search + topic request + voice comment translate ===== */
 function roomFilter(q){q=(q||'').toLowerCase();document.querySelectorAll('#chat .msg').forEach(m=>{const t=m.textContent.toLowerCase();m.style.display=(!q||t.includes(q))?'':'none';});}
@@ -967,12 +1123,17 @@ const TOPIC_REQ_KEY='plaza_topic_reqs';
 function getTopicReqs(){try{return JSON.parse(localStorage.getItem(TOPIC_REQ_KEY)||'[]');}catch(e){return [];}}
 function saveTopicReqs(a){localStorage.setItem(TOPIC_REQ_KEY,JSON.stringify(a));}
 function openTopicReq(){const reqs=getTopicReqs();openSheet(`<div class="sh-hd"><h3>💡 בקש נושא לחדר חדש</h3><span class="x" onclick="closeSheet()">✕</span></div>
- <div class="sh-b"><div class="note" style="margin:0 0 10px">הצע נושא חדש לחדר. כשהוא יגיע ל-100 הצבעות — יישלח אוטומטית לאישור מנהל הפלטפורמה.</div>
+ <div class="sh-b"><div class="note" style="margin:0 0 10px">הצע נושא חדש לחדר. כשהוא יגיע ל-100 הצבעות — יישלח אוטומטית לאישור מנהל הפלטפורמה. כל משתמש יכול להצביע עד 2 פעמים.</div>
   <div class="srch"><input id="ntq" placeholder="שם הנושא החדש..."><button class="bt" style="padding:8px 12px;flex:0 0 auto" onclick="addTopicReq()">+ הוסף</button></div>
   <div class="sh-h" style="margin-top:14px">נושאים פתוחים להצבעה</div>
   <div id="trList">${reqs.length?reqs.map((r,k)=>`<div class="card"><div class="row"><span style="font-size:18px">💡</span><b style="color:var(--text);font-size:13px">${r.t}</b><span style="margin-right:auto;color:var(--mut);font-size:11px">${r.v||0}/100 הצבעות</span><button class="bt" style="flex:0 0 auto;padding:7px 12px;font-size:12px" onclick="voteTopic(${k})">👍 הצבע</button></div></div>`).join(''):'<div class="empty"><div class="e">💡</div><p>אין בקשות עדיין — הצע אחת!</p></div>'}</div></div>`);}
 function addTopicReq(){const v=document.getElementById('ntq').value.trim();if(!v){toast('💡','כתוב שם נושא');return;}const a=getTopicReqs();a.unshift({t:v,v:1});saveTopicReqs(a);openTopicReq();toast('💡','הצעה נוספה');}
-function voteTopic(k){const a=getTopicReqs();a[k].v=(a[k].v||0)+1;if(a[k].v>=100){toast('🎉','נושא "'+a[k].t+'" קיבל 100 הצבעות — נשלח לאישור מנהל הפלטפורמה!');a.splice(k,1);}saveTopicReqs(a);openTopicReq();}
+function myTopicVotes(){try{return JSON.parse(localStorage.getItem('plaza_topic_myvotes')||'{}');}catch(e){return {};}}
+function voteTopic(k){const a=getTopicReqs();const t=a[k];if(!t)return;const mv=myTopicVotes();const used=mv[t.t]||0;
+ if(used>=2){toast('🗳️','כבר הצבעת פעמיים לנושא הזה (מקסימום 2 למשתמש)');return;}
+ mv[t.t]=used+1;localStorage.setItem('plaza_topic_myvotes',JSON.stringify(mv));
+ t.v=(t.v||0)+1;if(t.v>=100){toast('🎉','נושא "'+t.t+'" קיבל 100 הצבעות — נשלח לאישור מנהל הפלטפורמה!');a.splice(k,1);}
+ saveTopicReqs(a);openTopicReq();toast('🗳️','ההצבעה נקלטה ('+(used+1)+'/2)');}
 
 /* voice comment translate/transcript */
 function trVoiceCom(id){const el=document.getElementById(id);if(!el)return;if(el.dataset.shown){el.style.display='none';el.dataset.shown='';return;}el.style.display='block';el.dataset.shown='1';if(!el.dataset.loaded){el.dataset.loaded='1';el.textContent='⏳ מתמלל ומתרגם...';setTimeout(async()=>{const txt='[תמלול] הקלטה קולית קצרה';const tr=await translateText(txt,S.lang);el.innerHTML='📝 '+txt+'<br>🌐 '+tr;},800);}}
@@ -985,14 +1146,15 @@ function pickSched(){const now=new Date(),pad=n=>String(n).padStart(2,'0');const
   <input class="inp" id="schI" type="datetime-local" value="${C.sched||def}">
   <div class="seg" style="margin-top:10px"><b onclick="C.sched='';compose()">פרסם עכשיו</b><b onclick="C.sched=document.getElementById('schI').value;compose();toast('⏰','תוזמן ל-'+C.sched)">תזמן</b></div></div>`);}
 
+function appendVcRow(i){const cb=document.getElementById('cb');const c=COM[i]&&COM[i][COM[i].length-1];if(cb&&c){const e=cb.querySelector('.empty');if(e)cb.innerHTML='';cb.insertAdjacentHTML('beforeend',comRow(i,c,COM[i].length-1));cb.scrollTop=9e9;}else if(c){openCom(i);}const cc=document.getElementById('cm'+i);if(cc)cc.textContent=parseInt(cc.textContent||0)+1;}
 /* ===== Voice comment on post ===== */
 let pcRec=null,pcChunks=[],pcIdx=-1;
 async function recPostComment(i){if(pcRec&&pcRec.state==='recording'){pcRec.stop();return;}pcIdx=i;
  const addVc=(audioHTML)=>{const tid='tv'+Date.now();COM[i]=COM[i]||[];COM[i].push({a:'🦊',n:'אתה',t:audioHTML+'<br><span class="trb" onclick="trVoiceCom(\''+tid+'\')">📝 תמלל + 🌐 תרגם לשפה שלך</span><div id="'+tid+'" class="tro" style="display:none"></div>',m:'עכשיו'});};
- if(!(navigator.mediaDevices&&window.MediaRecorder)){showRecOv();setTimeout(()=>{hideRecOv();addVc('🎙️ הודעה קולית 0:0'+Math.floor(Math.random()*8+2));toast('🎙️','תגובה קולית נשלחה (דמו)');openCom(i);},2500);return;}
+ if(!(navigator.mediaDevices&&window.MediaRecorder)){showRecOv();setTimeout(()=>{hideRecOv();addVc('🎙️ הודעה קולית 0:0'+Math.floor(Math.random()*8+2));toast('🎙️','תגובה קולית נשלחה (דמו)');appendVcRow(i);},2500);return;}
  try{const st=await navigator.mediaDevices.getUserMedia({audio:true});pcRec=new MediaRecorder(st);pcChunks=[];
   pcRec.ondataavailable=e=>{if(e.data&&e.data.size)pcChunks.push(e.data);};
-  pcRec.onstop=()=>{hideRecOv();const u=URL.createObjectURL(new Blob(pcChunks,{type:pcRec.mimeType||'audio/webm'}));addVc('🎙️ <audio controls src="'+u+'" style="max-width:200px"></audio>');st.getTracks().forEach(t=>t.stop());pcRec=null;openCom(i);toast('🎙️','תגובה קולית נשלחה');};
+  pcRec.onstop=()=>{hideRecOv();const u=URL.createObjectURL(new Blob(pcChunks,{type:pcRec.mimeType||'audio/webm'}));addVc('🎙️ <audio controls src="'+u+'" style="max-width:200px"></audio>');st.getTracks().forEach(t=>t.stop());pcRec=null;appendVcRow(i);toast('🎙️','תגובה קולית נשלחה');};
   pcRec.start();showRecOv();toast('🎙️','מקליט תגובה... הקש שוב לעצור');}catch(e){toast('🎙️','אין הרשאת מיקרופון');}}
 
 /* ===== Post auto-translate + viewers ===== */
@@ -1006,6 +1168,56 @@ function postViewers(i){let h=0,id=String(i);for(let k=0;k<id.length;k++)h=(h*31
 
 /* ===== Rating ===== */
 function rateBiz(nm){openSheet(`<div class="sh-hd"><h3>⭐ דירוג ${nm}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="text-align:center;font-size:38px;color:var(--warn);margin:14px 0" id="rStars">${'☆'.repeat(5)}</div><div id="rTxt" style="text-align:center;color:var(--sub);font-size:12px">בחר דירוג 1–5</div><div style="display:flex;gap:10px;justify-content:center;margin:14px 0">${[1,2,3,4,5].map(n=>`<button class="bt dim" style="padding:9px 14px" onclick="document.getElementById('rStars').textContent='⭐'.repeat(${n})+'☆'.repeat(5-${n});document.getElementById('rTxt').textContent='${n} כוכבים'">${n}</button>`).join('')}</div><textarea placeholder="ספר על העסקה (לא חובה)"></textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">בטל</button><button class="bt" onclick="closeSheet();toast('⭐','תודה! הדירוג נשלח')">שלח דירוג</button></div>`);}
+
+/* ===== Post text (linkify + show more) + viewers ===== */
+function postText(p,i){if(!p.text)return '';const raw=linkify(p.text);const long=String(p.text).length>240;
+ return `<div class="ptx"><div class="ptxt ${long?'clamp':''}" id="ptx${i}">${raw}</div>${long?`<span class="moreb" onclick="toggleMore(${i},this)">הצג עוד ▾</span>`:''}<div style="margin-top:6px;font-size:11px"><span style="color:var(--acc);font-weight:700;cursor:pointer" onclick="translatePost(${i},this)">🌐 תרגם את הפוסט</span><div style="display:none;margin-top:6px;padding:8px 10px;background:var(--surface2);border-radius:8px;color:var(--text);font-size:13px"></div></div></div>`;}
+function toggleMore(i,el){const t=document.getElementById('ptx'+i);if(!t)return;t.classList.toggle('clamp');el.textContent=t.classList.contains('clamp')?'הצג עוד ▾':'הצג פחות ▴';}
+function eyeHtml(i){return `<span class="eyev" style="background:var(--surface2);padding:3px 8px;border-radius:7px;font-weight:700"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="vw${i}">${postViewers(i)}</span> צופים</span>`;}
+setInterval(()=>{document.querySelectorAll('.feed .fb[data-i]').forEach(po=>{const e=document.getElementById('vw'+po.dataset.i);if(!e)return;const c=parseInt(e.textContent)||1;e.textContent=Math.max(1,c+Math.floor(Math.random()*7-3));});},3500);
+
+/* ===== Post 3-dot menu (owner / viewer) ===== */
+function isMine(p){return !!(p&&(p._mine||p.nm===S.me.nm||(S.me.bnm&&p.nm===S.me.bnm)));}
+function postMenu(i){const p=POSTS[i];if(!p)return;const url=postUrl(p,i);const nm=(p.nm||'').replace(/'/g,'');
+ const items=isMine(p)?[
+  ['✏️','ערוך פוסט',`closeSheet();editPost(${i})`,''],
+  ['📋','העתק טקסט',`copyText(${JSON.stringify(p.text||'')});closeSheet()`,''],
+  ['🔗','העתק קישור',`copyText('${url}');closeSheet()`,''],
+  ['🔔','התראות על תגובות',`closeSheet();toast('🔔','תקבל התראה על כל תגובה לפוסט')`,''],
+  ['⏳','הארך ב-24 שעות',`closeSheet();extendPost(${i})`,''],
+  ['🗑️','מחק פוסט',`deletePost(${i})`,'bad']
+ ]:[
+  ['🔖','שמור פוסט',`closeSheet();bkById(${i})`,''],
+  ['🔔','הפעל התראות על הפוסט',`closeSheet();toast('🔔','תקבל התראות על הפוסט הזה')`,''],
+  ['🔗','העתק קישור',`copyText('${url}');closeSheet()`,''],
+  ['🙈','הסתר פוסט',`closeSheet();hidePost(${i})`,''],
+  ['⚠️','דווח על הפוסט',`reportPost(${i})`,'bad'],
+  ['🚫','חסום את '+nm,`closeSheet();blockUser('${nm}')`,'bad']
+ ];
+ openSheet(`<div class="sh-hd"><h3>${p.nm}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b">${items.map(it=>`<div class="mi" onclick="${it[2]}"><span class="mc">${it[0]}</span><span style="${it[3]==='bad'?'color:var(--bad)':''}">${it[1]}</span><span class="mv">›</span></div>`).join('')}</div>`);}
+function editPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>✏️ עריכת פוסט</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><textarea id="edTx" style="height:150px" maxlength="5000">${p.text||''}</textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="saveEdit(${i})">שמור</button></div>`);}
+function saveEdit(i){const p=POSTS[i],v=eV('edTx');p.text=v;if(p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'PUT',body:{text:v}}).catch(()=>{});closeSheet();buildFeed();toast('✏️','הפוסט עודכן');}
+function deletePost(i){openSheet(`<div class="sh-hd"><h3>🗑️ מחיקת פוסט</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><p style="color:var(--text);font-size:14px;line-height:1.6">למחוק את הפוסט לצמיתות? לא ניתן לשחזר.</p></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" style="background:var(--bad)" onclick="doDeletePost(${i})">מחק</button></div>`);}
+function doDeletePost(i){const p=POSTS[i];if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'DELETE'}).catch(()=>{});if(p)POSTS.splice(i,1);sv();closeSheet();buildFeed();toast('🗑️','הפוסט נמחק');}
+function extendPost(i){const p=POSTS[i];if(p){p._m=(p._m??p.mins)+1440;p.mins=(p.mins||0)+1440;}if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid+'/extend',{method:'POST'}).catch(()=>{});toast('⏳','חיי הפוסט הוארכו ב-24 שעות');}
+function bkById(i){S.bk[i]=1;sv();buildFeed();toast('🔖','נשמר — snapshot יישאר גם אחרי שייעלם');}
+function hidePost(i){S.hidden=S.hidden||[];const p=POSTS[i];const key=p&&p._sid?'s'+p._sid:'i'+i;if(!S.hidden.includes(key))S.hidden.push(key);sv();buildFeed();toast('🙈','הפוסט הוסתר מהפיד שלך');}
+function blockUser(nm){S.blocked=S.blocked||[];if(!S.blocked.includes(nm))S.blocked.push(nm);sv();buildFeed();toast('🚫',nm+' נחסם — לא תראה עוד את הפוסטים שלו');}
+function reportPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>⚠️ דיווח על פוסט</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b">${[['ספאם','spam'],['הטרדה','harassment'],['תוכן לא הולם','inappropriate'],['מידע מטעה','misinfo'],['אחר','other']].map(r=>`<div class="mi" onclick="doReport(${i},'${r[1]}')"><span class="mc">🚩</span>${r[0]}<span class="mv">›</span></div>`).join('')}</div>`);}
+function doReport(i,reason){const p=POSTS[i];if(p&&p._sid&&IS_SERVER())API.req('/reports',{method:'POST',body:{target_type:'post',target_id:p._sid,reason}}).catch(()=>{});closeSheet();toast('✅','הדיווח נשלח — תודה שעזרת לשמור על הקהילה');}
+function votePoll(i,oi){const p=POSTS[i];if(!p||!p.poll)return;S.pollVotes=S.pollVotes||{};const k=p._sid?'s'+p._sid:'i'+i;if(S.pollVotes[k]!=null){toast('📊','כבר הצבעת בסקר זה');return;}p.poll[oi].v=(p.poll[oi].v||0)+1;S.pollVotes[k]=oi;sv();buildFeed();toast('✅','ההצבעה נקלטה');}
+function applyJob(i){const p=POSTS[i];toast('📥','המועמדות נשלחה לפרופיל המפרסם');if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid+'/comments',{method:'POST',body:{text:'[מועמדות] '+(S.me.nm||'')}}).catch(()=>{});}
+
+/* ===== Real share ===== */
+function postUrl(p,i){const id=(p&&p._sid)?p._sid:i;return location.origin+'/?post='+id;}
+async function sharePost(i){const p=POSTS[i]||window._np;const url=postUrl(p,i);const text=(p&&p.text?String(p.text).slice(0,120):'פוסט בפלאזה');
+ if(navigator.share){try{await navigator.share({title:'PLAZA 🌍',text,url});return;}catch(e){if(e&&e.name==='AbortError')return;}}
+ openShareSheet(url,text);}
+function copyText(t){const ok=()=>toast('🔗','הועתק ללוח');(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(ok).catch(()=>{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');ok();}catch(e){toast('🔗',t);}ta.remove();});}
+function openShareSheet(url,text){const enc=encodeURIComponent(url),et=encodeURIComponent((text||'')+' ');
+ const u=url.replace(/'/g,"\\'");
+ const opts=[['🔗','העתק קישור',`copyText('${u}')`],['🟢','WhatsApp',`window.open('https://wa.me/?text=${et}${enc}','_blank')`],['✈️','Telegram',`window.open('https://t.me/share/url?url=${enc}&text=${et}','_blank')`],['🐦','X',`window.open('https://twitter.com/intent/tweet?text=${et}${enc}','_blank')`],['📘','Facebook',`window.open('https://www.facebook.com/sharer/sharer.php?u=${enc}','_blank')`],['📧','אימייל',`window.open('mailto:?subject=PLAZA&body=${et}${enc}')`]];
+ openSheet(`<div class="sh-hd"><h3>↗️ שתף</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">${opts.map(s=>`<div style="text-align:center;cursor:pointer" onclick="${s[2]}"><div style="width:50px;height:50px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto">${s[0]}</div><div style="color:var(--text);font-size:11px;margin-top:6px">${s[1]}</div></div>`).join('')}</div><div style="margin-top:16px;background:var(--surface2);border-radius:10px;padding:10px;display:flex;align-items:center;gap:8px"><input value="${url}" readonly style="flex:1;background:none;border:none;color:var(--sub);font-size:12px;outline:none"><button class="bt" style="flex:0 0 auto;padding:8px 12px;font-size:12px" onclick="copyText('${u}')">העתק</button></div></div>`);}
 
 /* ===== Expiry warning ===== */
 function checkExpiryWarn(){for(let i=0;i<POSTS.length;i++){const p=POSTS[i];if(p._m&&p._m<30&&!p._warned&&S.mine.find(m=>m.text===p.text)){p._warned=1;toast('⏳','הפוסט שלך עומד להיעלם בעוד פחות מ-30 דק׳ — להאריך?');return;}}}

@@ -2,48 +2,190 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>PLAZA — כניסה</title>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PLAZA — כניסה / הרשמה</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#4F46E5">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PLAZA">
 <link rel="apple-touch-icon" href="/icon-180.png">
 <link rel="icon" type="image/svg+xml" href="/icon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
-body{background:linear-gradient(160deg,#0E1117,#1C232E);color:#E6EAF0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.box{max-width:400px;width:100%;background:#161B22;border:1px solid #262D38;border-radius:18px;padding:32px}
-.brand{text-align:center;margin-bottom:22px}
-.brand b{display:block;font-size:28px;font-weight:800;color:#6D74FF;letter-spacing:2px}
-.brand small{color:#9AA4B2;font-size:12px;margin-top:4px;display:block}
-.tabs{display:flex;gap:8px;margin-bottom:18px}
-.tab{flex:1;text-align:center;background:#0E1117;border:1px solid #262D38;color:#9AA4B2;padding:10px;border-radius:9px;cursor:pointer;font-weight:700;font-size:13px}
-.tab.on{background:#6D74FF;border-color:#6D74FF;color:#fff}
-input{width:100%;background:#0E1117;border:1px solid #262D38;border-radius:10px;padding:12px 14px;color:#E6EAF0;font-size:14px;outline:none;margin-bottom:10px}
-button{width:100%;background:#6D74FF;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:800;cursor:pointer;font-size:14px}
-.err{color:#F85149;font-size:12.5px;margin-top:8px;text-align:center}
-.note{color:#6B7480;font-size:11.5px;text-align:center;margin-top:14px;line-height:1.6}
+:root{
+  --bg:#0E1117;--panel:#161B22;--panel2:#1C232E;--line:#262D38;
+  --text:#E6EAF0;--sub:#9AA4B2;--mut:#6B7480;
+  --acc:#6D74FF;--acc2:#4F46E5;--ok:#3FB950;--bad:#F85149;--wa:#25D366;--tg:#2AABEE;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+html,body{height:100%}
+body{background:radial-gradient(1200px 600px at 50% -10%,#1b2240 0%,#0E1117 55%);color:var(--text);min-height:100%;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.wrap{width:100%;max-width:410px;animation:in .5s cubic-bezier(.22,1,.36,1)}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.brand{text-align:center;margin-bottom:18px}
+.brand .logo{font-size:40px;line-height:1}
+.brand b{display:block;font-size:30px;font-weight:800;letter-spacing:3px;margin-top:6px;background:linear-gradient(90deg,#8b91ff,#6D74FF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.brand small{color:var(--sub);font-size:12px;display:block;margin-top:4px;font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px 22px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.tabs{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:18px}
+.tab{flex:1;text-align:center;color:var(--sub);padding:10px;border-radius:9px;cursor:pointer;font-weight:700;font-size:14px;transition:.18s}
+.tab.on{background:var(--acc);color:#fff;box-shadow:0 4px 14px rgba(109,116,255,.4)}
+.social{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+.sb{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;transition:.15s}
+.sb:active{transform:scale(.985)}
+.sb.g{background:#fff;color:#1f1f1f;border-color:#fff}
+.sb.tg{background:var(--tg);color:#fff;border-color:var(--tg)}
+.sb svg,.sb img{width:19px;height:19px;flex:0 0 auto}
+.divider{display:flex;align-items:center;gap:12px;color:var(--mut);font-size:12px;font-weight:600;margin:6px 0 16px}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.field{margin-bottom:12px}
+.field label{display:block;color:var(--sub);font-size:12px;font-weight:700;margin-bottom:6px;padding-right:2px}
+.inpwrap{position:relative;display:flex;align-items:center}
+input,select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:13px 14px;color:var(--text);font-size:14.5px;outline:none;transition:.15s}
+input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(109,116,255,.18)}
+input::placeholder{color:var(--mut)}
+.eye{position:absolute;left:12px;color:var(--mut);cursor:pointer;font-size:17px;user-select:none}
+.dialrow{display:flex;gap:8px}
+.dialrow select{width:118px;flex:0 0 auto;padding:13px 6px}
+.dialrow input{flex:1}
+.row2{display:flex;gap:10px}
+.row2>*{flex:1}
+.terms{display:flex;align-items:flex-start;gap:9px;margin:4px 0 14px;color:var(--sub);font-size:12px;line-height:1.5}
+.terms input{width:18px;height:18px;flex:0 0 auto;margin-top:1px;accent-color:var(--acc)}
+.terms a{color:var(--acc);text-decoration:none}
+.go{width:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));color:#fff;border:none;border-radius:12px;padding:15px;font-weight:800;font-size:15px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.go:active{transform:scale(.99)}
+.go:disabled{opacity:.55;cursor:not-allowed}
+.link{display:block;text-align:center;color:var(--acc);font-size:13px;font-weight:700;margin-top:14px;cursor:pointer}
+.msg{font-size:13px;font-weight:600;text-align:center;margin-top:12px;padding:11px;border-radius:10px;display:none}
+.msg.err{display:block;background:rgba(248,81,73,.12);color:#ff8a84;border:1px solid rgba(248,81,73,.3)}
+.msg.ok{display:block;background:rgba(63,185,80,.12);color:#5ad06a;border:1px solid rgba(63,185,80,.3)}
+.foot{text-align:center;color:var(--mut);font-size:11.5px;margin-top:18px;line-height:1.7}
+.foot b{color:var(--sub)}
+.hide{display:none!important}
+.guest{display:block;text-align:center;color:var(--sub);font-size:13px;font-weight:700;margin-top:16px;cursor:pointer;padding:10px;border:1px dashed var(--line);border-radius:11px}
+.strength{height:4px;border-radius:3px;background:var(--line);margin-top:7px;overflow:hidden}
+.strength i{display:block;height:100%;width:0;transition:.3s;border-radius:3px}
+.otp{display:flex;gap:8px;justify-content:center;margin:6px 0 4px;direction:ltr}
+.otp input{width:46px;height:54px;text-align:center;font-size:22px;font-weight:800;padding:0}
 </style>
 </head>
 <body>
-<div class="box">
-  <div class="brand"><b>🌍 PLAZA</b><small>הכיכר הדיגיטלית הגלובלית</small></div>
-  <div class="tabs"><div class="tab on" id="tL" onclick="setMode('login')">כניסה</div><div class="tab" id="tR" onclick="setMode('register')">הרשמה</div></div>
-  <div id="frm"></div>
-  <div class="err" id="err"></div>
-  <div class="note">הכל בחינם · אפס פרסום · אפס מעקב · הכל נעלם תוך 24 שעות</div>
+<div class="wrap">
+  <div class="brand"><div class="logo">🌍</div><b>PLAZA</b><small>הכיכר הדיגיטלית הגלובלית · אפס פרסום · אפס מעקב</small></div>
+  <div class="card">
+    <div class="tabs"><div class="tab on" id="tabLogin" onclick="setMode('login')">כניסה</div><div class="tab" id="tabReg" onclick="setMode('register')">הרשמה</div></div>
+    <div id="screen"></div>
+    <div class="msg" id="msg"></div>
+  </div>
+  <div class="foot">🔒 <b>הפרטיות שלך מוגנת</b> · אנחנו לא מוכרים מידע · אין מעקב · קוד פתוח<br>בכניסה אתה מאשר את <a href="/terms" style="color:var(--sub)">תנאי השימוש</a> ו<a href="/privacy" style="color:var(--sub)">מדיניות הפרטיות</a></div>
 </div>
+
 <script>
-let MODE='login';
-function setMode(m){MODE=m;document.getElementById('tL').classList.toggle('on',m==='login');document.getElementById('tR').classList.toggle('on',m==='register');render();}
-function render(){const f=document.getElementById('frm');
- if(MODE==='login')f.innerHTML=`<input id="u" placeholder="שם משתמש"><input id="p" type="password" placeholder="סיסמה"><button onclick="doLogin()">היכנס</button>`;
- else f.innerHTML=`<input id="u" placeholder="שם משתמש (ייחודי)"><input id="n" placeholder="שם תצוגה / כינוי"><input id="e" type="email" placeholder="אימייל (לא חובה)"><input id="p" type="password" placeholder="סיסמה (6+ תווים)"><button onclick="doRegister()">צור חשבון</button>`;}
-async function doLogin(){const u=$('u').value,p=$('p').value;try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});const d=await r.json();if(!r.ok){document.getElementById('err').textContent=d.error;return;}localStorage.setItem('plazaTok',d.token);localStorage.setItem('plazaUser',JSON.stringify(d.user));location.href='/';}catch(e){document.getElementById('err').textContent='שגיאת חיבור';}}
-async function doRegister(){const u=$('u').value,n=$('n').value,e=$('e').value,p=$('p').value;try{const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,display_name:n,email:e,password:p,lang:'he',country:'IL'})});const d=await r.json();if(!r.ok){document.getElementById('err').textContent=d.error;return;}localStorage.setItem('plazaTok',d.token);localStorage.setItem('plazaUser',JSON.stringify(d.user));location.href='/';}catch(ex){document.getElementById('err').textContent='שגיאת חיבור';}}
-function $(id){return document.getElementById(id);}
-render();
+let MODE='login', CFG={googleClientId:'',telegramBot:''}, busy=false;
+const $=id=>document.getElementById(id);
+function msg(t,type){const m=$('msg');m.textContent=t;m.className='msg '+(type||'err');}
+function clearMsg(){$('msg').className='msg';}
+
+/* ---------- config (which social logins are enabled) ---------- */
+fetch('/api/config').then(r=>r.json()).then(c=>{CFG=c||CFG;render();initGoogle();}).catch(()=>render());
+
+function setMode(m){MODE=m;clearMsg();$('tabLogin').classList.toggle('on',m==='login');$('tabReg').classList.toggle('on',m==='register');render();}
+
+function socialRow(){
+  return `<div class="social">
+    <button class="sb g" onclick="googleClick()"><svg viewBox="0 0 24 24" width="19" height="19"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>המשך עם Google</button>
+    <button class="sb tg" onclick="telegramClick()"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71l-4.14-3.05-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>המשך עם Telegram</button>
+  </div>
+  <div class="divider">או באמצעות אימייל</div>`;
+}
+
+function strengthBar(){return `<div class="strength"><i id="strBar"></i></div>`;}
+function pwInput(id,ph){return `<div class="inpwrap"><input type="password" id="${id}" placeholder="${ph}" oninput="onPw('${id}')"><span class="eye" onclick="toggleEye('${id}',this)">👁️</span></div>`;}
+
+function render(){
+  const s=$('screen');
+  if(MODE==='login'){
+    s.innerHTML=socialRow()+`
+      <div class="field"><label>אימייל או שם משתמש</label><input id="li" placeholder="name@example.com" autocomplete="username"></div>
+      <div class="field"><label>סיסמה</label>${pwInput('lp','הסיסמה שלך')}</div>
+      <button class="go" id="goBtn" onclick="doLogin()">כניסה</button>
+      <span class="link" onclick="setScreen('forgot')">שכחת סיסמה?</span>
+      <div class="guest" onclick="guest()">👀 כניסה כאורח (צפייה בלבד)</div>`;
+  } else if(MODE==='register'){
+    s.innerHTML=socialRow()+`
+      <div class="field"><label>שם תצוגה</label><input id="rn" placeholder="איך שיקראו לך בכיכר"></div>
+      <div class="field"><label>אימייל <small style="color:var(--mut)">(משמש גם כשם משתמש)</small></label><input id="re" type="email" placeholder="name@example.com" autocomplete="email"></div>
+      <div class="field"><label>טלפון <small style="color:var(--mut)">(לא חובה — לאימות ואבטחה)</small></label>
+        <div class="dialrow"><select id="rd"></select><input id="rph" type="tel" placeholder="501234567"></div></div>
+      <div class="field"><label>סיסמה</label>${pwInput('rp','לפחות 6 תווים')}${strengthBar()}</div>
+      <div class="field"><label>אימות סיסמה</label>${pwInput('rp2','הקלד שוב')}</div>
+      <label class="terms"><input type="checkbox" id="rt"><span>אני מאשר/ת את <a href="/terms" target="_blank">תנאי השימוש</a> ו<a href="/privacy" target="_blank">מדיניות הפרטיות</a>, ומאשר/ת שאני בן/בת 13 ומעלה.</span></label>
+      <button class="go" id="goBtn" onclick="doRegister()">צור חשבון 🚀</button>`;
+    fillDial();
+  }
+}
+function setScreen(name){clearMsg();const s=$('screen');
+  if(name==='forgot'){s.innerHTML=`
+    <div style="text-align:center;color:var(--sub);font-size:13px;margin-bottom:16px;line-height:1.6">הזן את האימייל שלך — נשלח לך קוד לאיפוס הסיסמה.</div>
+    <div class="field"><label>אימייל</label><input id="fe" type="email" placeholder="name@example.com"></div>
+    <button class="go" id="goBtn" onclick="doForgot()">שלח קוד איפוס</button>
+    <span class="link" onclick="render()">← חזרה לכניסה</span>`;}
+  if(name==='reset'){s.innerHTML=`
+    <div style="text-align:center;color:var(--sub);font-size:13px;margin-bottom:14px;line-height:1.6">הזן את הקוד שקיבלת וסיסמה חדשה.</div>
+    <div class="otp" id="otp">${[0,1,2,3,4,5].map(i=>`<input maxlength="1" inputmode="numeric" onkeyup="otpHop(this,${i})">`).join('')}</div>
+    <div class="field" style="margin-top:14px"><label>סיסמה חדשה</label>${pwInput('np','לפחות 6 תווים')}</div>
+    <button class="go" id="goBtn" onclick="doReset()">אפס סיסמה</button>
+    <span class="link" onclick="render()">← ביטול</span>`;}
+}
+function otpHop(el,i){el.value=el.value.replace(/\D/g,'');if(el.value&&i<5)el.parentElement.children[i+1].focus();}
+
+function fillDial(){const D=[['972','🇮🇱 +972'],['1','🇺🇸 +1'],['44','🇬🇧 +44'],['49','🇩🇪 +49'],['33','🇫🇷 +33'],['34','🇪🇸 +34'],['39','🇮🇹 +39'],['7','🇷🇺 +7'],['91','🇮🇳 +91'],['55','🇧🇷 +55'],['81','🇯🇵 +81'],['86','🇨🇳 +86'],['971','🇦🇪 +971'],['20','🇪🇬 +20'],['90','🇹🇷 +90']];
+  const sel=$('rd');if(sel)sel.innerHTML=D.map(d=>`<option value="${d[0]}">${d[1]}</option>`).join('');}
+
+function toggleEye(id,el){const i=$(id);if(i.type==='password'){i.type='text';el.textContent='🙈';}else{i.type='password';el.textContent='👁️';}}
+function onPw(id){if(id!=='rp')return;const v=$('rp').value,bar=$('strBar');if(!bar)return;let sc=0;if(v.length>=6)sc++;if(v.length>=10)sc++;if(/[A-Z]/.test(v)&&/[a-z]/.test(v))sc++;if(/\d/.test(v))sc++;if(/[^A-Za-z0-9]/.test(v))sc++;const pct=[0,25,45,65,85,100][sc];const col=sc<=1?'#F85149':sc<=2?'#E3B341':sc<=3?'#6D74FF':'#3FB950';bar.style.width=pct+'%';bar.style.background=col;}
+
+/* ---------- auth core ---------- */
+function done(d){localStorage.setItem('plazaTok',d.token);localStorage.setItem('plazaUser',JSON.stringify(d.user));location.href='/';}
+async function post(path,body){const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'שגיאה');return d;}
+function lock(b){busy=b;const g=$('goBtn');if(g){g.disabled=b;g.style.opacity=b?.6:1;}}
+
+async function doLogin(){if(busy)return;const login=$('li').value.trim(),password=$('lp').value;if(!login||!password){msg('מלא אימייל/שם משתמש וסיסמה');return;}
+  lock(true);clearMsg();try{const d=await post('/api/login',{login,username:login,password});done(d);}catch(e){msg(e.message==='bad credentials'?'אימייל או סיסמה שגויים':e.message==='banned'?'החשבון חסום':e.message);lock(false);}}
+
+async function doRegister(){if(busy)return;const display_name=$('rn').value.trim(),email=$('re').value.trim().toLowerCase(),password=$('rp').value,p2=$('rp2').value,phone=($('rph').value||'').replace(/\D/g,''),dial=$('rd').value;
+  if(!display_name){msg('הזן שם תצוגה');return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){msg('הזן אימייל תקין');return;}
+  if(password.length<6){msg('הסיסמה חייבת לפחות 6 תווים');return;}
+  if(password!==p2){msg('הסיסמאות לא תואמות');return;}
+  if(!$('rt').checked){msg('יש לאשר את תנאי השימוש');return;}
+  lock(true);clearMsg();try{const d=await post('/api/register',{username:email,email,display_name,password,phone:phone?('+'+dial+phone):null,lang:(navigator.language||'he').slice(0,2),country:'IL'});done(d);}catch(e){msg(e.message==='username taken'?'האימייל הזה כבר רשום — נסה להתחבר':e.message);lock(false);}}
+
+async function doForgot(){if(busy)return;const email=$('fe').value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){msg('הזן אימייל תקין');return;}
+  lock(true);try{const d=await post('/api/forgot',{email});window._resetEmail=email;setScreen('reset');if(d.devCode){msg('קוד לבדיקה (אין שירות מייל מוגדר): '+d.devCode,'ok');}else{msg('נשלח קוד לאימייל שלך','ok');}lock(false);}catch(e){msg(e.message);lock(false);}}
+
+async function doReset(){if(busy)return;const code=[...document.querySelectorAll('#otp input')].map(i=>i.value).join(''),password=$('np').value;
+  if(code.length<6){msg('הזן את כל 6 הספרות');return;}
+  if(password.length<6){msg('סיסמה חייבת לפחות 6 תווים');return;}
+  lock(true);try{const d=await post('/api/reset',{email:window._resetEmail,code,password});msg('הסיסמה אופסה! מתחבר...','ok');setTimeout(()=>done(d),700);}catch(e){msg(e.message==='bad code'?'קוד שגוי או שפג תוקפו':e.message);lock(false);}}
+
+function guest(){localStorage.setItem('plazaGuest','1');location.href='/';}
+
+/* ---------- Google ---------- */
+function initGoogle(){if(!CFG.googleClientId||!window.google)return;
+  try{google.accounts.id.initialize({client_id:CFG.googleClientId,callback:onGoogle});}catch(e){}}
+async function onGoogle(resp){lock(true);try{const d=await post('/api/auth/google',{credential:resp.credential});done(d);}catch(e){msg('כניסת Google נכשלה: '+e.message);lock(false);}}
+function googleClick(){if(!CFG.googleClientId){msg('כניסת Google עדיין לא הופעלה — נדרש מפתח GOOGLE_CLIENT_ID בשרת');return;}
+  try{google.accounts.id.prompt();}catch(e){msg('שגיאת Google — נסה שוב');}}
+
+/* ---------- Telegram ---------- */
+function telegramClick(){if(!CFG.telegramBot){msg('כניסת Telegram עדיין לא הופעלה — נדרש בוט Telegram (TELEGRAM_BOT_TOKEN) בשרת');return;}
+  const w=600,h=600,l=(screen.width-w)/2,t=(screen.height-h)/2;
+  const origin=encodeURIComponent(location.origin);
+  window.open(`https://oauth.telegram.org/auth?bot_id=${CFG.telegramBot}&origin=${origin}&request_access=write`,'tgauth',`width=${w},height=${h},left=${l},top=${t}`);
+  msg('אם החלון לא נפתח — אשר חלונות קופצים. החיבור מתבצע דרך Telegram.','ok');}
+window.addEventListener('message',async e=>{if(e.origin.includes('oauth.telegram.org')&&e.data){try{const u=typeof e.data==='string'?JSON.parse(e.data):e.data;if(u&&u.id){const d=await post('/api/auth/telegram',u);done(d);}}catch(err){}}});
 </script>
 </body>
 </html>
