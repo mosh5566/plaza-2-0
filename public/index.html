@@ -1090,14 +1090,16 @@ let SOUNDS=[
  {n:'🎹 Lo-Fi',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3'},
 ];
 let _sndPreview=null;
-async function openSounds(){openSheet(`<div class="sh-hd"><h3>🎵 ספריית סאונדים</h3><span class="x" onclick="compose()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="snQ" placeholder="חפש סאונד (Pixabay)..." oninput="searchSounds(this.value)"></div><div class="fl tall" id="snL">${sndList('')}</div><div class="note" style="margin-top:10px">לאלפי סאונדים עם רישיון — הוסף מפתח חינמי של Pixabay בשרת (PIXABAY_API_KEY). כרגע פעילה ספרייה בסיסית שמתנגנת.</div></div>`);}
-let _sndT;function searchSounds(q){clearTimeout(_sndT);_sndT=setTimeout(async()=>{
- try{const r=await fetch('/api/sounds?q='+encodeURIComponent(q||''));if(r.ok){const j=await r.json();if(j&&j.hits&&j.hits.length){SOUNDS=j.hits;}}}catch(e){}
- const el=document.getElementById('snL');if(el)el.innerHTML=sndList(q);},350);}
+async function openSounds(){openSheet(`<div class="sh-hd"><h3>🎵 ספריית סאונדים</h3><span class="x" onclick="compose()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="snQ" placeholder="חפש מוזיקה (אנגלית)..." oninput="searchSounds(this.value)"></div><div class="fl tall" id="snL"><div style="padding:22px;text-align:center;color:var(--mut)">טוען מוזיקה... 🎵</div></div><div class="note" style="margin-top:10px">אלפי טראקים חינמיים (Creative Commons) — הקש ▶ להאזנה, "בחר" לצירוף לסרטון.</div></div>`);loadSounds('');}
+let _sndT;function searchSounds(q){clearTimeout(_sndT);_sndT=setTimeout(()=>loadSounds(q),400);}
+async function loadSounds(q){window._localSounds=window._localSounds||SOUNDS.slice();const el=document.getElementById('snL');if(el)el.innerHTML='<div style="padding:22px;text-align:center;color:var(--mut)">טוען... 🎵</div>';
+ let hits=null;try{const r=await fetch('/api/sounds?q='+encodeURIComponent(q||''));if(r.ok){const j=await r.json();if(j&&j.hits&&j.hits.length)hits=j.hits;}}catch(e){}
+ if(!hits){const lq=(q||'').toLowerCase();hits=window._localSounds.filter(s=>!lq||(s.n||'').toLowerCase().includes(lq));}
+ SOUNDS=hits;if(el)el.innerHTML=SOUNDS.length?sndList():'<div style="padding:22px;text-align:center;color:var(--mut)">לא נמצאו תוצאות — נסה מילה אחרת באנגלית</div>';}
 function sndPlay(i,el){const s=SOUNDS[i];if(!s||!s.url)return;if(_sndPreview){_sndPreview.pause();}if(el._on){el._on=false;el.textContent='▶';_sndPreview=null;return;}
  _sndPreview=new Audio(s.url);_sndPreview.play().catch(()=>{});document.querySelectorAll('#snL .sndp').forEach(b=>{b.textContent='▶';b._on=false;});el.textContent='⏸';el._on=true;}
 function sndPick(i){const s=SOUNDS[i];if(!s)return;if(_sndPreview){_sndPreview.pause();_sndPreview=null;}C.snd=s.url||('lib:'+i);C.sndName=s.n;compose();toast('🎵','נבחר: '+s.n);}
-function sndList(q){q=(q||'').toLowerCase();return SOUNDS.filter(s=>!q||(s.n||'').toLowerCase().includes(q)).map((s,i)=>`<div class="fi"><span class="sndp" onclick="event.stopPropagation();sndPlay(${i},this)" style="cursor:pointer;font-size:16px;width:24px;text-align:center">▶</span><span class="l" onclick="sndPick(${i})" style="cursor:pointer">${s.n}</span>${s.d?`<span style="color:var(--mut);font-size:11px">${s.d}</span>`:''}<span class="k" onclick="sndPick(${i})" style="cursor:pointer">בחר</span></div>`).join('');}
+function sndList(){return SOUNDS.map((s,i)=>`<div class="fi"><span class="sndp" onclick="event.stopPropagation();sndPlay(${i},this)" style="cursor:pointer;font-size:16px;width:24px;text-align:center">▶</span><span class="l" onclick="sndPick(${i})" style="cursor:pointer">${s.n}</span>${s.d?`<span style="color:var(--mut);font-size:11px">${s.d}</span>`:''}<span class="k" onclick="sndPick(${i})" style="cursor:pointer">בחר</span></div>`).join('');}
 
 /* ===== ספריית אימוג׳ים ===== */
 const EMOJI={
