@@ -6,7 +6,7 @@
 <title>PLAZA — הכיכר הדיגיטלית הגלובלית</title>
 <meta name="description" content="קבוצה עולמית · אין אלגוריתם · הכל נעלם תוך 24 שעות">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#4F46E5">
+<meta name="theme-color" content="#2563EB">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PLAZA">
@@ -21,9 +21,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
-  .app[data-th="light"]{--bg:#F7F8FA;--surface:#FFFFFF;--surface2:#F1F3F6;--line:rgba(15,17,21,.05);--text:#0F1115;--sub:#5B6470;--mut:#969CA8;--acc:#4F46E5;--acc2:#7C3AED;--acc-soft:#ECEBFB;--ok:#16A34A;--warn:#D97706;--bad:#E5484D;--wa:#25D366;--glass:rgba(255,255,255,.72);--shadow-sm:0 1px 4px rgba(15,17,21,.04);--shadow:0 2px 10px rgba(15,17,21,.05);--shadow-lg:0 16px 44px rgba(15,17,21,.16);--ring:rgba(79,70,229,.18)}
-  .app[data-th="dark"]{--bg:#0B0E13;--surface:#151A21;--surface2:#1C232E;--line:rgba(255,255,255,.06);--text:#E9EDF3;--sub:#98A2B0;--mut:#6B7480;--acc:#6D74FF;--acc2:#9D7BFF;--acc-soft:#221E3A;--ok:#3FB950;--warn:#E3B341;--bad:#F85149;--wa:#25D366;--glass:rgba(15,19,26,.72);--shadow-sm:0 1px 4px rgba(0,0,0,.32);--shadow:0 2px 12px rgba(0,0,0,.4);--shadow-lg:0 18px 48px rgba(0,0,0,.6);--ring:rgba(124,130,255,.26)}
-  .app{--grad:linear-gradient(135deg,var(--acc),var(--acc2));--glow:0 8px 30px rgba(79,70,229,.30);--r:18px;--r-sm:12px}
+  .app[data-th="light"]{--bg:#F7F8FA;--surface:#FFFFFF;--surface2:#F1F3F6;--line:rgba(15,17,21,.05);--text:#0F1115;--sub:#5B6470;--mut:#969CA8;--acc:#2563EB;--acc2:#1D4ED8;--acc-soft:#E7EEFE;--acc-rgb:37,99,235;--ok:#16A34A;--warn:#D97706;--bad:#E5484D;--wa:#25D366;--glass:rgba(255,255,255,.72);--shadow-sm:0 1px 4px rgba(15,17,21,.04);--shadow:0 2px 10px rgba(15,17,21,.05);--shadow-lg:0 16px 44px rgba(15,17,21,.16);--ring:rgba(var(--acc-rgb),.18);--glow:0 8px 30px rgba(var(--acc-rgb),.32)}
+  .app[data-th="dark"]{--bg:#0B0E13;--surface:#151A21;--surface2:#1C232E;--line:rgba(255,255,255,.06);--text:#E9EDF3;--sub:#98A2B0;--mut:#6B7480;--acc:#3B82F6;--acc2:#2563EB;--acc-soft:#16223B;--acc-rgb:59,130,246;--ok:#3FB950;--warn:#E3B341;--bad:#F85149;--wa:#25D366;--glass:rgba(15,19,26,.72);--shadow-sm:0 1px 4px rgba(0,0,0,.32);--shadow:0 2px 12px rgba(0,0,0,.4);--shadow-lg:0 18px 48px rgba(0,0,0,.6);--ring:rgba(var(--acc-rgb),.28);--glow:0 8px 30px rgba(var(--acc-rgb),.34)}
+  .app{--grad:linear-gradient(135deg,var(--acc),var(--acc2));--r:18px;--r-sm:12px}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Heebo','Inter',system-ui,-apple-system,'Segoe UI',sans-serif}
   html,body{height:100%}body{background:#07090d;overflow:hidden}
   @media (prefers-reduced-motion:no-preference){.fb,.card,.mi,.rm,.bt,.st,.ch,.fc,.nv,.ib,.fa,.svc{transition:transform .18s cubic-bezier(.22,1,.36,1),box-shadow .22s ease,background .18s ease,border-color .18s ease}}
@@ -465,8 +465,9 @@
   @keyframes vanishOut{to{opacity:0;filter:blur(9px) saturate(1.4);transform:scale(.95) translateY(-8px)}}
   /* פרופיל חדש */
   .pf-handle{color:var(--mut);font-size:13px;font-weight:600;margin-top:2px}
-  .pf-gear{position:absolute;top:12px;left:12px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.28);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:2}
-  .pf-gear .ic{width:18px;height:18px}
+  .pf-gear{position:absolute;top:14px;left:14px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(10px) saturate(160%);-webkit-backdrop-filter:blur(10px) saturate(160%);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:2;box-shadow:0 4px 14px rgba(0,0,0,.22);border:1.5px solid rgba(255,255,255,.35)}
+  .pf-gear .ic{width:24px;height:24px;stroke-width:2.2}
+  .pf-gear:active{transform:scale(.9)}
   .pf-edit{position:absolute;bottom:-2px;left:-2px;background:var(--acc);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface)}
   .pf-edit .ic{width:13px;height:13px}
   .abt{display:flex;align-items:center;gap:10px;color:var(--text);font-size:13.5px}
@@ -887,7 +888,8 @@ let _presenceIO=null,_presentSids=new Set();
 function ensurePresenceIO(){if(_presenceIO||!window.IntersectionObserver||!feed)return;_presenceIO=new IntersectionObserver(es=>{es.forEach(en=>{const sid=en.target.dataset.sid;if(!sid)return;if(en.isIntersecting){if(!_presentSids.has(sid)){_presentSids.add(sid);API.socket&&API.socket.emit('post:enter',sid);}}else if(_presentSids.has(sid)){_presentSids.delete(sid);API.socket&&API.socket.emit('post:leave',sid);}});},{root:feed,threshold:.5});}
 function observePresence(){if(!API.socket)return;ensurePresenceIO();if(!_presenceIO)return;document.querySelectorAll('#feed .fb[data-sid]').forEach(c=>{if(c.dataset.sid&&!c._pobs){c._pobs=1;_presenceIO.observe(c);}});}
 async function refreshNotifBadge(){if(!IS_SERVER())return;try{const r=await API.req('/notifications/unread');const d=document.getElementById('notifDot');if(d)d.style.display=(r&&r.count>0)?'block':'none';}catch(e){}}
-function like(i,el){const c=document.getElementById('lk'+i);let v=parseFloat(c.textContent);const ico=el.querySelector('.ic');if(!S.likes[i]){S.likes[i]=1;el.classList.add('on');if(ico)ico.classList.add('fill');c.textContent=(v+.1).toFixed(1)+'K';heartBurst(el);}else{S.likes[i]=0;el.classList.remove('on');if(ico)ico.classList.remove('fill');c.textContent=(v-.1).toFixed(1)+'K';}sv();
+function hap(n){try{navigator.vibrate&&navigator.vibrate(n||8);}catch(e){}}
+function like(i,el){const c=document.getElementById('lk'+i);let v=parseFloat(c.textContent);const ico=el.querySelector('.ic');if(!S.likes[i]){S.likes[i]=1;el.classList.add('on');if(ico)ico.classList.add('fill');c.textContent=(v+.1).toFixed(1)+'K';heartBurst(el);hap(12);}else{S.likes[i]=0;el.classList.remove('on');if(ico)ico.classList.remove('fill');c.textContent=(v-.1).toFixed(1)+'K';}sv();
  if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid){API.req('/posts/'+POSTS[i]._sid+'/like',{method:'POST'}).catch(()=>{});}}
 /* פיצוץ לב עדין בלחיצה (WAAPI) — מאחורי reduced-motion */
 function heartBurst(el){if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;if(!el||!el.animate)return;
@@ -1356,8 +1358,9 @@ function renderProfile(){const me=S.me,wal=waLink(me.waD,me.waN),handle=me.handl
  const creatorToggle=`<div class="sh-h">מצב יוצר</div><div class="mi" onclick="toggleCreator()"><span class="mc">${ic('star')}</span>מצב יוצר${me.creator?' · פעיל':' (חינם)'}<div class="sw ${me.creator?'on':''}" style="margin-right:auto"><i></i></div></div>${me.creator?`<div class="mi" onclick="editBiz()"><span class="mc">${ic('settings')}</span>פרטי יוצר — עסק, קשר, אתר<span class="mv">›</span></div>`:''}`;
  const content=`<div class="sh-h">התוכן שלי</div>
   <div class="mi" onclick="go('myposts')"><span class="mc">${ic('edit')}</span>הפוסטים שלי<span class="mv">${S.mine.length} ›</span></div>
-  <div class="mi" onclick="go('bm')"><span class="mc">${ic('bookmark')}</span>סימניות<span class="mv">${Object.values(S.bk).filter(Boolean).length} ›</span></div>
-  <div class="mi" onclick="go('msgs')"><span class="mc">${ic('mail')}</span>הודעות פרטיות<span class="mv">${S.reqN} ›</span></div>`;
+  <div class="mi" onclick="go('bm')"><span class="mc">${ic('bookmark')}</span>האוספים שלי<span class="mv">${Object.values(S.bk).filter(Boolean).length} ›</span></div>
+  <div class="mi" onclick="go('msgs')"><span class="mc">${ic('mail')}</span>הודעות פרטיות<span class="mv">${S.reqN} ›</span></div>
+  <div class="mi" onclick="go('settings')"><span class="mc">${ic('settings')}</span>הגדרות<span class="mv">›</span></div>`;
  const gallery=me.creator?(portfolioBlock()+galleryBlock()):'';
  const about=`<div class="sh-h">אודות</div><div class="card" style="display:flex;flex-direction:column;gap:9px">
   <div class="abt">${ic('pin')}<span>${esc(me.loc||'—')}</span></div>

@@ -5,7 +5,7 @@
 <title>PLAZA — כניסה / הרשמה</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#4F46E5">
+<meta name="theme-color" content="#2563EB">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PLAZA">
 <link rel="apple-touch-icon" href="/icon-180.png">
@@ -18,8 +18,8 @@
 :root{
   --bg:#F7F8FA;--panel:#FFFFFF;--panel2:#F1F3F6;--line:rgba(15,17,21,.06);
   --text:#0F1115;--sub:#5B6470;--mut:#969CA8;
-  --acc:#4F46E5;--acc2:#7C3AED;--ok:#16A34A;--bad:#E5484D;--wa:#25D366;--tg:#2AABEE;
-  --glow:0 8px 30px rgba(79,70,229,.30);
+  --acc:#2563EB;--acc2:#1D4ED8;--ok:#16A34A;--bad:#E5484D;--wa:#25D366;--tg:#2AABEE;
+  --glow:0 8px 30px rgba(37,99,235,.32);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Heebo','Inter',system-ui,-apple-system,'Segoe UI',sans-serif}
 html,body{height:100%}
@@ -46,7 +46,7 @@ body{background:radial-gradient(1000px 600px at 50% -10%,#ECEBFB 0%,#F7F8FA 52%)
 .field label{display:block;color:var(--sub);font-size:12px;font-weight:700;margin-bottom:6px;padding-right:2px}
 .inpwrap{position:relative;display:flex;align-items:center}
 input,select{width:100%;background:var(--panel2);border:none;border-radius:11px;padding:14px;color:var(--text);font-size:14.5px;outline:none;transition:.15s}
-input:focus,select:focus{box-shadow:0 0 0 3px rgba(79,70,229,.18)}
+input:focus,select:focus{box-shadow:0 0 0 3px rgba(37,99,235,.18)}
 input::placeholder{color:var(--mut)}
 .eye{position:absolute;left:12px;color:var(--mut);cursor:pointer;font-size:17px;user-select:none}
 .dialrow{display:flex;gap:8px}
@@ -150,7 +150,7 @@ function fillDial(){const D=[['972','🇮🇱 +972'],['1','🇺🇸 +1'],['44','
   const sel=$('rd');if(sel)sel.innerHTML=D.map(d=>`<option value="${d[0]}">${d[1]}</option>`).join('');}
 
 function toggleEye(id,el){const i=$(id);if(i.type==='password'){i.type='text';el.innerHTML=ic('eyeOff');}else{i.type='password';el.innerHTML=ic('eye');}}
-function onPw(id){if(id!=='rp')return;const v=$('rp').value,bar=$('strBar');if(!bar)return;let sc=0;if(v.length>=6)sc++;if(v.length>=10)sc++;if(/[A-Z]/.test(v)&&/[a-z]/.test(v))sc++;if(/\d/.test(v))sc++;if(/[^A-Za-z0-9]/.test(v))sc++;const pct=[0,25,45,65,85,100][sc];const col=sc<=1?'#F85149':sc<=2?'#E3B341':sc<=3?'#6D74FF':'#3FB950';bar.style.width=pct+'%';bar.style.background=col;}
+function onPw(id){if(id!=='rp')return;const v=$('rp').value,bar=$('strBar');if(!bar)return;let sc=0;if(v.length>=6)sc++;if(v.length>=10)sc++;if(/[A-Z]/.test(v)&&/[a-z]/.test(v))sc++;if(/\d/.test(v))sc++;if(/[^A-Za-z0-9]/.test(v))sc++;const pct=[0,25,45,65,85,100][sc];const col=sc<=1?'#F85149':sc<=2?'#E3B341':sc<=3?'#2563EB':'#3FB950';bar.style.width=pct+'%';bar.style.background=col;}
 
 /* ---------- auth core ---------- */
 function done(d){localStorage.setItem('plazaTok',d.token);localStorage.setItem('plazaUser',JSON.stringify(d.user));location.href='/';}
