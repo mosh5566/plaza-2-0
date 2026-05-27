@@ -472,6 +472,14 @@
   .abt{display:flex;align-items:center;gap:10px;color:var(--text);font-size:13.5px}
   .abt .ic{width:18px;height:18px;color:var(--mut);flex:0 0 auto}
   .ib.on{color:var(--acc);background:var(--acc-soft)}
+  /* חיפוש immersive */
+  .catgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  .catchip{display:flex;align-items:center;gap:9px;background:var(--surface);border-radius:14px;padding:13px;font-size:13.5px;font-weight:700;color:var(--text);box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .15s ease}
+  .catchip:active{transform:scale(.97)}
+  .catchip span{font-size:20px}
+  .vwn.live{color:var(--ok);font-weight:800}
+  /* גלילה חלקה בפיד */
+  .feed{scroll-behavior:smooth}
   /* מצב "ראית הכל" */
   .feedend{text-align:center;padding:38px 26px calc(40px + env(safe-area-inset-bottom));color:var(--mut)}
   .feedend .ic{width:40px;height:40px;stroke-width:1.4;opacity:.5}
@@ -738,7 +746,7 @@ function mediaBlock(p,i){
 function postCard(p,i){if(p.type==='video')return videoCard(p,i);
  const tot=p.mins<60?60:48*60,t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&pr.wa?waLink('',pr.wa):'';
  const txtonly=p.type==='text'&&!(p.imgs&&p.imgs.length)&&!p.vidUrl&&!p.snd;
- return `<div class="fb${txtonly?' txtonly':''}" data-i="${i}">
+ return `<div class="fb${txtonly?' txtonly':''}" data-i="${i}" data-sid="${p._sid||''}">
   ${txtonly?'<div class="tint"></div>':''}
   <div class="fbh"><div class="cdring"><div class="av" onclick="openProf('${p.nm}',${p.uid||'null'})">${avH(p)}</div></div>
    <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}</div></div>
@@ -761,7 +769,7 @@ function postCard(p,i){if(p.type==='video')return videoCard(p,i);
   </div></div>`;
 }
 function videoCard(p,i){const t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&pr.wa?waLink('',pr.wa):'';
- return `<div class="fb fbvideo" data-i="${i}">
+ return `<div class="fb fbvideo" data-i="${i}" data-sid="${p._sid||''}">
   ${p.vidUrl?`<video src="${p.vidUrl}" controls playsinline ${p.snd?'muted':''}></video>`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:80px;background:linear-gradient(160deg,#1b2030,#0b0e14)" onclick="toast('🎬','וידאו לדוגמה')">${p.e}</div>`}
   ${p.snd?`<audio src="${p.snd}" autoplay loop></audio>`:''}
   <div class="vhd"><div class="cdring"><div class="av" onclick="openProf('${p.nm}',${p.uid||'null'})">${avH(p)}</div></div>
@@ -791,14 +799,15 @@ let _feedList=[],_feedCursor=0,_feedIO=null;const CHUNK=8;
 function applyCardState(){let ni=0;
  document.querySelectorAll('#feed .fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];const key=p&&p._sid?'s'+p._sid:'i'+po.dataset.i;if(!_seenCards.has(key)){_seenCards.add(key);po.classList.add('enter');po.style.animationDelay=((ni++)%CHUNK*40)+'ms';}});
  for(const k in S.likes){if(S.likes[k]){const e=document.querySelector(`#feed .fb[data-i="${k}"] .lk:not(.on)`);if(e){e.classList.add('on');const ico=e.querySelector('.ic');if(ico)ico.classList.add('fill');}}}
- for(const k in S.bk){if(S.bk[k]){const e=document.querySelector(`#feed .fb[data-i="${k}"] .bk:not(.on)`);if(e){e.classList.add('on');const ico=e.querySelector('.ic');if(ico)ico.classList.add('fill');}}}}
+ for(const k in S.bk){if(S.bk[k]){const e=document.querySelector(`#feed .fb[data-i="${k}"] .bk:not(.on)`);if(e){e.classList.add('on');const ico=e.querySelector('.ic');if(ico)ico.classList.add('fill');}}}
+ if(typeof observePresence==='function')observePresence();}
 function renderFeedChunk(){const slice=_feedList.slice(_feedCursor,_feedCursor+CHUNK);if(!slice.length)return false;
  const html=slice.map(p=>postCard(p,POSTS.indexOf(p))).join('');const sent=document.getElementById('feedSentinel');
  if(sent)sent.insertAdjacentHTML('beforebegin',html);else feed.insertAdjacentHTML('beforeend',html);
  _feedCursor+=slice.length;applyCardState();
  if(S.trAllGlobal&&typeof translateVisibleFeed==='function')translateVisibleFeed();
  return _feedCursor<_feedList.length;}
-function buildFeed(){_feedList=POSTS.filter(passes);_feedCursor=0;
+function buildFeed(){_feedList=POSTS.filter(passes);_feedCursor=0;try{_presentSids.clear();}catch(e){}
  if(!_feedList.length){feed.innerHTML=`<div class="empty"><div class="e">${ic('search')}</div><p>אין פוסטים בסינון הזה</p></div>`;return;}
  feed.innerHTML='<div id="feedSentinel" aria-hidden="true"></div>';
  renderFeedChunk();
@@ -871,7 +880,12 @@ function wireRealtime(){if(!API.socket)return;
   } else if(cur==='msgs'){loadPrivateChats();}
   mbadge();
  });
+ API.socket.on('post:presence',d=>{document.querySelectorAll(`.fb[data-sid="${d.id}"] .vwn`).forEach(e=>{e.textContent=d.count;e.classList.add('live');});});
+ API.socket.on('room:presence',d=>{if(typeof curRoom!=='undefined'&&curRoom===d.topic){const o=document.getElementById('rOnline');if(o)o.textContent=d.count;}});
 }
+let _presenceIO=null,_presentSids=new Set();
+function ensurePresenceIO(){if(_presenceIO||!window.IntersectionObserver||!feed)return;_presenceIO=new IntersectionObserver(es=>{es.forEach(en=>{const sid=en.target.dataset.sid;if(!sid)return;if(en.isIntersecting){if(!_presentSids.has(sid)){_presentSids.add(sid);API.socket&&API.socket.emit('post:enter',sid);}}else if(_presentSids.has(sid)){_presentSids.delete(sid);API.socket&&API.socket.emit('post:leave',sid);}});},{root:feed,threshold:.5});}
+function observePresence(){if(!API.socket)return;ensurePresenceIO();if(!_presenceIO)return;document.querySelectorAll('#feed .fb[data-sid]').forEach(c=>{if(c.dataset.sid&&!c._pobs){c._pobs=1;_presenceIO.observe(c);}});}
 async function refreshNotifBadge(){if(!IS_SERVER())return;try{const r=await API.req('/notifications/unread');const d=document.getElementById('notifDot');if(d)d.style.display=(r&&r.count>0)?'block':'none';}catch(e){}}
 function like(i,el){const c=document.getElementById('lk'+i);let v=parseFloat(c.textContent);const ico=el.querySelector('.ic');if(!S.likes[i]){S.likes[i]=1;el.classList.add('on');if(ico)ico.classList.add('fill');c.textContent=(v+.1).toFixed(1)+'K';heartBurst(el);}else{S.likes[i]=0;el.classList.remove('on');if(ico)ico.classList.remove('fill');c.textContent=(v-.1).toFixed(1)+'K';}sv();
  if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid){API.req('/posts/'+POSTS[i]._sid+'/like',{method:'POST'}).catch(()=>{});}}
@@ -881,6 +895,10 @@ function heartBurst(el){if(window.matchMedia&&matchMedia('(prefers-reduced-motio
  const ring=document.createElement('span');ring.style.cssText=`position:absolute;left:${r.left-hr.left+r.width/2}px;top:${r.top-hr.top+r.height/2}px;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid var(--bad);pointer-events:none;z-index:95`;
  host.appendChild(ring);
  ring.animate([{transform:'scale(.4)',opacity:.9},{transform:'scale(2.6)',opacity:0}],{duration:520,easing:'cubic-bezier(.22,1,.36,1)'}).onfinish=()=>ring.remove();}
+/* הקשה-כפולה ללייק + לב ענק */
+function bigHeart(x,y){if(_rm())return;const host=document.getElementById('app'),r=host.getBoundingClientRect();const h=document.createElement('div');h.style.cssText=`position:absolute;left:${(x||r.left+r.width/2)-r.left-32}px;top:${(y||r.top+r.height/2)-r.top-32}px;pointer-events:none;z-index:96`;h.innerHTML=`<svg viewBox="0 0 24 24" style="width:64px;height:64px;fill:#ff3b5c;stroke:#fff;stroke-width:1.4;filter:drop-shadow(0 4px 14px rgba(0,0,0,.35))"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>`;host.appendChild(h);
+ h.animate([{transform:'scale(.3) rotate(-12deg)',opacity:0},{transform:'scale(1.15) rotate(6deg)',opacity:1,offset:.35},{transform:'scale(1) rotate(0)',opacity:1,offset:.65},{transform:'scale(1.35)',opacity:0}],{duration:850,easing:'cubic-bezier(.22,1,.36,1)'}).onfinish=()=>h.remove();}
+if(feed)feed.addEventListener('dblclick',e=>{const card=e.target.closest&&e.target.closest('.fb[data-i]');if(!card)return;if(!e.target.closest('.media,.fbvideo,.fbg,video,img'))return;const i=+card.dataset.i;if(!S.likes[i]){const lkEl=card.querySelector('.lk');if(lkEl)like(i,lkEl);}bigHeart(e.clientX,e.clientY);});
 function bk(i,el){const ico=el.querySelector('.ic');if(!S.bk[i]){S.bk[i]=1;el.classList.add('on');if(ico)ico.classList.add('fill');toast('🔖','נשמר — snapshot יישאר גם אחרי שייעלם');}else{S.bk[i]=0;el.classList.remove('on');if(ico)ico.classList.remove('fill');toast('🔖','הוסר');}sv();
  if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid){API.req('/posts/'+POSTS[i]._sid+'/bookmark',{method:'POST'}).catch(()=>{});}}
 let galP=null,galI=0;
@@ -1072,9 +1090,16 @@ function msgMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x"
 function sendReq(nm){closeSheet();toast('✉️','בקשת הודעה נשלחה ל-'+nm+' — ממתינה לאישור');}
 
 /* ===== SEARCH ===== */
-function doSearch(){const q=(document.getElementById('qin').value||'').trim().toLowerCase();
- const r=POSTS.filter(p=>{if(!q)return true;const t=tp(p.topicId);return (p.text||'').toLowerCase().includes(q)||(p.nm||'').toLowerCase().includes(q)||(t&&(t[1].includes(q)||t[0].includes(q)));});
- document.getElementById('qres').innerHTML=(q&&r.length)?r.map(p=>{const t=tp(p.topicId);return `<div class="card" onclick="go('feed')"><div style="color:var(--text);font-weight:700;font-size:13.5px">${p.av} ${p.nm} · ${t?t[1]:''}</div><div style="color:var(--sub);font-size:12px;margin-top:4px">${p.text.slice(0,46)}…</div></div>`;}).join(''):(q?`<div class="empty"><div class="e">${ic('search')}</div><p>לא נמצא — אולי כבר נעלם</p></div>`:`<div class="empty"><div class="e">${ic('search')}</div><p>הקלד מילה בכל שפה<br>וראה מה אנשים פרסמו עליה</p></div>`);}
+function searchHome(){const trend=POSTS.slice().sort((a,b)=>((b.com||0)*3+(b.likes||0))-((a.com||0)*3+(a.likes||0))).slice(0,6);
+ const cats=((S.prefT&&S.prefT.length?S.prefT:['tech','music','travel','food','sports','ai','news','art','gaming','fashion'])).map(id=>tp(id)).filter(Boolean);
+ return `<div class="sh-h" style="margin-top:0">קטגוריות</div><div class="catgrid">${cats.map(t=>`<div class="catchip" onclick="searchCat('${t[0]}')"><span>${t[2]}</span>${t[1]}</div>`).join('')}</div>
+  <div class="sh-h">חם עכשיו 🔥</div>${trend.map(p=>{const t=tp(p.topicId);return `<div class="card" onclick="searchOpen(${POSTS.indexOf(p)})"><div style="display:flex;align-items:center;gap:9px"><span class="av" style="width:34px;height:34px;font-size:15px">${avH(p)}</span><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${esc(p.nm)}</b><div style="color:var(--sub);font-size:11.5px">${t?t[2]+' '+t[1]:''} · ❤ ${((p.likes||0)/1000).toFixed(1)}K</div></div></div><div style="color:var(--text);font-size:12.5px;margin-top:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc((p.text||'').slice(0,90))}</div></div>`;}).join('')}`;}
+function searchCat(id){S.fT=[id];sv();chips();buildFeed();if(typeof renderFav==='function')renderFav();go('feed');toast('⚡',(tp(id)||['','',''])[1]+' — סינון הוחל');}
+function searchOpen(i){go('feed');setTimeout(()=>{const el=document.querySelector(`#feed .fb[data-i="${i}"]`);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},350);}
+function doSearch(){const qEl=document.getElementById('qin');const q=(qEl?qEl.value:'').trim().toLowerCase();const res=document.getElementById('qres');if(!res)return;
+ if(!q){res.innerHTML=searchHome();return;}
+ const r=POSTS.filter(p=>{const t=tp(p.topicId);return (p.text||'').toLowerCase().includes(q)||(p.nm||'').toLowerCase().includes(q)||(t&&(t[1].includes(q)||t[0].includes(q)));});
+ res.innerHTML=r.length?r.map(p=>{const t=tp(p.topicId);return `<div class="card" onclick="searchOpen(${POSTS.indexOf(p)})"><div style="display:flex;align-items:center;gap:9px"><span class="av" style="width:32px;height:32px;font-size:14px">${avH(p)}</span><b style="color:var(--text);font-weight:700;font-size:13px">${esc(p.nm)}</b><span style="margin-right:auto;color:var(--mut);font-size:11px">${t?t[2]+' '+t[1]:''}</span></div><div style="color:var(--sub);font-size:12.5px;margin-top:6px">${esc((p.text||'').slice(0,80))}…</div></div>`;}).join(''):`<div class="empty"><div class="e">${ic('search')}</div><p>לא נמצא — אולי כבר נעלם ⏳</p></div>`;}
 doSearch();
 
 /* ===== FILE INPUT ===== */
@@ -1608,7 +1633,7 @@ function rateBiz(nm){openSheet(`<div class="sh-hd"><h3>⭐ דירוג ${nm}</h3>
 function postText(p,i){if(!p.text)return '';const raw=linkify(p.text);const long=String(p.text).length>240;
  return `<div class="ptx"><div class="ptxt ${long?'clamp':''}" id="ptx${i}">${raw}</div>${long?`<span class="moreb" onclick="toggleMore(${i},this)">הצג עוד ▾</span>`:''}<div style="margin-top:6px;font-size:11px"><span style="color:var(--acc);font-weight:700;cursor:pointer" onclick="translatePost(${i},this)">🌐 תרגם את הפוסט</span><div style="display:none;margin-top:6px;padding:8px 10px;background:var(--surface2);border-radius:8px;color:var(--text);font-size:13px"></div></div></div>`;}
 function toggleMore(i,el){const t=document.getElementById('ptx'+i);if(!t)return;t.classList.toggle('clamp');el.textContent=t.classList.contains('clamp')?'הצג עוד ▾':'הצג פחות ▴';}
-function eyeHtml(i){return `<span class="eyev" style="background:var(--surface2);padding:3px 8px;border-radius:7px;font-weight:700"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="vw${i}">${postViewers(i)}</span> צופים</span>`;}
+function eyeHtml(i){return `<span class="eyev" style="background:var(--surface2);padding:3px 8px;border-radius:7px;font-weight:700"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="vw${i}" class="vwn">${postViewers(i)}</span> צופים</span>`;}
 setInterval(()=>{document.querySelectorAll('.feed .fb[data-i]').forEach(po=>{const e=document.getElementById('vw'+po.dataset.i);if(!e)return;const c=parseInt(e.textContent)||1;e.textContent=Math.max(1,c+Math.floor(Math.random()*7-3));});},3500);
 
 /* ===== Post 3-dot menu (owner / viewer) ===== */

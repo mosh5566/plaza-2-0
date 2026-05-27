@@ -390,12 +390,18 @@ app.get('/api/admin/reports',auth,adminOnly,(_,res)=>{res.json(db.prepare('SELEC
 
 // ─── Socket.io ───────────────────────────────────
 io.use((socket,next)=>{const t=socket.handshake.auth&&socket.handshake.auth.token;if(!t)return next();try{socket.user=jwt.verify(t,JWT_SECRET);}catch(e){}next();});
+function roomSize(name){try{const r=io.sockets.adapter.rooms.get(name);return r?r.size:0;}catch(e){return 0;}}
+function broadcastPostCount(id){io.to('post:'+id).emit('post:presence',{id:+id,count:roomSize('post:'+id)});}
+function broadcastRoomCount(topic){io.to('room:'+topic).emit('room:presence',{topic,count:roomSize('room:'+topic)});}
 io.on('connection',sock=>{
   if(sock.user){db.prepare('UPDATE users SET last_seen=? WHERE id=?').run(now(),sock.user.id);sock.join('user:'+sock.user.id);}
-  sock.on('room:join',topic=>sock.join('room:'+topic));
-  sock.on('room:leave',topic=>sock.leave('room:'+topic));
+  sock.on('room:join',topic=>{sock.join('room:'+topic);broadcastRoomCount(topic);});
+  sock.on('room:leave',topic=>{sock.leave('room:'+topic);broadcastRoomCount(topic);});
+  sock.on('post:enter',id=>{if(id==null)return;sock.join('post:'+id);broadcastPostCount(id);});
+  sock.on('post:leave',id=>{if(id==null)return;sock.leave('post:'+id);broadcastPostCount(id);});
   sock.on('chat:join',cid=>sock.join('chat:'+cid));
   sock.on('typing',d=>sock.to('chat:'+d.chat_id).emit('typing',{user_id:sock.user&&sock.user.id}));
+  sock.on('disconnecting',()=>{for(const r of sock.rooms){if(r.startsWith('post:'))setTimeout(()=>broadcastPostCount(r.slice(5)),50);else if(r.startsWith('room:'))setTimeout(()=>broadcastRoomCount(r.slice(5)),50);}});
 });
 
 // ─── Cleanup expired ─────────────────────────────
