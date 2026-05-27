@@ -399,6 +399,37 @@
   /* כניסת כרטיסי פיד עם spring עדין */
   @media (prefers-reduced-motion:no-preference){.feed .fb.enter{animation:cardIn .5s cubic-bezier(.34,1.2,.5,1) both}}
   @keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.99)}to{opacity:1;transform:none}}
+  /* מעברי View Transitions — crossfade חלק; ה-scrIn מבוטל כשנתמך */
+  .has-vt .screen.on{animation:none}
+  @media (prefers-reduced-motion:no-preference){::view-transition-old(root){animation:vtOut .26s cubic-bezier(.4,0,.2,1) both}::view-transition-new(root){animation:vtIn .34s cubic-bezier(.22,1,.36,1) both}}
+  @keyframes vtOut{to{opacity:0;transform:translateX(-14px)}}
+  @keyframes vtIn{from{opacity:0;transform:translateX(18px)}}
+  /* Skeleton shimmer */
+  .skel-wrap{padding:12px}
+  .skel{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:14px;margin-bottom:14px}
+  .skel-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .sk{position:relative;overflow:hidden;background:var(--surface2);border-radius:8px}
+  .sk.circle{border-radius:50%}
+  .sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(127,127,127,.12),transparent)}
+  @media (prefers-reduced-motion:no-preference){.sk::after{animation:shimmer 1.3s infinite}}
+  @keyframes shimmer{to{transform:translateX(100%)}}
+  /* כניסה מדורגת לרשימות/גיליונות */
+  @media (prefers-reduced-motion:no-preference){
+   .gridc>*,.list>.card,.sh-b>.mi{animation:cardIn .4s cubic-bezier(.34,1.2,.5,1) both}
+   .gridc>*:nth-child(1),.list>.card:nth-child(1),.sh-b>.mi:nth-child(1){animation-delay:.02s}
+   .gridc>*:nth-child(2),.list>.card:nth-child(2),.sh-b>.mi:nth-child(2){animation-delay:.05s}
+   .gridc>*:nth-child(3),.list>.card:nth-child(3),.sh-b>.mi:nth-child(3){animation-delay:.08s}
+   .gridc>*:nth-child(4),.list>.card:nth-child(4),.sh-b>.mi:nth-child(4){animation-delay:.11s}
+   .gridc>*:nth-child(5),.list>.card:nth-child(5),.sh-b>.mi:nth-child(5){animation-delay:.14s}
+   .gridc>*:nth-child(n+6),.list>.card:nth-child(n+6),.sh-b>.mi:nth-child(n+6){animation-delay:.16s}
+  }
+  /* ליטוש "מיליון דולר": מספרים טבולריים + היררכיה */
+  .st b,.cdt,.fa span,.fa small,.va small,.pf-st b,.recOv .tm,.meta,#stU,#stO,#stP{font-variant-numeric:tabular-nums}
+  .sc-title h2,.sh-hd h3{letter-spacing:-.012em;line-height:1.25}
+  .brand b{letter-spacing:-.01em}
+  .nm,.pf-nm{letter-spacing:-.01em}
+  .fa{font-weight:600}
+  .nv.on small{font-weight:800}
 </style>
 </head>
 <body>
@@ -688,6 +719,10 @@ function passes(p){const key=p._sid?'s'+p._sid:'i'+POSTS.indexOf(p);
  if(S.blocked&&S.blocked.includes(p.nm))return false;
  if(S.fG&&S.fG!=='all'&&p.gender&&p.gender!=='all'&&p.gender!==S.fG)return false;
  return (!S.fP.length||S.fP.includes(p.type))&&(!S.fL.length||S.fL.includes(p.lang))&&(!S.fC.length||S.fC.includes(p.country))&&(!S.fT.length||S.fT.includes(p.topicId));}
+/* ===== Skeleton loaders + count-up (Phase 2) ===== */
+function skeletonFeed(n=4){return `<div class="skel-wrap">`+Array.from({length:n}).map(()=>`<div class="skel"><div class="skel-row"><div class="sk circle" style="width:40px;height:40px;flex:0 0 auto"></div><div style="flex:1"><div class="sk" style="height:11px;width:42%;margin-bottom:7px"></div><div class="sk" style="height:9px;width:26%"></div></div></div><div class="sk" style="height:11px;width:92%;margin-bottom:7px"></div><div class="sk" style="height:11px;width:68%;margin-bottom:12px"></div><div class="sk" style="height:150px;border-radius:12px"></div></div>`).join('')+`</div>`;}
+function skeletonList(n=5){return Array.from({length:n}).map(()=>`<div class="skel" style="padding:13px;margin:0 0 10px"><div class="skel-row" style="margin:0"><div class="sk circle" style="width:36px;height:36px;flex:0 0 auto"></div><div style="flex:1"><div class="sk" style="height:11px;width:48%;margin-bottom:7px"></div><div class="sk" style="height:9px;width:72%"></div></div></div></div>`).join('');}
+function countUp(el,to){if(!el)return;to=+to||0;if(_rm()){el.textContent=to.toLocaleString('en-US');return;}const from=parseInt((el.textContent||'0').replace(/[^\d]/g,''))||0;if(from===to){el.textContent=to.toLocaleString('en-US');return;}const dur=650,t0=performance.now();(function tick(t){const k=Math.min(1,(t-t0)/dur);el.textContent=Math.round(from+(to-from)*(1-Math.pow(1-k,3))).toLocaleString('en-US');if(k<1)requestAnimationFrame(tick);})(performance.now());}
 let _seenCards=new Set();
 function buildFeed(){const f=POSTS.filter(passes);
  feed.innerHTML=f.length?f.map(p=>postCard(p,POSTS.indexOf(p))).join(''):`<div class="empty"><div class="e">${ic('search')}</div><p>אין פוסטים בסינון הזה</p></div>`;
@@ -720,6 +755,7 @@ async function bootApp(){
     refreshNotifBadge();
     // החלף את הפוסטים הדמו בפוסטים אמיתיים מהשרת
     try{
+      feed.innerHTML=skeletonFeed(4);
       const real = await API.req('/posts?limit=50');
       if(Array.isArray(real) && real.length>=0){
         // המר פורמט שרת לפורמט POSTS המקומי
@@ -777,7 +813,7 @@ function fmt(m){const h=Math.floor(m/60),mm=Math.floor(m%60),s=Math.floor(m*60%6
 setInterval(()=>{document.querySelectorAll('.fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];if(!p)return;p._m=(p._m??p.mins);p._m=Math.max(0,p._m-1/60);const c=po.querySelector('.cdt');if(c)c.textContent=fmt(p._m);po.querySelector('.pcd')?.classList.toggle('urg',p._m<60);});},1000);
 function jit(sel,b){setInterval(()=>{b+=Math.floor(Math.random()*46-20);b=Math.max(1,b);document.querySelectorAll(sel).forEach(e=>e.textContent=b.toLocaleString('en-US'));},2600);}
 async function liveStats(){if(!IS_SERVER()){jit('#stU',1);jit('#stO',1);setInterval(()=>document.getElementById('stP').textContent='0',4000);return;}
- const set=async()=>{try{const s=await fetch('/api/stats').then(r=>r.json());document.getElementById('stU').textContent=(s.users||0).toLocaleString('en-US');document.getElementById('stO').textContent=(s.online||0).toLocaleString('en-US');document.getElementById('stP').textContent=(s.posts||0).toLocaleString('en-US');}catch(e){}};
+ const set=async()=>{try{const s=await fetch('/api/stats').then(r=>r.json());countUp(document.getElementById('stU'),s.users||0);countUp(document.getElementById('stO'),s.online||0);countUp(document.getElementById('stP'),s.posts||0);}catch(e){}};
  set();setInterval(set,5000);}
 liveStats();
 
@@ -850,8 +886,11 @@ const TOAST_IC={'🔖':'bookmark','❤️':'heart','✅':'check','✔️':'check
 function initStaticIcons(){document.querySelectorAll('[data-ic]').forEach(el=>{if(el._iced)return;el._iced=1;el.insertAdjacentHTML('afterbegin',ic(el.dataset.ic,el.dataset.icCls||''));});}
 function nav(){const t=I18N[S.lang]||I18N.en,lbl={feed:t.nHome,search:t.nSearch,rooms:t.nRooms,profile:t.nProfile};
  document.getElementById('nav').innerHTML=NAV.map(n=>{if(n[0]==='plus')return `<div class="nv" onclick="go('create')"><div class="plus"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div></div>`;const on=(cur===n[0]||(n[0]==='rooms'&&cur==='room'))?'on':'';return `<div class="nv ${on}" onclick="go('${n[0]}')">${navSvg(n[2])}<small>${lbl[n[0]]||n[1]}</small></div>`;}).join('');}
-function go(s){cur=s;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-'+s).classList.add('on');nav();
- if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='create')renderCreate();}
+const _rm=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function go(s){const apply=()=>{cur=s;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-'+s).classList.add('on');nav();initStaticIcons();
+ if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='create')renderCreate();};
+ if(document.startViewTransition&&!_rm()){document.startViewTransition(apply);}else{apply();}}
+if(document.startViewTransition)document.documentElement.classList.add('has-vt');
 nav();initStaticIcons();
 
 /* ===== ROOMS / CHAT ===== */
@@ -1092,7 +1131,7 @@ function editMine(k){const d=document.getElementById('mt'+k),v=d.textContent;d.i
 function saveMine(k){const v=document.getElementById('me'+k).value;if(k<S.mine.length)S.mine[k].text=v;sv();renderMine();toast('✏️','עודכן');}
 function delMine(k){if(k<S.mine.length)S.mine.splice(k,1);sv();renderMine();toast('🗑️','נמחק');}
 async function renderBm(){const L=document.getElementById('bmList');
- if(IS_SERVER()){try{const bs=await API.req('/bookmarks');if(Array.isArray(bs)){
+ if(IS_SERVER()){L.innerHTML=skeletonList(4);try{const bs=await API.req('/bookmarks');if(Array.isArray(bs)){
    L.innerHTML=bs.length?bs.map(b=>{const p=b.snapshot||{};const t=tp(p.topic);const live=(p.expires_at||0)>Math.floor(Date.now()/1000);
     return `<div class="card"><div class="row"><span class="av" style="width:32px;height:32px;font-size:15px">📌</span><b style="color:var(--text);font-size:13px">${t?t[2]+' '+t[1]:'פוסט'}</b><span style="margin-right:auto;color:var(--mut);font-size:10.5px">❤️ ${p.like_count||0}</span></div><div style="color:var(--text);font-size:13px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(p.text||'')||'(מדיה)'}</div><div style="display:flex;justify-content:space-between"><span style="color:var(--mut);font-size:11px">📸 snapshot</span>${live?'<span style="color:var(--ok);font-size:11px;font-weight:700">✓ חי</span>':'<span style="background:var(--bad);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px">⚠️ נעלם</span>'}</div></div>`;
    }).join(''):`<div class="empty"><div class="e">${ic('bookmark')}</div><p>אין סימניות עדיין<br>שמור פוסט מהפיד</p></div>`;return;}}catch(e){}}
@@ -1104,6 +1143,7 @@ async function renderBm(){const L=document.getElementById('bmList');
 let mTab='c';
 function msgTab(t){mTab=t;document.getElementById('tbC').classList.toggle('on',t==='c');document.getElementById('tbR').classList.toggle('on',t==='r');renderMsgs();}
 async function loadPrivateChats(){if(!IS_SERVER()){renderMsgs();return;}
+ {const mb=document.getElementById('msgBody');if(mb&&!window._srvLoaded)mb.innerHTML=skeletonList(4);}
  try{const rows=await API.req('/private');if(Array.isArray(rows)){
   window._srvAccepted=rows.filter(c=>c.status==='accepted').map(c=>({id:c.id,nm:c.other_name,other_id:c.other_id,last:c.last_text||'',nw:c.unread>0}));
   window._srvRequests=rows.filter(c=>c.status==='pending'&&c.b_id===(API.user&&API.user.id)).map(c=>({id:c.id,nm:c.other_name,other_id:c.other_id}));
@@ -1175,6 +1215,7 @@ function ntSub(t){return ({message_request:'ממתין לאישור — היכנ
 function timeAgo(sec){const d=Math.floor(Date.now()/1000)-sec;if(d<60)return 'עכשיו';if(d<3600)return Math.floor(d/60)+' דק׳';if(d<86400)return Math.floor(d/3600)+'ש׳';return Math.floor(d/86400)+'י׳';}
 async function renderNt(){const L=document.getElementById('ntList');
  if(IS_SERVER()){
+  L.innerHTML=skeletonList(5);
   try{const ns=await API.req('/notifications');
    if(Array.isArray(ns)){
     L.innerHTML=ns.length?ns.map(n=>{const p=n.payload||{};const sub=p.text?('"'+p.text+'"'):(p.note?('"'+p.note+'"'):ntSub(n.type));

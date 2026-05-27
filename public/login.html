@@ -88,6 +88,8 @@ input::placeholder{color:var(--mut)}
 <script>
 let MODE='login', CFG={googleClientId:'',telegramBot:''}, busy=false;
 const $=id=>document.getElementById(id);
+const ICON={eye:'<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>',eyeOff:'<path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18 18 0 0 1 5.06-5.94M9.9 4.24A9 9 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>',send:'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',lock:'<rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'};
+function ic(n){return ICON[n]?`<svg viewBox="0 0 24 24" style="width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.15em">${ICON[n]}</svg>`:'';}
 function msg(t,type){const m=$('msg');m.textContent=t;m.className='msg '+(type||'err');}
 function clearMsg(){$('msg').className='msg';}
 
@@ -105,7 +107,7 @@ function socialRow(){
 }
 
 function strengthBar(){return `<div class="strength"><i id="strBar"></i></div>`;}
-function pwInput(id,ph){return `<div class="inpwrap"><input type="password" id="${id}" placeholder="${ph}" oninput="onPw('${id}')"><span class="eye" onclick="toggleEye('${id}',this)">👁️</span></div>`;}
+function pwInput(id,ph){return `<div class="inpwrap"><input type="password" id="${id}" placeholder="${ph}" oninput="onPw('${id}')"><span class="eye" onclick="toggleEye('${id}',this)">${ic('eye')}</span></div>`;}
 
 function render(){
   const s=$('screen');
@@ -115,7 +117,7 @@ function render(){
       <div class="field"><label>סיסמה</label>${pwInput('lp','הסיסמה שלך')}</div>
       <button class="go" id="goBtn" onclick="doLogin()">כניסה</button>
       <span class="link" onclick="setScreen('forgot')">שכחת סיסמה?</span>
-      <div class="guest" onclick="guest()">👀 כניסה כאורח (צפייה בלבד)</div>`;
+      <div class="guest" onclick="guest()">${ic('eye')} כניסה כאורח (צפייה בלבד)</div>`;
   } else if(MODE==='register'){
     s.innerHTML=socialRow()+`
       <div class="field"><label>שם תצוגה</label><input id="rn" placeholder="איך שיקראו לך בכיכר"></div>
@@ -125,7 +127,7 @@ function render(){
       <div class="field"><label>סיסמה</label>${pwInput('rp','לפחות 6 תווים')}${strengthBar()}</div>
       <div class="field"><label>אימות סיסמה</label>${pwInput('rp2','הקלד שוב')}</div>
       <label class="terms"><input type="checkbox" id="rt"><span>אני מאשר/ת את <a href="/terms" target="_blank">תנאי השימוש</a> ו<a href="/privacy" target="_blank">מדיניות הפרטיות</a>, ומאשר/ת שאני בן/בת 13 ומעלה.</span></label>
-      <button class="go" id="goBtn" onclick="doRegister()">צור חשבון 🚀</button>`;
+      <button class="go" id="goBtn" onclick="doRegister()">${ic('send')} צור חשבון</button>`;
     fillDial();
   }
 }
@@ -147,7 +149,7 @@ function otpHop(el,i){el.value=el.value.replace(/\D/g,'');if(el.value&&i<5)el.pa
 function fillDial(){const D=[['972','🇮🇱 +972'],['1','🇺🇸 +1'],['44','🇬🇧 +44'],['49','🇩🇪 +49'],['33','🇫🇷 +33'],['34','🇪🇸 +34'],['39','🇮🇹 +39'],['7','🇷🇺 +7'],['91','🇮🇳 +91'],['55','🇧🇷 +55'],['81','🇯🇵 +81'],['86','🇨🇳 +86'],['971','🇦🇪 +971'],['20','🇪🇬 +20'],['90','🇹🇷 +90']];
   const sel=$('rd');if(sel)sel.innerHTML=D.map(d=>`<option value="${d[0]}">${d[1]}</option>`).join('');}
 
-function toggleEye(id,el){const i=$(id);if(i.type==='password'){i.type='text';el.textContent='🙈';}else{i.type='password';el.textContent='👁️';}}
+function toggleEye(id,el){const i=$(id);if(i.type==='password'){i.type='text';el.innerHTML=ic('eyeOff');}else{i.type='password';el.innerHTML=ic('eye');}}
 function onPw(id){if(id!=='rp')return;const v=$('rp').value,bar=$('strBar');if(!bar)return;let sc=0;if(v.length>=6)sc++;if(v.length>=10)sc++;if(/[A-Z]/.test(v)&&/[a-z]/.test(v))sc++;if(/\d/.test(v))sc++;if(/[^A-Za-z0-9]/.test(v))sc++;const pct=[0,25,45,65,85,100][sc];const col=sc<=1?'#F85149':sc<=2?'#E3B341':sc<=3?'#6D74FF':'#3FB950';bar.style.width=pct+'%';bar.style.background=col;}
 
 /* ---------- auth core ---------- */
