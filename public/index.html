@@ -479,6 +479,11 @@
   .catchip:active{transform:scale(.97)}
   .catchip span{font-size:20px}
   .vwn.live{color:var(--ok);font-weight:800}
+  /* מסך עריכת פרופיל */
+  .pe-cov{height:140px;border-radius:18px;background:var(--grad);position:relative;margin-bottom:8px}
+  .pe-covbtn{position:absolute;top:12px;right:12px;display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.32);backdrop-filter:blur(8px);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .pe-covbtn .ic{width:16px;height:16px}
+  #peWrap .inp,#peWrap textarea{margin-bottom:4px}
   /* גלילה חלקה בפיד */
   .feed{scroll-behavior:smooth}
   /* מצב "ראית הכל" */
@@ -576,6 +581,11 @@
       <div class="sc-title"><div class="bk" data-ic="back" onclick="go('profile')">פרופיל</div><h2 data-ic="settings">הגדרות</h2></div>
       <div class="body"><div class="list" id="setWrap"></div></div>
     </section>
+
+    <section class="screen" id="s-pedit">
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('profile')">פרופיל</div><h2 data-ic="edit">עריכת פרופיל</h2></div>
+      <div class="body"><div class="list" id="peWrap"></div></div>
+    </section>
   </div>
 
   <div class="nav" id="nav"></div>
@@ -667,7 +677,7 @@ const COM=POSTS.map(()=>[{a:'🌟',n:'מירב',t:'וואו תודה ששיתפ�
 
 const SK='plaza_demo_v5';
 function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,trAllGlobal:false,
- me:{nm:'משה',handle:'',creator:false,verified:false,loc:'ישראל 🇮🇱',av:'🦊',avImg:'',lng:'עברית',hobby:'',bnm:'הסטודיו שלי',bpr:'🎨 שירות מאומת',bbio:'',waD:'972',waN:'',bem:'',bph:'',bweb:'',port:['🖼️','🎨','📷'],svc:[{t:'שירות לדוגמה',p:'מ-₪100',m:'🛠️',d:'תיאור השירות',l:''}]},
+ me:{nm:'משה',handle:'',creator:false,verified:false,loc:'ישראל 🇮🇱',av:'🦊',avImg:'',coverImg:'',lng:'עברית',hobby:'',bnm:'הסטודיו שלי',bpr:'🎨 שירות מאומת',bbio:'',waD:'972',waN:'',bem:'',bph:'',bweb:'',port:['🖼️','🎨','📷'],svc:[{t:'שירות לדוגמה',p:'מ-₪100',m:'🛠️',d:'תיאור השירות',l:''}]},
  prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},mine:[],pchats:[],reqN:2};
  try{const s=Object.assign(d,JSON.parse(localStorage.getItem(SK)||'{}'));s.nf=Object.assign({comments:true,chats:true},s.nf);s.me=Object.assign(d.me,s.me);return s;}catch(e){return d;}}
 let S=ld();let _meT;
@@ -675,7 +685,7 @@ const sv=()=>{localStorage.setItem(SK,JSON.stringify(S));if(typeof IS_SERVER==='
 /* דחיפת הפרופיל לשרת (debounced דרך sv) */
 async function pushMe(){if(!IS_SERVER())return;const me=S.me;
  const body={display_name:me.nm,location:me.loc,lang:S.lang,bio:me.bbio,profession:me.bpr,hobby:me.hobby,wa_dial:me.waD,wa_num:me.waN,biz_email:me.bem,biz_phone:me.bph,biz_web:me.bweb,
-  prefs:{bnm:me.bnm,handle:me.handle,creator:me.creator,av:me.av,avImg:(me.avImg&&me.avImg.startsWith('http'))?me.avImg:'',port:me.port,svc:me.svc,th:S.th,trAllGlobal:S.trAllGlobal,prefC:S.prefC,prefL:S.prefL,prefT:S.prefT}};
+  prefs:{bnm:me.bnm,handle:me.handle,creator:me.creator,av:me.av,avImg:(me.avImg&&me.avImg.startsWith('http'))?me.avImg:'',coverImg:(me.coverImg&&me.coverImg.startsWith('http'))?me.coverImg:'',port:me.port,svc:me.svc,th:S.th,trAllGlobal:S.trAllGlobal,prefC:S.prefC,prefL:S.prefL,prefT:S.prefT}};
  if(me.avImg&&me.avImg.startsWith('http'))body.avatar_url=me.avImg;
  try{await API.req('/me',{method:'PUT',body});}catch(e){}}
 /* טעינת הפרופיל מהשרת לתוך S.me (פעם אחת ב-boot) */
@@ -693,7 +703,8 @@ function syncMeFromServer(){const u=API.user;if(!u)return;const me=S.me;
  if(u.biz_email!=null)me.bem=u.biz_email;if(u.biz_phone!=null)me.bph=u.biz_phone;if(u.biz_web!=null)me.bweb=u.biz_web;
  if(u.lang)me.lng=(LANGS.find(l=>l[0]===u.lang)||['','',''])[1]||me.lng;
  let pr=u.prefs;if(typeof pr==='string'){try{pr=JSON.parse(pr);}catch(e){pr=null;}}
- if(pr&&typeof pr==='object'){if(pr.bnm)me.bnm=pr.bnm;if(typeof pr.creator==='boolean')me.creator=pr.creator;if(pr.handle)me.handle=pr.handle;if(pr.av)me.av=pr.av;if(pr.port&&pr.port.length)me.port=pr.port;if(pr.svc&&pr.svc.length)me.svc=pr.svc;if(typeof pr.trAllGlobal==='boolean')S.trAllGlobal=pr.trAllGlobal;
+ if(u.cover_url)me.coverImg=u.cover_url;
+ if(pr&&typeof pr==='object'){if(pr.bnm)me.bnm=pr.bnm;if(typeof pr.creator==='boolean')me.creator=pr.creator;if(pr.handle)me.handle=pr.handle;if(pr.av)me.av=pr.av;if(pr.coverImg)me.coverImg=pr.coverImg;if(pr.port&&pr.port.length)me.port=pr.port;if(pr.svc&&pr.svc.length)me.svc=pr.svc;if(typeof pr.trAllGlobal==='boolean')S.trAllGlobal=pr.trAllGlobal;
   if(pr.prefC)S.prefC=pr.prefC;if(pr.prefL)S.prefL=pr.prefL;if(pr.prefT)S.prefT=pr.prefT;if(pr.th)S.th=pr.th;}
  localStorage.setItem(SK,JSON.stringify(S));applyTh();}
 function applyTh(){document.getElementById('app').setAttribute('data-th',S.th);document.body.style.background=S.th==='dark'?'#0A0C12':'#EAEEF3';}
@@ -992,7 +1003,7 @@ function nav(){const t=I18N[S.lang]||I18N.en,lbl={feed:t.nHome,search:t.nSearch,
  document.getElementById('nav').innerHTML=NAV.map(n=>{if(n[0]==='plus')return `<div class="nv" onclick="go('create')"><div class="plus"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div></div>`;const on=(cur===n[0]||(n[0]==='rooms'&&cur==='room'))?'on':'';return `<div class="nv ${on}" onclick="go('${n[0]}')">${navSvg(n[2])}<small>${lbl[n[0]]||n[1]}</small></div>`;}).join('');}
 const _rm=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function go(s){const apply=()=>{cur=s;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-'+s).classList.add('on');nav();initStaticIcons();
- if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='settings')renderSettings();if(s==='create')renderCreate();};
+ if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='settings')renderSettings();if(s==='pedit')renderPEdit();if(s==='create')renderCreate();};
  if(document.startViewTransition&&!_rm()){document.startViewTransition(apply);}else{apply();}}
 if(document.startViewTransition)document.documentElement.classList.add('has-vt');
 nav();initStaticIcons();
@@ -1349,7 +1360,8 @@ function refreshSettingsUI(){if(cur==='settings'&&typeof renderSettings==='funct
 function portfolioBlock(){const me=S.me;return `<div class="sh-h">תיק עבודות <span style="float:left;color:var(--acc);cursor:pointer;font-weight:700" onclick="addPort()">＋ הוסף</span></div><div class="fbg n3" style="border-radius:14px;overflow:hidden">${me.port.map((w,k)=>`<div style="position:relative;aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden"><div onclick="zoomOne('${w}')" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">${isImg(w)?`<img src="${w}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`:w}</div><span onclick="delPort(${k})" style="position:absolute;top:3px;left:3px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">${ic('close')}</span></div>`).join('')||'<div style="grid-column:1/-1;color:var(--mut);text-align:center;padding:18px;font-size:12px">אין עדיין — לחץ "הוסף"</div>'}</div>`;}
 function galleryBlock(){const me=S.me;return `<div class="sh-h">מוצרים ושירותים</div>${me.svc.map((s,k)=>`<div class="svc">${isImg(s.m)?`<div class="sm" style="min-height:160px;border-radius:12px;margin-bottom:8px">${String(s.m).includes('video')?`<video src="${s.m}" controls style="width:100%"></video>`:`<img src="${s.m}" loading="lazy" style="width:100%">`}</div>`:''}<div class="sr">${s.m&&!isImg(s.m)?s.m:ic('grid')} ${s.t}${s.p?`<span class="pr">${s.p}</span>`:''}</div>${s.d?`<div class="sd">${linkify(s.d)}</div>`:''}${s.l?`<a class="slk" onclick="openInApp('${s.l}');return false" href="#">${ic('link')} ${s.l}</a>`:''}<div style="display:flex;gap:7px;margin-top:8px"><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcMedia(${k})">${ic('image')} מדיה</button><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcEdit(${k})">${ic('edit')} ערוך</button><button class="bt" style="padding:7px;font-size:11px;flex:0 0 auto;background:var(--bad)" onclick="delSvc(${k})">${ic('trash')}</button></div></div>`).join('')}<div class="svc" onclick="addSvc()" style="cursor:pointer;color:var(--acc);text-align:center;font-weight:700">＋ הוסף לגלריה</div>`;}
 function renderProfile(){const me=S.me,wal=waLink(me.waD,me.waN),handle=me.handle||(API.user&&API.user.username)||me.nm;
- const head=`<div class="pf-cov${me.creator?' bz':''}"><span class="pf-gear" onclick="go('settings')">${ic('settings')}</span><div class="pf-av" onclick="pickAvatar()">${me.avImg?`<img src="${me.avImg}">`:me.av}<span class="pf-edit">${ic('edit')}</span></div></div>
+ const covSty=me.coverImg?` style="background-image:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.32)),url('${me.coverImg}');background-size:cover;background-position:center"`:'';
+ const head=`<div class="pf-cov${me.creator?' bz':''}"${covSty}><span class="pf-gear" onclick="go('settings')">${ic('settings')}</span><div class="pf-av" onclick="go('pedit')">${me.avImg?`<img src="${me.avImg}">`:me.av}<span class="pf-edit">${ic('edit')}</span></div></div>
   <div class="pf-nm">${esc(me.nm)}${me.creator&&me.verified?` <span class="vb">✔</span>`:''}</div>
   <div class="pf-handle">@${esc(String(handle))}${me.creator?' · יוצר/ת':''}</div>
   ${me.bbio?`<div class="pf-bio">${linkify(me.bbio)}</div>`:''}
@@ -1399,24 +1411,36 @@ function exportData(){const data={profile:S.me,prefs:{countries:S.prefC,langs:S.
 function deleteAccount(){openSheet(`<div class="sh-hd"><h3>⚠️ מחיקת חשבון</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><p style="color:var(--text);font-size:14px;line-height:1.7">פעולה זו תמחק לצמיתות את החשבון, הפוסטים, וההודעות שלך. לא ניתן לשחזר.</p></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" style="background:var(--bad)" onclick="doDeleteAccount()">מחק לצמיתות</button></div>`);}
 function doDeleteAccount(){if(IS_SERVER())API.req('/me/delete',{method:'POST'}).catch(()=>{});localStorage.clear();closeSheet();toast('👋','החשבון נמחק');setTimeout(()=>location.href='/login.html',900);}
 function zoomOne(m){document.getElementById('ivc').innerHTML=isImg(m)?`<img src="${m}">`:`<span style="font-size:150px">${m}</span>`;document.getElementById('ivnav').style.display='none';document.getElementById('iv').classList.add('on');}
-function pickAvatar(){fileInput('image/*',false,f=>{S.me.avImg=URL.createObjectURL(f[0]);sv();renderProfile();toast('🖼️','תמונת הפרופיל עודכנה');});}
-function editReg(){openSheet(`<div class="sh-hd"><h3>✏️ עריכת פרופיל רגיל</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div style="text-align:center;margin-bottom:12px"><div class="pf-av" style="position:relative;margin:0 auto;right:auto;bottom:auto" onclick="pickAvatar()">${S.me.avImg?`<img src="${S.me.avImg}">`:S.me.av}</div><div style="color:var(--sub);font-size:11px;margin-top:6px">לחץ להחלפת תמונה (גלריה אמיתית)</div></div>
- <div class="sh-h" style="margin-top:0">שם / כינוי</div><input class="inp" id="enm" value="${S.me.nm}">
- <div class="sh-h">מיקום</div><input class="inp" id="eloc" value="${S.me.loc}">
- <div class="sh-h">שפה</div><input class="inp" id="elng" value="${S.me.lng}">
- <div class="sh-h">תחביב</div><input class="inp" id="ehob" value="${S.me.hobby}" placeholder="לדוגמה: צילום, ריצה, גיטרה"></div>
- <div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.nm=eV('enm');S.me.loc=eV('eloc');S.me.lng=eV('elng');S.me.hobby=eV('ehob');sv();closeSheet();renderProfile();toast('✅','נשמר')">שמור</button></div>`);}
+function pickAvatar(){fileInput('image/*',false,f=>{S.me.avImg=URL.createObjectURL(f[0]);sv();(cur==='pedit'?renderPEdit():renderProfile());toast('🖼️','תמונת הפרופיל עודכנה');});}
 function eV(id){return (document.getElementById(id)||{}).value||'';}
-function editBiz(){openSheet(`<div class="sh-hd"><h3>✏️ עריכת פרופיל עסקי</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div style="text-align:center;margin-bottom:12px"><div class="pf-av" style="position:relative;margin:0 auto;right:auto;bottom:auto" onclick="pickAvatar()">${S.me.avImg?`<img src="${S.me.avImg}">`:S.me.av}</div></div>
- <div class="sh-h" style="margin-top:0">שם העסק</div><input class="inp" id="bnm" value="${S.me.bnm}">
- <div class="sh-h">תחום (מקצוע)</div><input class="inp" id="bpr" value="${S.me.bpr}">
- <div class="sh-h">תיאור העסק</div><textarea id="bbio">${S.me.bbio}</textarea>
- <div class="sh-h">WhatsApp — קידומת + מספר (יומר לקישור ישיר)</div>
- <div class="dialrow"><select id="bwd">${DIAL.map(d=>`<option value="${d[0]}" ${S.me.waD===d[0]?'selected':''}>${d[1]}</option>`).join('')}</select><input class="inp" id="bwn" value="${S.me.waN}" placeholder="501234567"></div>
- <div class="sh-h">טלפון לחיוג לעסק</div><input class="inp" id="bph" value="${S.me.bph||''}" placeholder="03-1234567">
- <div class="sh-h">אימייל ליצירת קשר</div><input class="inp" id="bem" value="${S.me.bem||''}" placeholder="biz@email.com">
- <div class="sh-h">קישור כללי / אתר</div><input class="inp" id="bweb" value="${S.me.bweb||''}" placeholder="mybusiness.com"></div>
- <div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.bnm=eV('bnm');S.me.bpr=eV('bpr');S.me.bbio=eV('bbio');S.me.waD=eV('bwd');S.me.waN=eV('bwn').replace(/\\D/g,'');S.me.bph=eV('bph');S.me.bem=eV('bem');S.me.bweb=eV('bweb');sv();closeSheet();renderProfile();toast('✅','נשמר — כפתורי קשר פעילים')">שמור</button></div>`);}
+function editReg(){go('pedit');}
+function editBiz(){go('pedit');}
+function pickCover(){fileInput('image/*',false,f=>{S.me.coverImg=URL.createObjectURL(f[0]);sv();renderPEdit();toast('🖼️','תמונת הכריכה עודכנה');});}
+function renderPEdit(){const me=S.me;
+ const covSty=me.coverImg?`background-image:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.4)),url('${me.coverImg}');background-size:cover;background-position:center`:'';
+ document.getElementById('peWrap').innerHTML=`
+ <div class="pe-cov" style="${covSty}"><button class="pe-covbtn" onclick="pickCover()">${ic('image')} שנה כריכה</button>
+   <div class="pf-av" style="bottom:-30px;right:18px" onclick="pickAvatar()">${me.avImg?`<img src="${me.avImg}">`:me.av}<span class="pf-edit">${ic('image')}</span></div></div>
+ <div style="height:38px"></div>
+ <div class="sh-h" style="margin-top:0">שם / כינוי</div><input class="inp" id="enm" value="${esc(me.nm)}">
+ <div class="sh-h">שם משתמש</div><input class="inp" id="ehandle" value="${esc(me.handle||'')}" placeholder="username">
+ <div class="sh-h">ביו</div><textarea id="ebio" placeholder="ספר/י על עצמך בכמה מילים">${esc(me.bbio||'')}</textarea>
+ <div class="sh-h">מיקום</div><input class="inp" id="eloc" value="${esc(me.loc)}">
+ <div class="sh-h">שפה</div><input class="inp" id="elng" value="${esc(me.lng)}">
+ <div class="sh-h">תחביב</div><input class="inp" id="ehob" value="${esc(me.hobby)}" placeholder="צילום, ריצה, גיטרה">
+ <div class="mi" style="margin-top:14px" onclick="toggleCreator();renderPEdit()"><span class="mc">${ic('star')}</span>מצב יוצר${me.creator?' · פעיל':' (חינם)'}<div class="sw ${me.creator?'on':''}"><i></i></div></div>
+ ${me.creator?`<div class="sh-h">פרטי יוצר / עסק</div>
+  <input class="inp" id="bnm" value="${esc(me.bnm||'')}" placeholder="שם העסק">
+  <input class="inp" id="bpr" value="${esc(me.bpr||'')}" placeholder="תחום / מקצוע">
+  <div class="sh-h">WhatsApp — קידומת + מספר</div>
+  <div class="dialrow"><select id="bwd">${DIAL.map(d=>`<option value="${d[0]}" ${me.waD===d[0]?'selected':''}>${d[1]}</option>`).join('')}</select><input class="inp" id="bwn" value="${esc(me.waN||'')}" placeholder="501234567"></div>
+  <input class="inp" id="bph" value="${esc(me.bph||'')}" placeholder="טלפון לחיוג">
+  <input class="inp" id="bem" value="${esc(me.bem||'')}" placeholder="אימייל ליצירת קשר">
+  <input class="inp" id="bweb" value="${esc(me.bweb||'')}" placeholder="אתר / קישור">`:''}
+ <button class="bt" style="width:100%;margin-top:16px" onclick="savePEdit()">${ic('check')} שמור פרופיל</button>`;}
+function savePEdit(){const me=S.me;me.nm=eV('enm')||me.nm;me.handle=eV('ehandle').replace(/[^A-Za-z0-9_.]/g,'');me.bbio=eV('ebio');me.loc=eV('eloc');me.lng=eV('elng');me.hobby=eV('ehob');
+ if(me.creator){me.bnm=eV('bnm');me.bpr=eV('bpr');me.waD=eV('bwd')||me.waD;me.waN=(eV('bwn')||'').replace(/\D/g,'');me.bph=eV('bph');me.bem=eV('bem');me.bweb=eV('bweb');}
+ sv();go('profile');toast('✅','הפרופיל עודכן');}
 function addPort(){fileInput('image/*',true,fs=>{fs.forEach(f=>S.me.port.unshift(URL.createObjectURL(f)));sv();renderProfile();toast('🗂️','נוסף לתיק העבודות');});}
 function svcMedia(k){fileInput('image/*,video/*',false,f=>{S.me.svc[k].m=URL.createObjectURL(f[0]);sv();renderProfile();toast('📷','מדיה נוספה לשירות');});}
 function svcEdit(k){const s=S.me.svc[k];openSheet(`<div class="sh-hd"><h3>✏️ עריכת שירות</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="sh-h" style="margin-top:0">שם השירות</div><input class="inp" id="st" value="${s.t}"><div class="sh-h">מחיר</div><input class="inp" id="sp" value="${s.p}"><div class="sh-h">טקסט / תיאור</div><textarea id="sd">${s.d||''}</textarea><div class="sh-h">קישור</div><input class="inp" id="sl" value="${s.l||''}" placeholder="example.com"></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.svc[${k}].t=eV('st');S.me.svc[${k}].p=eV('sp');S.me.svc[${k}].d=eV('sd');S.me.svc[${k}].l=eV('sl');sv();closeSheet();renderProfile();toast('✅','השירות עודכן')">שמור</button></div>`);}
