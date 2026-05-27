@@ -21,9 +21,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
-  .app[data-th="light"]{--bg:#FFFFFF;--surface:#FFFFFF;--surface2:#F2F4F8;--line:#E8EBF1;--text:#14181F;--sub:#5A6472;--mut:#98A0AD;--acc:#4F46E5;--acc2:#7C6BFF;--acc-soft:#EEEDFC;--ok:#1A7F37;--warn:#9A6700;--bad:#E5484D;--wa:#25D366;--glass:rgba(255,255,255,.78);--shadow-sm:0 1px 2px rgba(20,24,40,.06),0 1px 3px rgba(20,24,40,.05);--shadow:0 4px 18px rgba(20,24,40,.09),0 1px 5px rgba(20,24,40,.05);--shadow-lg:0 18px 44px rgba(20,24,40,.16);--ring:rgba(79,70,229,.16)}
-  .app[data-th="dark"]{--bg:#0C0F14;--surface:#151A21;--surface2:#1B222C;--line:#252D38;--text:#E8ECF2;--sub:#97A2B0;--mut:#69727E;--acc:#7C82FF;--acc2:#9D8BFF;--acc-soft:#20243A;--ok:#3FB950;--warn:#E3B341;--bad:#F85149;--wa:#25D366;--glass:rgba(18,22,29,.74);--shadow-sm:0 1px 2px rgba(0,0,0,.3);--shadow:0 6px 20px rgba(0,0,0,.38);--shadow-lg:0 20px 48px rgba(0,0,0,.55);--ring:rgba(124,130,255,.22)}
-  .app{--grad:linear-gradient(135deg,var(--acc),var(--acc2));--r:18px;--r-sm:12px}
+  .app[data-th="light"]{--bg:#F7F8FA;--surface:#FFFFFF;--surface2:#F1F3F6;--line:rgba(15,17,21,.05);--text:#0F1115;--sub:#5B6470;--mut:#969CA8;--acc:#4F46E5;--acc2:#7C3AED;--acc-soft:#ECEBFB;--ok:#16A34A;--warn:#D97706;--bad:#E5484D;--wa:#25D366;--glass:rgba(255,255,255,.72);--shadow-sm:0 1px 4px rgba(15,17,21,.04);--shadow:0 2px 10px rgba(15,17,21,.05);--shadow-lg:0 16px 44px rgba(15,17,21,.16);--ring:rgba(79,70,229,.18)}
+  .app[data-th="dark"]{--bg:#0B0E13;--surface:#151A21;--surface2:#1C232E;--line:rgba(255,255,255,.06);--text:#E9EDF3;--sub:#98A2B0;--mut:#6B7480;--acc:#6D74FF;--acc2:#9D7BFF;--acc-soft:#221E3A;--ok:#3FB950;--warn:#E3B341;--bad:#F85149;--wa:#25D366;--glass:rgba(15,19,26,.72);--shadow-sm:0 1px 4px rgba(0,0,0,.32);--shadow:0 2px 12px rgba(0,0,0,.4);--shadow-lg:0 18px 48px rgba(0,0,0,.6);--ring:rgba(124,130,255,.26)}
+  .app{--grad:linear-gradient(135deg,var(--acc),var(--acc2));--glow:0 8px 30px rgba(79,70,229,.30);--r:18px;--r-sm:12px}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Heebo','Inter',system-ui,-apple-system,'Segoe UI',sans-serif}
   html,body{height:100%}body{background:#07090d;overflow:hidden}
   @media (prefers-reduced-motion:no-preference){.fb,.card,.mi,.rm,.bt,.st,.ch,.fc,.nv,.ib,.fa,.svc{transition:transform .18s cubic-bezier(.22,1,.36,1),box-shadow .22s ease,background .18s ease,border-color .18s ease}}
@@ -330,6 +330,56 @@
   .fb.fbvideo .vacts .va small{position:absolute;bottom:-15px;color:#fff;font-size:10px;font-weight:700}
   .feed{scroll-snap-type:y proximity}
   .toast .e{font-size:18px}
+  /* ═══════════ PLAZA 3.0 — Minimal-Clean Premium (Apple/IG) ═══════════ */
+  /* כרטיסים: ללא מסגרת, צל רך, מרווח נדיב */
+  .fb,.card,.svc,.req,.ben{border:none;box-shadow:var(--shadow)}
+  .card{padding:15px}
+  .lk-card,.ibx,.note,.vout{border:none}
+  .mi,.rm,.st{border:none;box-shadow:var(--shadow-sm)}
+  .mi{padding:14px 15px;border-radius:16px}
+  /* כפתור ראשי: גרדיאנט + זוהר · פינות 12px */
+  .bt{background:var(--grad);box-shadow:var(--glow);border-radius:12px}
+  .bt.g{background:transparent;box-shadow:none}
+  .bt.dim{background:var(--surface2);color:var(--text);box-shadow:none}
+  .bt.pp{background:#ffc439;box-shadow:none}
+  .ib.round,.nv .plus,.composer .snd{background:var(--grad);box-shadow:var(--glow)}
+  .pf-act button{box-shadow:var(--shadow-sm)}
+  /* שדות קלט: ללא מסגרת, רקע משטח, פוקוס עם טבעת */
+  textarea,.inp,input.cinp,.srch{border:none;background:var(--surface2)}
+  textarea:focus,.inp:focus,input.cinp:focus{box-shadow:0 0 0 3px var(--ring)}
+  /* שבבים: מעוגלים מלא, אקסנט-עמום + טקסט אקסנט */
+  .ch{border:none;background:var(--acc-soft);color:var(--acc);border-radius:9999px;font-weight:700}
+  .ch i{color:var(--acc);opacity:.65}
+  .favbar .fc{border:none;border-radius:9999px;background:var(--surface2)}
+  .favbar .fc.on{background:var(--grad);color:#fff;box-shadow:var(--glow)}
+  .pcd{border-radius:9999px}
+  /* זכוכית: כותרת + ניווט */
+  .hd,.nav{border:none;backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%)}
+  .hd{box-shadow:0 1px 0 var(--line)}
+  .nav{box-shadow:0 -1px 0 var(--line)}
+  .sc-title,.rhead{border:none;box-shadow:0 1px 0 var(--line)}
+  .composer{border:none;box-shadow:0 -1px 0 var(--line)}
+  /* חלון תחתון: פינות 26px, ידית, צל צף */
+  .sh{border-radius:26px 26px 0 0;box-shadow:var(--shadow-lg)}
+  .grip{width:42px;height:5px;background:var(--mut);opacity:.4;border-radius:9999px}
+  /* לשוניות/קטגוריות/סגמנט */
+  .tab,.ct,.seg b{border:none}
+  .tab.on,.ct.on{background:var(--grad);color:#fff;box-shadow:var(--glow)}
+  .seg b{background:var(--surface2)}
+  .seg b.on{background:var(--acc-soft);color:var(--acc)}
+  /* בועות צ'אט */
+  .msg .b{border:none;box-shadow:var(--shadow-sm)}
+  .msg.me .b{background:var(--grad);box-shadow:var(--glow)}
+  .fi{border:none}
+  /* כפתור לב קופץ בלחיצה */
+  .fa.lk.on .ic{display:inline-block;animation:heartPop .42s cubic-bezier(.22,1,.36,1)}
+  @keyframes heartPop{0%{transform:scale(1)}38%{transform:scale(1.4)}66%{transform:scale(.9)}100%{transform:scale(1)}}
+  /* מעבר עמוד spring */
+  .screen.on{animation:scrIn .42s cubic-bezier(.34,1.28,.5,1)}
+  @keyframes scrIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+  /* כניסת כרטיסי פיד עם spring עדין */
+  @media (prefers-reduced-motion:no-preference){.feed .fb{animation:cardIn .45s cubic-bezier(.34,1.2,.5,1) both}}
+  @keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.99)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
