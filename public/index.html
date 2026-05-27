@@ -496,6 +496,12 @@
   .mkt-pr{color:var(--acc);font-weight:800;font-size:15px}
   .mkt-t{color:var(--text);font-size:12.5px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mkt-sp{color:var(--mut);font-size:11px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bmsel{background:var(--surface2);border:none;border-radius:8px;color:var(--sub);font-size:11.5px;font-weight:700;padding:5px 8px;cursor:pointer}
+  /* תקציר יומי */
+  .dg-sec{margin-bottom:6px}
+  .dg-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .dg-item:last-child{border-bottom:none}
+  .dg-item .ic{width:18px;height:18px;color:var(--acc);flex:0 0 auto}
   .vwn.live{color:var(--ok);font-weight:800}
   /* מסך עריכת פרופיל */
   .pe-cov{height:140px;border-radius:18px;background:var(--grad);position:relative;margin-bottom:8px}
@@ -531,6 +537,7 @@
             <small id="filtHint">סנן את התוכן שתואם לשפה, למדינה ולקטגוריה שלך</small>
           </div>
           <div class="ico-row">
+            <div class="ib" onclick="dailyDigest()" title="מה חדש היום" data-ic="star"></div>
             <div class="ib" id="trAllBtn" onclick="toggleTrAllQuick()" title="תרגם הכל" data-ic="globe"></div>
             <div class="ib round" onclick="go('msgs')" title="הודעות"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg><i class="cbadge" id="mbadge">2</i></div>
             <div class="ib" onclick="go('notif')" title="התראות"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><i class="dot" id="notifDot"></i></div>
@@ -697,9 +704,9 @@ const GENERIC=[{w:'Alex 🇺🇸',t:'love this room',tl:'אוהב את החדר'
 const COM=POSTS.map(()=>[{a:'🌟',n:'מירב',t:'וואו תודה ששיתפת! 🔥',m:'לפני 2 דק׳'},{a:'🌍',n:'Alex',t:'this is why I stay all day',m:'5 min'}]);
 
 const SK='plaza_demo_v5';
-function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,trAllGlobal:false,
+function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,trAllGlobal:false,lastDigest:'',
  me:{nm:'משה',handle:'',creator:false,verified:false,loc:'ישראל 🇮🇱',av:'🦊',avImg:'',coverImg:'',lng:'עברית',hobby:'',bnm:'הסטודיו שלי',bpr:'🎨 שירות מאומת',bbio:'',waD:'972',waN:'',bem:'',bph:'',bweb:'',port:['🖼️','🎨','📷'],svc:[{t:'שירות לדוגמה',p:'מ-₪100',m:'🛠️',d:'תיאור השירות',l:''}]},
- prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},mine:[],pchats:[],reqN:2};
+ prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},cols:['הכל'],bkCol:{},bkView:'הכל',mine:[],pchats:[],reqN:2};
  try{const s=Object.assign(d,JSON.parse(localStorage.getItem(SK)||'{}'));s.nf=Object.assign({comments:true,chats:true},s.nf);s.me=Object.assign(d.me,s.me);return s;}catch(e){return d;}}
 let S=ld();let _meT;
 const sv=()=>{localStorage.setItem(SK,JSON.stringify(S));if(typeof IS_SERVER==='function'&&IS_SERVER()){clearTimeout(_meT);_meT=setTimeout(pushMe,800);}};
@@ -910,6 +917,7 @@ async function bootApp(){
   buildFeed();chips();mbadge();
   const tb=document.getElementById('trAllBtn');if(tb)tb.classList.toggle('on',!!S.trAllGlobal);
   if(S.trAllGlobal)setTimeout(translateVisibleFeed,400);
+  if(typeof maybeDigest==='function')maybeDigest();
 }
 bootApp();
 /* ===== Real-time wiring (Socket.io) ===== */
@@ -1309,14 +1317,29 @@ function renderMine(){const L=document.getElementById('myList');
 function editMine(k){const d=document.getElementById('mt'+k),v=d.textContent;d.innerHTML=`<textarea id="me${k}" style="height:64px">${v}</textarea><div style="display:flex;gap:7px"><button class="bt" style="padding:8px;font-size:12px" onclick="saveMine(${k})">שמור</button><button class="bt g" onclick="renderMine()">בטל</button></div>`;}
 function saveMine(k){const v=document.getElementById('me'+k).value;if(k<S.mine.length)S.mine[k].text=v;sv();renderMine();toast('✏️','עודכן');}
 function delMine(k){if(k<S.mine.length)S.mine.splice(k,1);sv();renderMine();toast('🗑️','נמחק');}
-async function renderBm(){const L=document.getElementById('bmList');
+/* ===== תקציר יומי "מה חדש היום" ===== */
+function dailyDigest(){
+ const hot=POSTS.slice().sort((a,b)=>((b.com||0)*3+(b.likes||0))-((a.com||0)*3+(a.likes||0))).slice(0,3);
+ const vanish=POSTS.filter(p=>{const m=p._m??p.mins;return m>0&&m<180;}).slice(0,3);
+ openSheet(`<div class="sh-hd"><h3>✨ מה חדש היום</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">
+  <div class="sh-h" style="margin-top:0">🔥 חם עכשיו</div><div class="dg-sec">${hot.map(p=>`<div class="dg-item" onclick="closeSheet();searchOpen(${POSTS.indexOf(p)})">${ic('heart')}<div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${esc(p.nm)}</b><div style="color:var(--sub);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((p.text||'').slice(0,60))}</div></div></div>`).join('')||'<div style="color:var(--mut);font-size:12px;padding:6px 0">אין עדיין</div>'}</div>
+  ${vanish.length?`<div class="sh-h">⏳ עומד להיעלם</div><div class="dg-sec">${vanish.map(p=>`<div class="dg-item" onclick="closeSheet();searchOpen(${POSTS.indexOf(p)})">${ic('clock')}<div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${esc(p.nm)}</b><div style="color:var(--sub);font-size:11.5px">נעלם בקרוב — הספק/י לראות</div></div></div>`).join('')}</div>`:''}
+  <div class="sh-h">🏛️ בכיכר</div><div class="dg-sec"><div class="dg-item" onclick="closeSheet();go('rooms')">${ic('chat')}<div style="flex:1">חדרים פעילים — הצטרף/י לשיחה</div></div><div class="dg-item" onclick="closeSheet();go('search')">${ic('explore')||ic('search')}<div style="flex:1">מרקטפלייס וטרנדים חדשים</div></div></div>
+ </div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">אחר כך</button><button class="bt" onclick="closeSheet();go('create')">${ic('plus')} פרסם משהו</button></div>`);}
+function maybeDigest(){const today=new Date().toISOString().slice(0,10);if(S.lastDigest===today)return;S.lastDigest=today;sv();setTimeout(()=>{if(cur==='feed')dailyDigest();},1600);}
+function colBar(){S.cols=S.cols||['הכל'];return `<div class="hscroll">${S.cols.map(c=>`<div class="catpill ${S.bkView===c?'on':''}" onclick="setBkView('${c.replace(/'/g,'')}')">${esc(c)}</div>`).join('')}<div class="catpill" onclick="newCol()" style="color:var(--acc)">＋ אוסף</div></div>`;}
+function setBkView(c){S.bkView=c;sv();renderBm();}
+function newCol(){const n=(prompt('שם האוסף החדש:')||'').trim();if(!n)return;S.cols=S.cols||['הכל'];if(!S.cols.includes(n))S.cols.push(n);S.bkView=n;sv();renderBm();toast('🔖','האוסף "'+n+'" נוצר');}
+function moveBk(key,sel){S.bkCol=S.bkCol||{};S.bkCol[key]=sel.value;sv();if(S.bkView!=='הכל')renderBm();toast('🔖','הועבר ל"'+sel.value+'"');}
+function colSel(key){S.bkCol=S.bkCol||{};const cur=S.bkCol[key]||'הכל';return `<select class="bmsel" onchange="moveBk('${key}',this)" onclick="event.stopPropagation()">${(S.cols||['הכל']).map(c=>`<option ${cur===c?'selected':''}>${esc(c)}</option>`).join('')}</select>`;}
+async function renderBm(){const L=document.getElementById('bmList');S.bkCol=S.bkCol||{};const view=S.bkView||'הכל';
  if(IS_SERVER()){L.innerHTML=skeletonList(4);try{const bs=await API.req('/bookmarks');if(Array.isArray(bs)){
-   L.innerHTML=bs.length?bs.map(b=>{const p=b.snapshot||{};const t=tp(p.topic);const live=(p.expires_at||0)>Math.floor(Date.now()/1000);
-    return `<div class="card"><div class="row"><span class="av" style="width:32px;height:32px;font-size:15px">📌</span><b style="color:var(--text);font-size:13px">${t?t[2]+' '+t[1]:'פוסט'}</b><span style="margin-right:auto;color:var(--mut);font-size:10.5px">❤️ ${p.like_count||0}</span></div><div style="color:var(--text);font-size:13px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(p.text||'')||'(מדיה)'}</div><div style="display:flex;justify-content:space-between"><span style="color:var(--mut);font-size:11px">📸 snapshot</span>${live?'<span style="color:var(--ok);font-size:11px;font-weight:700">✓ חי</span>':'<span style="background:var(--bad);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px">⚠️ נעלם</span>'}</div></div>`;
-   }).join(''):`<div class="empty"><div class="e">${ic('bookmark')}</div><p>אין סימניות עדיין<br>שמור פוסט מהפיד</p></div>`;return;}}catch(e){}}
- const ids=Object.keys(S.bk).filter(k=>S.bk[k]);
- if(!ids.length){L.innerHTML=`<div class="empty"><div class="e">${ic('bookmark')}</div><p>אין סימניות עדיין<br>שמור פוסט מהפיד</p></div>`;return;}
- L.innerHTML=ids.map((id,n)=>{const p=POSTS[id];if(!p)return '';const t=tp(p.topicId),del=n%3===2;return `<div class="card"><div class="row"><span class="av" style="width:32px;height:32px;font-size:15px">${avH(p)}</span><b style="color:var(--text);font-size:13px">${p.nm}</b><span style="margin-right:auto;background:var(--surface2);color:var(--sub);font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:7px">${t?t[2]+' '+t[1]:''}</span></div><div style="color:var(--text);font-size:13px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${p.text}</div><div style="display:flex;justify-content:space-between"><span style="color:var(--mut);font-size:11px">📸 snapshot</span>${del?'<span style="background:var(--bad);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px">⚠️ המקור נמחק</span>':'<span style="color:var(--ok);font-size:11px;font-weight:700">✓ חי</span>'}</div></div>`;}).join('');}
+   const items=bs.filter(b=>{const key='s'+((b.snapshot&&b.snapshot.id)||b.id||'');return view==='הכל'||(S.bkCol[key]||'הכל')===view;});
+   L.innerHTML=colBar()+(items.length?items.map(b=>{const p=b.snapshot||{};const key='s'+(p.id||b.id||'');const t=tp(p.topic);const live=(p.expires_at||0)>Math.floor(Date.now()/1000);
+    return `<div class="card"><div class="row"><span class="av" style="width:32px;height:32px;font-size:15px">${ic('bookmark')}</span><b style="color:var(--text);font-size:13px">${t?t[2]+' '+t[1]:'פוסט'}</b><span style="margin-right:auto">${colSel(key)}</span></div><div style="color:var(--text);font-size:13px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(p.text||'')||'(מדיה)'}</div><div style="display:flex;justify-content:space-between"><span style="color:var(--mut);font-size:11px">❤️ ${p.like_count||0} · 📸 snapshot</span>${live?'<span style="color:var(--ok);font-size:11px;font-weight:700">✓ חי</span>':'<span style="background:var(--bad);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px">⚠️ נעלם</span>'}</div></div>`;
+   }).join(''):`<div class="empty"><div class="e">${ic('bookmark')}</div><p>אין סימניות${view!=='הכל'?' באוסף הזה':' עדיין'}</p></div>`);return;}}catch(e){}}
+ const ids=Object.keys(S.bk).filter(k=>S.bk[k]&&(view==='הכל'||(S.bkCol['i'+k]||'הכל')===view));
+ L.innerHTML=colBar()+(ids.length?ids.map((id,n)=>{const p=POSTS[id];if(!p)return '';const key='i'+id;const t=tp(p.topicId),del=n%3===2;return `<div class="card"><div class="row"><span class="av" style="width:32px;height:32px;font-size:15px">${avH(p)}</span><b style="color:var(--text);font-size:13px">${esc(p.nm)}</b><span style="margin-right:auto">${colSel(key)}</span></div><div style="color:var(--text);font-size:13px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(p.text||'')}</div><div style="display:flex;justify-content:space-between"><span style="color:var(--mut);font-size:11px">📸 snapshot</span>${del?'<span style="background:var(--bad);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px">⚠️ המקור נמחק</span>':'<span style="color:var(--ok);font-size:11px;font-weight:700">✓ חי</span>'}</div></div>`;}).join(''):`<div class="empty"><div class="e">${ic('bookmark')}</div><p>אין סימניות${view!=='הכל'?' באוסף הזה':' עדיין'}<br>שמור פוסט מהפיד</p></div>`);}
 
 /* ===== MESSAGES ===== */
 let mTab='c';
