@@ -1,5 +1,5 @@
 // PLAZA Service Worker — בסיסי: cache-first לסטטיים, network-first ל-API
-const CACHE = 'plaza-v1';
+const CACHE = 'plaza-v2';
 const STATIC = ['/', '/login.html', '/admin', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -18,6 +18,17 @@ self.addEventListener('fetch', e => {
   // לעולם לא לקאש API או socket.io — תמיד טרי
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/socket.io/') || url.pathname.startsWith('/uploads/')) {
     return;  // הדפדפן מטפל ישירות
+  }
+
+  // ניווט/HTML — network-first כדי שעדכונים יופיעו מיד (fallback לקאש אופליין)
+  if (e.request.mode === 'navigate' || (e.request.destination === 'document')) {
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        if (resp && resp.status === 200) { const clone = resp.clone(); caches.open(CACHE).then(c => c.put(e.request, clone)); }
+        return resp;
+      }).catch(() => caches.match(e.request).then(c => c || caches.match('/')))
+    );
+    return;
   }
 
   // קבצים סטטיים — cache-first עם רענון ברקע

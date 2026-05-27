@@ -413,6 +413,15 @@
   .sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(127,127,127,.12),transparent)}
   @media (prefers-reduced-motion:no-preference){.sk::after{animation:shimmer 1.3s infinite}}
   @keyframes shimmer{to{transform:translateX(100%)}}
+  /* Blur-up / fade-in לתמונות */
+  .imgw{position:absolute;inset:0;overflow:hidden;background:var(--surface2)}
+  .imgw img.imgblur{width:100%;height:100%;object-fit:cover;display:block;opacity:0}
+  .imgw.rdy img.imgblur{opacity:1}
+  @media (prefers-reduced-motion:no-preference){
+   .imgw img.imgblur{transition:opacity .5s ease}
+   .imgw::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,var(--surface2) 8%,var(--surface) 18%,var(--surface2) 33%);background-size:200% 100%;animation:shimmer 1.3s infinite}
+   .imgw.rdy::before{opacity:0;animation:none;transition:opacity .3s}
+  }
   /* כניסה מדורגת לרשימות/גיליונות */
   @media (prefers-reduced-motion:no-preference){
    .gridc>*,.list>.card,.sh-b>.mi{animation:cardIn .4s cubic-bezier(.34,1.2,.5,1) both}
@@ -430,6 +439,28 @@
   .nm,.pf-nm{letter-spacing:-.01em}
   .fa{font-weight:600}
   .nv.on small{font-weight:800}
+  /* ═══ פיד מלא-רוחב edge-to-edge (וידאו נשאר מסך-מלא) ═══ */
+  .feed{padding-left:0;padding-right:0;padding-top:0}
+  .fb{margin:0 0 9px;border-radius:0;box-shadow:none}
+  .fb:first-child{margin-top:0}
+  .fb.fbvideo{margin:0 0 9px}
+  .fb .fbh{padding-top:13px}
+  /* מדיה edge-to-edge */
+  .fb .media,.fb .fbg{border-radius:0}
+  .fbg.n1>div{aspect-ratio:1.1}
+  /* פוסט טקסט-בלבד עשיר: טיפוגרפיה גדולה + רקע עדין */
+  .fb.txtonly .ptx{padding:6px 15px 16px}
+  .fb.txtonly .ptxt{font-size:18px;line-height:1.55;font-weight:500}
+  .fb.txtonly .tint{height:3px;background:var(--grad);opacity:.9}
+  #feedSentinel{height:1px}
+  /* מצב "ראית הכל" */
+  .feedend{text-align:center;padding:38px 26px calc(40px + env(safe-area-inset-bottom));color:var(--mut)}
+  .feedend .ic{width:40px;height:40px;stroke-width:1.4;opacity:.5}
+  .feedend b{display:block;color:var(--text);font-size:15px;font-weight:800;margin:10px 0 4px}
+  .feedend p{font-size:12.5px;line-height:1.6;margin-bottom:14px}
+  .feedend .ea{display:flex;gap:8px;justify-content:center}
+  .feedend .ea button{border:none;border-radius:11px;padding:11px 16px;font-size:13px;font-weight:700;cursor:pointer;background:var(--surface2);color:var(--text)}
+  .feedend .ea button.p{background:var(--grad);color:#fff;box-shadow:var(--glow)}
 </style>
 </head>
 <body>
@@ -652,8 +683,9 @@ const AUTO_EXTEND_PRICING={
 let curRoom='tech',trAll=false,privCtx=null;
 function tp(id){return TOPICS.find(x=>x[0]===id);}
 function isImg(s){return typeof s==='string'&&(s.startsWith('blob:')||s.startsWith('data:')||s.startsWith('http'));}
-function cell(m){return isImg(m)?`<img src="${m}">`:m;}
-function avH(o){return o.avImg?`<img src="${o.avImg}">`:(o.av||'🙂');}
+function imgBlur(src){return `<div class="imgw"><img class="imgblur" src="${src}" loading="lazy" decoding="async" onload="this.parentNode.classList.add('rdy')" onerror="this.parentNode.classList.add('rdy')"></div>`;}
+function cell(m){return isImg(m)?imgBlur(m):m;}
+function avH(o){return o.avImg?`<img src="${o.avImg}" loading="lazy" decoding="async">`:(o.av||'🙂');}
 function profBadge(nm){const p=PROF[nm];return p&&p.k==='b'?`<span class="vmini ${p.bd==='gold'?'gold':''}">✔</span>`:'';}
 function waLink(d,n){if(!n)return '';return 'https://wa.me/'+(d+''+n).replace(/\D/g,'');}
 
@@ -677,8 +709,10 @@ function mediaBlock(p,i){
 }
 function postCard(p,i){if(p.type==='video')return videoCard(p,i);
  const tot=p.mins<60?60:48*60,t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&pr.wa?waLink('',pr.wa):'';
- return `<div class="fb" data-i="${i}">
-  <div class="fbh"><div class="av" onclick="openProf('${p.nm}')">${avH(p)}</div>
+ const txtonly=p.type==='text'&&!(p.imgs&&p.imgs.length)&&!p.vidUrl&&!p.snd;
+ return `<div class="fb${txtonly?' txtonly':''}" data-i="${i}">
+  ${txtonly?'<div class="tint"></div>':''}
+  <div class="fbh"><div class="av" onclick="openProf('${p.nm}',${p.uid||'null'})">${avH(p)}</div>
    <div class="who" onclick="openProf('${p.nm}')"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}</div></div>
    <div class="pcd"><span class="cdt">--</span>${ic('clock')}</div><span class="pmenu" onclick="postMenu(${i})">${ic('more')}</span></div>
   ${postText(p,i)}
@@ -724,12 +758,28 @@ function skeletonFeed(n=4){return `<div class="skel-wrap">`+Array.from({length:n
 function skeletonList(n=5){return Array.from({length:n}).map(()=>`<div class="skel" style="padding:13px;margin:0 0 10px"><div class="skel-row" style="margin:0"><div class="sk circle" style="width:36px;height:36px;flex:0 0 auto"></div><div style="flex:1"><div class="sk" style="height:11px;width:48%;margin-bottom:7px"></div><div class="sk" style="height:9px;width:72%"></div></div></div></div>`).join('');}
 function countUp(el,to){if(!el)return;to=+to||0;if(_rm()){el.textContent=to.toLocaleString('en-US');return;}const from=parseInt((el.textContent||'0').replace(/[^\d]/g,''))||0;if(from===to){el.textContent=to.toLocaleString('en-US');return;}const dur=650,t0=performance.now();(function tick(t){const k=Math.min(1,(t-t0)/dur);el.textContent=Math.round(from+(to-from)*(1-Math.pow(1-k,3))).toLocaleString('en-US');if(k<1)requestAnimationFrame(tick);})(performance.now());}
 let _seenCards=new Set();
-function buildFeed(){const f=POSTS.filter(passes);
- feed.innerHTML=f.length?f.map(p=>postCard(p,POSTS.indexOf(p))).join(''):`<div class="empty"><div class="e">${ic('search')}</div><p>אין פוסטים בסינון הזה</p></div>`;
- let ni=0; // אנימציית כניסה רק לכרטיסים שלא נראו עדיין
- document.querySelectorAll('#feed .fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];const key=p&&p._sid?'s'+p._sid:'i'+po.dataset.i;if(!_seenCards.has(key)){_seenCards.add(key);if(ni<7){po.classList.add('enter');po.style.animationDelay=(ni*45)+'ms';ni++;}}});
- for(const k in S.likes){if(S.likes[k]){const e=document.querySelector(`.fb[data-i="${k}"] .lk`);if(e){e.classList.add('on');const ico=e.querySelector('.ic');if(ico)ico.classList.add('fill');}}}
- for(const k in S.bk){if(S.bk[k]){const e=document.querySelector(`.fb[data-i="${k}"] .bk`);if(e){e.classList.add('on');const ico=e.querySelector('.ic');if(ico)ico.classList.add('fill');}}}}
+/* ===== גלילה מדורגת (אינסופית) ===== */
+let _feedList=[],_feedCursor=0,_feedIO=null;const CHUNK=8;
+function applyCardState(){let ni=0;
+ document.querySelectorAll('#feed .fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];const key=p&&p._sid?'s'+p._sid:'i'+po.dataset.i;if(!_seenCards.has(key)){_seenCards.add(key);po.classList.add('enter');po.style.animationDelay=((ni++)%CHUNK*40)+'ms';}});
+ for(const k in S.likes){if(S.likes[k]){const e=document.querySelector(`#feed .fb[data-i="${k}"] .lk:not(.on)`);if(e){e.classList.add('on');const ico=e.querySelector('.ic');if(ico)ico.classList.add('fill');}}}
+ for(const k in S.bk){if(S.bk[k]){const e=document.querySelector(`#feed .fb[data-i="${k}"] .bk:not(.on)`);if(e){e.classList.add('on');const ico=e.querySelector('.ic');if(ico)ico.classList.add('fill');}}}}
+function renderFeedChunk(){const slice=_feedList.slice(_feedCursor,_feedCursor+CHUNK);if(!slice.length)return false;
+ const html=slice.map(p=>postCard(p,POSTS.indexOf(p))).join('');const sent=document.getElementById('feedSentinel');
+ if(sent)sent.insertAdjacentHTML('beforebegin',html);else feed.insertAdjacentHTML('beforeend',html);
+ _feedCursor+=slice.length;applyCardState();
+ if(S.trAllGlobal&&typeof translateVisibleFeed==='function')translateVisibleFeed();
+ return _feedCursor<_feedList.length;}
+function buildFeed(){_feedList=POSTS.filter(passes);_feedCursor=0;
+ if(!_feedList.length){feed.innerHTML=`<div class="empty"><div class="e">${ic('search')}</div><p>אין פוסטים בסינון הזה</p></div>`;return;}
+ feed.innerHTML='<div id="feedSentinel" aria-hidden="true"></div>';
+ renderFeedChunk();
+ if(_feedIO)_feedIO.disconnect();
+ _feedIO=new IntersectionObserver(es=>{if(es[0].isIntersecting){const more=renderFeedChunk();if(!more){_feedIO.disconnect();if(typeof showFeedEnd==='function')showFeedEnd();}}},{root:feed,rootMargin:'700px'});
+ const sent=document.getElementById('feedSentinel');if(sent)_feedIO.observe(sent);}
+function showFeedEnd(){if(document.getElementById('feedEnd'))return;const sent=document.getElementById('feedSentinel');
+ const h=`<div class="feedend" id="feedEnd">${ic('check')}<b>ראית את כל מה שטרי ✨</b><p>בפלאזה התוכן זמני — כשנגמר, נגמר. חזור/חזרי מאוחר יותר לגלות מה חדש, או צור/צרי משהו עכשיו.</p><div class="ea"><button class="p" onclick="go('create')">${ic('plus')} פרסם משהו</button><button onclick="go('rooms')">${ic('chat')} חדרים</button></div></div>`;
+ if(sent)sent.insertAdjacentHTML('beforebegin',h);else feed.insertAdjacentHTML('beforeend',h);}
 function chips(){const c=document.getElementById('chips');let h='';
  const a=(arr,src,key)=>arr.forEach(id=>{const it=src.find(x=>x[0]===id);if(it)h+=`<div class="ch" onclick="rmF('${key}','${id}')">${it[2]} ${it[1]} <i>✕</i></div>`;});
  a(S.fL,LANGS,'fL');a(S.fC,COUNTRIES,'fC');a(S.fT,TOPICS,'fT');S.fP.forEach(id=>{const it=PTYPES.find(x=>x[0]===id);if(it)h+=`<div class="ch" onclick="rmF('fP','${id}')">${it[2]} ${it[1]} <i>✕</i></div>`;});
