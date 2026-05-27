@@ -453,6 +453,25 @@
   .fb.txtonly .ptxt{font-size:18px;line-height:1.55;font-weight:500}
   .fb.txtonly .tint{height:3px;background:var(--grad);opacity:.9}
   #feedSentinel{height:1px}
+  /* טבעת ספירה-לאחור סביב האווטאר (DNA זמני) */
+  .cdring{position:relative;display:inline-flex;padding:2.5px;border-radius:50%;flex:0 0 auto}
+  .cdring::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--acc) var(--life,360deg),var(--line) 0);-webkit-mask:radial-gradient(circle,transparent 60%,#000 62%);mask:radial-gradient(circle,transparent 60%,#000 62%)}
+  .cdring.warn::before{background:conic-gradient(var(--warn) var(--life,360deg),var(--line) 0)}
+  .cdring.bad::before{background:conic-gradient(var(--bad) var(--life,360deg),var(--line) 0)}
+  @media (prefers-reduced-motion:no-preference){.cdring.bad::before{animation:ringPulse 1.5s ease-in-out infinite}}
+  @keyframes ringPulse{50%{opacity:.5}}
+  /* המסה (dissolve) בהיעלמות */
+  @media (prefers-reduced-motion:no-preference){.fb.vanish{animation:vanishOut .6s cubic-bezier(.4,0,.2,1) both;pointer-events:none}}
+  @keyframes vanishOut{to{opacity:0;filter:blur(9px) saturate(1.4);transform:scale(.95) translateY(-8px)}}
+  /* פרופיל חדש */
+  .pf-handle{color:var(--mut);font-size:13px;font-weight:600;margin-top:2px}
+  .pf-gear{position:absolute;top:12px;left:12px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.28);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:2}
+  .pf-gear .ic{width:18px;height:18px}
+  .pf-edit{position:absolute;bottom:-2px;left:-2px;background:var(--acc);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid var(--surface)}
+  .pf-edit .ic{width:13px;height:13px}
+  .abt{display:flex;align-items:center;gap:10px;color:var(--text);font-size:13.5px}
+  .abt .ic{width:18px;height:18px;color:var(--mut);flex:0 0 auto}
+  .ib.on{color:var(--acc);background:var(--acc-soft)}
   /* מצב "ראית הכל" */
   .feedend{text-align:center;padding:38px 26px calc(40px + env(safe-area-inset-bottom));color:var(--mut)}
   .feedend .ic{width:40px;height:40px;stroke-width:1.4;opacity:.5}
@@ -480,6 +499,7 @@
             <small id="filtHint">סנן את התוכן שתואם לשפה, למדינה ולקטגוריה שלך</small>
           </div>
           <div class="ico-row">
+            <div class="ib" id="trAllBtn" onclick="toggleTrAllQuick()" title="תרגם הכל" data-ic="globe"></div>
             <div class="ib round" onclick="go('msgs')" title="הודעות"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg><i class="cbadge" id="mbadge">2</i></div>
             <div class="ib" onclick="go('notif')" title="התראות"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><i class="dot" id="notifDot"></i></div>
           </div>
@@ -541,6 +561,11 @@
     <section class="screen" id="s-profile">
       <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה</div><h2 data-ic="user">הפרופיל שלי</h2></div>
       <div class="body"><div class="list" id="pWrap"></div></div>
+    </section>
+
+    <section class="screen" id="s-settings">
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('profile')">פרופיל</div><h2 data-ic="settings">הגדרות</h2></div>
+      <div class="body"><div class="list" id="setWrap"></div></div>
     </section>
   </div>
 
@@ -632,8 +657,8 @@ const GENERIC=[{w:'Alex 🇺🇸',t:'love this room',tl:'אוהב את החדר'
 const COM=POSTS.map(()=>[{a:'🌟',n:'מירב',t:'וואו תודה ששיתפת! 🔥',m:'לפני 2 דק׳'},{a:'🌍',n:'Alex',t:'this is why I stay all day',m:'5 min'}]);
 
 const SK='plaza_demo_v5';
-function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,
- me:{nm:'משה',loc:'ישראל 🇮🇱',av:'🦊',avImg:'',lng:'עברית',hobby:'',bnm:'הסטודיו שלי',bpr:'🎨 שירות מאומת',bbio:'תיאור העסק שלי כאן',waD:'972',waN:'',bem:'',bph:'',bweb:'',port:['🖼️','🎨','📷'],svc:[{t:'שירות לדוגמה',p:'מ-₪100',m:'🛠️',d:'תיאור השירות',l:''}]},
+function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,trAllGlobal:false,
+ me:{nm:'משה',handle:'',creator:false,verified:false,loc:'ישראל 🇮🇱',av:'🦊',avImg:'',lng:'עברית',hobby:'',bnm:'הסטודיו שלי',bpr:'🎨 שירות מאומת',bbio:'',waD:'972',waN:'',bem:'',bph:'',bweb:'',port:['🖼️','🎨','📷'],svc:[{t:'שירות לדוגמה',p:'מ-₪100',m:'🛠️',d:'תיאור השירות',l:''}]},
  prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},mine:[],pchats:[],reqN:2};
  try{const s=Object.assign(d,JSON.parse(localStorage.getItem(SK)||'{}'));s.nf=Object.assign({comments:true,chats:true},s.nf);s.me=Object.assign(d.me,s.me);return s;}catch(e){return d;}}
 let S=ld();let _meT;
@@ -641,12 +666,15 @@ const sv=()=>{localStorage.setItem(SK,JSON.stringify(S));if(typeof IS_SERVER==='
 /* דחיפת הפרופיל לשרת (debounced דרך sv) */
 async function pushMe(){if(!IS_SERVER())return;const me=S.me;
  const body={display_name:me.nm,location:me.loc,lang:S.lang,bio:me.bbio,profession:me.bpr,hobby:me.hobby,wa_dial:me.waD,wa_num:me.waN,biz_email:me.bem,biz_phone:me.bph,biz_web:me.bweb,
-  prefs:{bnm:me.bnm,av:me.av,avImg:(me.avImg&&me.avImg.startsWith('http'))?me.avImg:'',port:me.port,svc:me.svc,th:S.th,prefC:S.prefC,prefL:S.prefL,prefT:S.prefT}};
+  prefs:{bnm:me.bnm,handle:me.handle,creator:me.creator,av:me.av,avImg:(me.avImg&&me.avImg.startsWith('http'))?me.avImg:'',port:me.port,svc:me.svc,th:S.th,trAllGlobal:S.trAllGlobal,prefC:S.prefC,prefL:S.prefL,prefT:S.prefT}};
  if(me.avImg&&me.avImg.startsWith('http'))body.avatar_url=me.avImg;
  try{await API.req('/me',{method:'PUT',body});}catch(e){}}
 /* טעינת הפרופיל מהשרת לתוך S.me (פעם אחת ב-boot) */
 function syncMeFromServer(){const u=API.user;if(!u)return;const me=S.me;
  me.nm=u.display_name||u.username||me.nm;
+ if(u.username&&!me.handle)me.handle=u.username;
+ if(typeof u.is_verified!=='undefined')me.verified=!!u.is_verified;
+ if(typeof u.is_business!=='undefined'&&u.is_business)me.creator=true;
  if(u.avatar_url)me.avImg=u.avatar_url;
  if(u.location)me.loc=u.location;
  if(u.bio!=null)me.bbio=u.bio;
@@ -656,7 +684,7 @@ function syncMeFromServer(){const u=API.user;if(!u)return;const me=S.me;
  if(u.biz_email!=null)me.bem=u.biz_email;if(u.biz_phone!=null)me.bph=u.biz_phone;if(u.biz_web!=null)me.bweb=u.biz_web;
  if(u.lang)me.lng=(LANGS.find(l=>l[0]===u.lang)||['','',''])[1]||me.lng;
  let pr=u.prefs;if(typeof pr==='string'){try{pr=JSON.parse(pr);}catch(e){pr=null;}}
- if(pr&&typeof pr==='object'){if(pr.bnm)me.bnm=pr.bnm;if(pr.av)me.av=pr.av;if(pr.port&&pr.port.length)me.port=pr.port;if(pr.svc&&pr.svc.length)me.svc=pr.svc;
+ if(pr&&typeof pr==='object'){if(pr.bnm)me.bnm=pr.bnm;if(typeof pr.creator==='boolean')me.creator=pr.creator;if(pr.handle)me.handle=pr.handle;if(pr.av)me.av=pr.av;if(pr.port&&pr.port.length)me.port=pr.port;if(pr.svc&&pr.svc.length)me.svc=pr.svc;if(typeof pr.trAllGlobal==='boolean')S.trAllGlobal=pr.trAllGlobal;
   if(pr.prefC)S.prefC=pr.prefC;if(pr.prefL)S.prefL=pr.prefL;if(pr.prefT)S.prefT=pr.prefT;if(pr.th)S.th=pr.th;}
  localStorage.setItem(SK,JSON.stringify(S));applyTh();}
 function applyTh(){document.getElementById('app').setAttribute('data-th',S.th);document.body.style.background=S.th==='dark'?'#0A0C12':'#EAEEF3';}
@@ -712,8 +740,8 @@ function postCard(p,i){if(p.type==='video')return videoCard(p,i);
  const txtonly=p.type==='text'&&!(p.imgs&&p.imgs.length)&&!p.vidUrl&&!p.snd;
  return `<div class="fb${txtonly?' txtonly':''}" data-i="${i}">
   ${txtonly?'<div class="tint"></div>':''}
-  <div class="fbh"><div class="av" onclick="openProf('${p.nm}',${p.uid||'null'})">${avH(p)}</div>
-   <div class="who" onclick="openProf('${p.nm}')"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}</div></div>
+  <div class="fbh"><div class="cdring"><div class="av" onclick="openProf('${p.nm}',${p.uid||'null'})">${avH(p)}</div></div>
+   <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}</div></div>
    <div class="pcd"><span class="cdt">--</span>${ic('clock')}</div><span class="pmenu" onclick="postMenu(${i})">${ic('more')}</span></div>
   ${postText(p,i)}
   ${mediaBlock(p,i)}
@@ -736,8 +764,8 @@ function videoCard(p,i){const t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&p
  return `<div class="fb fbvideo" data-i="${i}">
   ${p.vidUrl?`<video src="${p.vidUrl}" controls playsinline ${p.snd?'muted':''}></video>`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:80px;background:linear-gradient(160deg,#1b2030,#0b0e14)" onclick="toast('🎬','וידאו לדוגמה')">${p.e}</div>`}
   ${p.snd?`<audio src="${p.snd}" autoplay loop></audio>`:''}
-  <div class="vhd"><div class="av" onclick="openProf('${p.nm}')">${avH(p)}</div>
-   <div class="who" onclick="openProf('${p.nm}')" style="flex:1"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}</div></div>
+  <div class="vhd"><div class="cdring"><div class="av" onclick="openProf('${p.nm}',${p.uid||'null'})">${avH(p)}</div></div>
+   <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})" style="flex:1"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}</div></div>
    <div class="pcd"><span class="cdt">--</span>${ic('clock')}</div><span class="pmenu" style="color:#fff" onclick="postMenu(${i})">${ic('more')}</span></div>
   <div class="vfoot"><div class="ptx" style="padding:0">${linkify(p.text||'')}</div>${p.link?`<div class="lk-card" style="margin:8px 0 0;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.2)" onclick="openInApp('${p.link}')"><span class="lic">${ic('link')}</span><div><div class="lt" style="color:#fff">קישור</div><div class="lu" style="color:#ddd">${p.link}</div></div></div>`:''}</div>
   <div class="vacts">
@@ -830,6 +858,8 @@ async function bootApp(){
     }catch(e){console.warn('load posts failed:',e);}
   }
   buildFeed();chips();mbadge();
+  const tb=document.getElementById('trAllBtn');if(tb)tb.classList.toggle('on',!!S.trAllGlobal);
+  if(S.trAllGlobal)setTimeout(translateVisibleFeed,400);
 }
 bootApp();
 /* ===== Real-time wiring (Socket.io) ===== */
@@ -860,7 +890,11 @@ function galStep(d){if(!galP)return;galI=(galI+d+galP.imgs.length)%galP.imgs.len
 function pa(i,el){const w=document.getElementById('w'+i);if(el.textContent==='▶'){el.textContent='⏸';w.classList.add('pl');w.querySelectorAll('i').forEach((b,n)=>b.style.animationDelay=(n*.04)+'s');}else{el.textContent='▶';w.classList.remove('pl');}}
 function vs(i,m,el){const o=document.getElementById('vo'+i),p=POSTS[i];const txt=m==='tr'?'📝 '+p.voice.tr:'🌐 '+p.voice.tl;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));if(o.classList.contains('show')&&o.dataset.m===m){o.classList.remove('show');return;}el.classList.add('on');o.textContent=txt;o.dataset.m=m;o.classList.add('show');}
 function fmt(m){const h=Math.floor(m/60),mm=Math.floor(m%60),s=Math.floor(m*60%60);return h>0?`${h}:${String(mm).padStart(2,'0')}ש׳`:`${mm}:${String(s).padStart(2,'0')}`;}
-setInterval(()=>{document.querySelectorAll('.fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];if(!p)return;p._m=(p._m??p.mins);p._m=Math.max(0,p._m-1/60);const c=po.querySelector('.cdt');if(c)c.textContent=fmt(p._m);po.querySelector('.pcd')?.classList.toggle('urg',p._m<60);});},1000);
+function dissolveCard(el,cb){if(!el){cb&&cb();return;}if(_rm()){el.remove();cb&&cb();return;}el.classList.add('vanish');el.addEventListener('animationend',()=>{el.remove();cb&&cb();},{once:true});}
+setInterval(()=>{document.querySelectorAll('.fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];if(!p)return;p._totalMins=p._totalMins||(p.mins<60?60:48*60);p._m=(p._m??p.mins);p._m=Math.max(0,p._m-1/60);
+ const c=po.querySelector('.cdt');if(c)c.textContent=fmt(p._m);po.querySelector('.pcd')?.classList.toggle('urg',p._m<60);
+ const ring=po.querySelector('.cdring');if(ring){const pct=Math.max(0,Math.min(1,p._m/p._totalMins));ring.style.setProperty('--life',(pct*360)+'deg');ring.classList.toggle('warn',p._m<120&&p._m>=60);ring.classList.toggle('bad',p._m<60);}
+ if(p._m<=0&&!po._vanishing){po._vanishing=1;dissolveCard(po);}});},1000);
 function jit(sel,b){setInterval(()=>{b+=Math.floor(Math.random()*46-20);b=Math.max(1,b);document.querySelectorAll(sel).forEach(e=>e.textContent=b.toLocaleString('en-US'));},2600);}
 async function liveStats(){if(!IS_SERVER()){jit('#stU',1);jit('#stO',1);setInterval(()=>document.getElementById('stP').textContent='0',4000);return;}
  const set=async()=>{try{const s=await fetch('/api/stats').then(r=>r.json());countUp(document.getElementById('stU'),s.users||0);countUp(document.getElementById('stO'),s.online||0);countUp(document.getElementById('stP'),s.posts||0);}catch(e){}};
@@ -938,7 +972,7 @@ function nav(){const t=I18N[S.lang]||I18N.en,lbl={feed:t.nHome,search:t.nSearch,
  document.getElementById('nav').innerHTML=NAV.map(n=>{if(n[0]==='plus')return `<div class="nv" onclick="go('create')"><div class="plus"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div></div>`;const on=(cur===n[0]||(n[0]==='rooms'&&cur==='room'))?'on':'';return `<div class="nv ${on}" onclick="go('${n[0]}')">${navSvg(n[2])}<small>${lbl[n[0]]||n[1]}</small></div>`;}).join('');}
 const _rm=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function go(s){const apply=()=>{cur=s;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-'+s).classList.add('on');nav();initStaticIcons();
- if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='create')renderCreate();};
+ if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='settings')renderSettings();if(s==='create')renderCreate();};
  if(document.startViewTransition&&!_rm()){document.startViewTransition(apply);}else{apply();}}
 if(document.startViewTransition)document.documentElement.classList.add('has-vt');
 nav();initStaticIcons();
@@ -1282,39 +1316,55 @@ async function renderNt(){const L=document.getElementById('ntList');
 function nmList(a){return a.length?(a.length+' נבחרו'):'לא הוגדר';}
 let profTab='profile';
 function setProfTab(t){profTab=t;renderProfile();}
-function renderProfile(){const ln=(LANGS.find(l=>l[0]===S.lang)||['','עברית'])[1],mute=S.muteAll,me=S.me,wal=waLink(me.waD,me.waN);
- const tabsBar=`<div class="tabs" style="padding:0 0 6px"><div class="tab ${profTab==='profile'?'on':''}" onclick="setProfTab('profile')">👤 הפרופיל שלי</div><div class="tab ${profTab==='settings'?'on':''}" onclick="setProfTab('settings')">⚙️ הגדרות</div></div>`;
- const head=`<div class="pf-cov bz"><div class="pf-av" onclick="pickAvatar()">${me.avImg?`<img src="${me.avImg}">`:me.av}<span style="position:absolute;bottom:-2px;left:-2px;background:var(--acc);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--bg)">✏️</span></div></div>
-   <div class="pf-nm">${me.bnm||me.nm}</div><div class="pf-s">${me.loc} · 🗣️ ${me.lng||'—'}${me.hobby?' · 🎯 '+me.hobby:''}</div>
-   ${me.bpr?`<div class="pf-p">${me.bpr}</div>`:''}<div class="pf-bio">${me.bbio||''}</div>
-   <div class="pf-act"><button onclick="editBiz()">✏️ ערוך פרופיל</button>${wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:''}${me.bph?`<button class="g" onclick="window.open('tel:${me.bph}')">📞 חייג</button>`:''}${me.bem?`<button class="g" onclick="window.open('mailto:${me.bem}')">✉️ אימייל</button>`:''}${me.bweb?`<button class="g" onclick="openInApp('${me.bweb}')">🔗 אתר</button>`:''}<button class="g" onclick="showQR()">📱 QR</button></div>`;
- const portfolio=`<div class="sh-h">🗂️ תיק עבודות / גלריה <span style="float:left;color:var(--acc);cursor:pointer" onclick="addPort()">＋ הוסף</span></div><div class="fbg n3" style="border-radius:10px;overflow:hidden">${me.port.map((w,k)=>`<div style="position:relative;aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden"><div onclick="zoomOne('${w}')" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">${isImg(w)?`<img src="${w}" style="width:100%;height:100%;object-fit:cover">`:w}</div><span onclick="delPort(${k})" style="position:absolute;top:3px;left:3px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">${ic('close')}</span></div>`).join('')||'<div style="grid-column:1/-1;color:var(--mut);text-align:center;padding:18px;font-size:12px">אין עדיין — לחץ "הוסף"</div>'}</div>`;
- // גלריה בסגנון אינסטגרם: תמונה/וידאו גדול + כיתוב + מחיר + קישור, עם עריכה/מחיקה
- const gallery=`<div class="sh-h">🛍️ גלריה / מוצרים ושירותים</div>${me.svc.map((s,k)=>`<div class="svc">${isImg(s.m)?`<div class="sm" style="min-height:160px;border-radius:10px;margin-bottom:8px">${String(s.m).includes('video')?`<video src="${s.m}" controls style="width:100%"></video>`:`<img src="${s.m}" style="width:100%">`}</div>`:''}<div class="sr">${s.m&&!isImg(s.m)?s.m:'🏷️'} ${s.t}${s.p?`<span class="pr">${s.p}</span>`:''}</div>${s.d?`<div class="sd">${linkify(s.d)}</div>`:''}${s.l?`<a class="slk" onclick="openInApp('${s.l}');return false" href="#">🔗 ${s.l}</a>`:''}<div style="display:flex;gap:7px;margin-top:8px"><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcMedia(${k})">📷 מדיה</button><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcEdit(${k})">✏️ ערוך</button><button class="bt" style="padding:7px;font-size:11px;flex:0 0 auto;background:var(--bad)" onclick="delSvc(${k})">🗑️</button></div></div>`).join('')}<div class="svc" onclick="addSvc()" style="cursor:pointer;color:var(--acc);text-align:center">＋ הוסף לגלריה (תמונה + טקסט + מחיר)</div>`;
+function shareProfile(){const me=S.me,url=location.origin+'/?u='+encodeURIComponent(me.handle||me.nm);if(navigator.share){navigator.share({title:'PLAZA · '+me.nm,url}).catch(()=>{});}else copyText(url);}
+function toggleCreator(){S.me.creator=!S.me.creator;sv();renderProfile();toast(S.me.creator?'✅':'👤',S.me.creator?'מצב יוצר הופעל — נוספו בלוקי עסק/מסחר':'חזרת לפרופיל אישי נקי');}
+function refreshSettingsUI(){if(cur==='settings'&&typeof renderSettings==='function')renderSettings();else renderProfile();}
+function portfolioBlock(){const me=S.me;return `<div class="sh-h">תיק עבודות <span style="float:left;color:var(--acc);cursor:pointer;font-weight:700" onclick="addPort()">＋ הוסף</span></div><div class="fbg n3" style="border-radius:14px;overflow:hidden">${me.port.map((w,k)=>`<div style="position:relative;aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden"><div onclick="zoomOne('${w}')" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">${isImg(w)?`<img src="${w}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`:w}</div><span onclick="delPort(${k})" style="position:absolute;top:3px;left:3px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">${ic('close')}</span></div>`).join('')||'<div style="grid-column:1/-1;color:var(--mut);text-align:center;padding:18px;font-size:12px">אין עדיין — לחץ "הוסף"</div>'}</div>`;}
+function galleryBlock(){const me=S.me;return `<div class="sh-h">מוצרים ושירותים</div>${me.svc.map((s,k)=>`<div class="svc">${isImg(s.m)?`<div class="sm" style="min-height:160px;border-radius:12px;margin-bottom:8px">${String(s.m).includes('video')?`<video src="${s.m}" controls style="width:100%"></video>`:`<img src="${s.m}" loading="lazy" style="width:100%">`}</div>`:''}<div class="sr">${s.m&&!isImg(s.m)?s.m:ic('grid')} ${s.t}${s.p?`<span class="pr">${s.p}</span>`:''}</div>${s.d?`<div class="sd">${linkify(s.d)}</div>`:''}${s.l?`<a class="slk" onclick="openInApp('${s.l}');return false" href="#">${ic('link')} ${s.l}</a>`:''}<div style="display:flex;gap:7px;margin-top:8px"><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcMedia(${k})">${ic('image')} מדיה</button><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcEdit(${k})">${ic('edit')} ערוך</button><button class="bt" style="padding:7px;font-size:11px;flex:0 0 auto;background:var(--bad)" onclick="delSvc(${k})">${ic('trash')}</button></div></div>`).join('')}<div class="svc" onclick="addSvc()" style="cursor:pointer;color:var(--acc);text-align:center;font-weight:700">＋ הוסף לגלריה</div>`;}
+function renderProfile(){const me=S.me,wal=waLink(me.waD,me.waN),handle=me.handle||(API.user&&API.user.username)||me.nm;
+ const head=`<div class="pf-cov${me.creator?' bz':''}"><span class="pf-gear" onclick="go('settings')">${ic('settings')}</span><div class="pf-av" onclick="pickAvatar()">${me.avImg?`<img src="${me.avImg}">`:me.av}<span class="pf-edit">${ic('edit')}</span></div></div>
+  <div class="pf-nm">${esc(me.nm)}${me.creator&&me.verified?` <span class="vb">✔</span>`:''}</div>
+  <div class="pf-handle">@${esc(String(handle))}${me.creator?' · יוצר/ת':''}</div>
+  ${me.bbio?`<div class="pf-bio">${linkify(me.bbio)}</div>`:''}
+  <div class="pf-st"><div><b>${S.mine.length}</b><small>פוסטים</small></div><div><b>${Object.values(S.bk).filter(Boolean).length}</b><small>סימניות</small></div><div><b>${me.creator?'יוצר/ת':'אזרח/ית'}</b><small>סטטוס</small></div></div>
+  <div class="pf-act"><button onclick="editReg()">${ic('edit')} ערוך פרופיל</button><button class="g" onclick="showQR()">${ic('qr')} QR</button><button class="g" onclick="shareProfile()">${ic('share')} שתף</button>${me.creator?((wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:'')+(me.bph?`<button class="g" onclick="window.open('tel:${me.bph}')">${ic('phone')} חייג</button>`:'')+(me.bem?`<button class="g" onclick="window.open('mailto:${me.bem}')">${ic('mail')} מייל</button>`:'')+(me.bweb?`<button class="g" onclick="openInApp('${me.bweb}')">${ic('link')} אתר</button>`:'')):''}</div>`;
+ const creatorToggle=`<div class="sh-h">מצב יוצר</div><div class="mi" onclick="toggleCreator()"><span class="mc">${ic('star')}</span>מצב יוצר${me.creator?' · פעיל':' (חינם)'}<div class="sw ${me.creator?'on':''}" style="margin-right:auto"><i></i></div></div>${me.creator?`<div class="mi" onclick="editBiz()"><span class="mc">${ic('settings')}</span>פרטי יוצר — עסק, קשר, אתר<span class="mv">›</span></div>`:''}`;
  const content=`<div class="sh-h">התוכן שלי</div>
-  <div class="mi" onclick="go('myposts')"><span class="mc">${ic('edit')}</span>הפוסטים שלי<span class="mv">${S.mine.length+1} ›</span></div>
+  <div class="mi" onclick="go('myposts')"><span class="mc">${ic('edit')}</span>הפוסטים שלי<span class="mv">${S.mine.length} ›</span></div>
   <div class="mi" onclick="go('bm')"><span class="mc">${ic('bookmark')}</span>סימניות<span class="mv">${Object.values(S.bk).filter(Boolean).length} ›</span></div>
-  <div class="mi" onclick="go('msgs')"><span class="mc">${ic('mail')}</span>הודעות פרטיות<span class="mv">${S.reqN} בקשות ›</span></div>`;
- const profileView=head+content+portfolio+gallery;
- const settingsView=`<div class="sh-h" style="margin-top:0">סינוני ברירת מחדל</div>
-  <div class="mi" onclick="pick('prefC',COUNTRIES,'מדינות')"><span class="mc">${ic('globe')}</span>מדינות מועדפות<span class="mv">${nmList(S.prefC)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
-  <div class="mi" onclick="pick('prefL',LANGS,'שפות')"><span class="mc">${ic('globe')}</span>שפות מועדפות<span class="mv">${nmList(S.prefL)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
-  <div class="mi" onclick="pick('prefT',TOPICS,'תחומים')"><span class="mc">${ic('grid')}</span>תחומים מועדפים<span class="mv">${nmList(S.prefT)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
-  <div class="sh-h">מראה ושפה</div>
+  <div class="mi" onclick="go('msgs')"><span class="mc">${ic('mail')}</span>הודעות פרטיות<span class="mv">${S.reqN} ›</span></div>`;
+ const gallery=me.creator?(portfolioBlock()+galleryBlock()):'';
+ const about=`<div class="sh-h">אודות</div><div class="card" style="display:flex;flex-direction:column;gap:9px">
+  <div class="abt">${ic('pin')}<span>${esc(me.loc||'—')}</span></div>
+  <div class="abt">${ic('globe')}<span>${esc(me.lng||'—')}</span></div>
+  ${me.hobby?`<div class="abt">${ic('star')}<span>${esc(me.hobby)}</span></div>`:''}</div>`;
+ document.getElementById('pWrap').innerHTML=head+creatorToggle+content+gallery+about;}
+function renderSettings(){const ln=(LANGS.find(l=>l[0]===S.lang)||['','עברית'])[1],mute=S.muteAll,me=S.me;
+ document.getElementById('setWrap').innerHTML=`
+ <div class="sh-h" style="margin-top:0">חשבון</div>
+  <div class="mi" onclick="editReg()"><span class="mc">${ic('user')}</span>פרטי פרופיל<span class="mv">${esc(me.nm)} ›</span></div>
+  <div class="mi" onclick="toggleCreator()"><span class="mc">${ic('star')}</span>מצב יוצר<div class="sw ${me.creator?'on':''}"><i></i></div></div>
+  <div class="mi" onclick="IS_SERVER()?API.logout():(localStorage.removeItem('plazaGuest'),location.href='/login.html')"><span class="mc">${ic('logout')}</span>התנתק<span class="mv">›</span></div>
+ <div class="sh-h">מראה ושפה</div>
   <div class="mi"><span class="mc">${ic('moon')}</span>מצב כהה<div class="sw ${S.th==='dark'?'on':''}" onclick="setTh()"><i></i></div></div>
   <div class="mi" onclick="pickLang()"><span class="mc">${ic('globe')}</span>שפת ממשק<span class="mv">${ln} ›</span></div>
-  <div class="sh-h">התראות</div>
-  <div class="mi"><span class="mc">${ic('eye')}</span>הסתר מונה הודעות שלא נקראו<div class="sw ${S.hideBadge?'on':''}" onclick="S.hideBadge=!S.hideBadge;sv();mbadge();renderProfile()"><i></i></div></div>
+  <div class="mi"><span class="mc">${ic('globe')}</span>תרגם הכל אוטומטית<div class="sw ${S.trAllGlobal?'on':''}" onclick="toggleTrAllQuick()"><i></i></div></div>
+ <div class="sh-h">התראות</div>
+  <div class="mi"><span class="mc">${ic('eye')}</span>הסתר מונה לא-נקרא<div class="sw ${S.hideBadge?'on':''}" onclick="S.hideBadge=!S.hideBadge;sv();mbadge();refreshSettingsUI()"><i></i></div></div>
   <div class="mi"><span class="mc">${ic('bell')}</span>השתק את כל ההתראות<div class="sw ${mute?'on':''}" onclick="setMute()"><i></i></div></div>
   <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">${ic('chat')}</span>תגובות לפוסטים שלך<div class="sw ${!mute&&S.nf.comments?'on':''}" onclick="setNf('comments')"><i></i></div></div>
   <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">${ic('mail')}</span>צ'אטים<div class="sw ${!mute&&S.nf.chats?'on':''}" onclick="setNf('chats')"><i></i></div></div>
-  <div class="sh-h">חשבון ופרטיות</div>
+ <div class="sh-h">תוכן מועדף</div>
+  <div class="mi" onclick="pick('prefC',COUNTRIES,'מדינות')"><span class="mc">${ic('globe')}</span>מדינות מועדפות<span class="mv">${nmList(S.prefC)} ›</span></div>
+  <div class="mi" onclick="pick('prefL',LANGS,'שפות')"><span class="mc">${ic('globe')}</span>שפות מועדפות<span class="mv">${nmList(S.prefL)} ›</span></div>
+  <div class="mi" onclick="pick('prefT',TOPICS,'תחומים')"><span class="mc">${ic('grid')}</span>תחומים מועדפים<span class="mv">${nmList(S.prefT)} ›</span></div>
+ <div class="sh-h">פרטיות ונתונים</div>
   <div class="mi" onclick="openInApp(location.origin+'/privacy')"><span class="mc">${ic('lock')}</span>מדיניות פרטיות<span class="mv">›</span></div>
   <div class="mi" onclick="openInApp(location.origin+'/terms')"><span class="mc">${ic('document')}</span>תנאי שימוש<span class="mv">›</span></div>
   <div class="mi" onclick="exportData()"><span class="mc">${ic('download')}</span>ייצא את הנתונים שלי<span class="mv">›</span></div>
   <div class="mi" onclick="deleteAccount()"><span class="mc" style="color:var(--bad)">${ic('report')}</span><span style="color:var(--bad)">מחק את החשבון שלי</span><span class="mv">›</span></div>
-  <div class="mi" onclick="IS_SERVER()?API.logout():(localStorage.removeItem('plazaGuest'),location.href='/login.html')"><span class="mc">${ic('logout')}</span>התנתק<span class="mv">›</span></div>`;
- document.getElementById('pWrap').innerHTML=tabsBar+(profTab==='profile'?profileView:settingsView);}
+ <div class="sh-h">אודות</div>
+  <div class="card" style="color:var(--sub);font-size:12.5px;line-height:1.7">פלאזה · הכיכר הדיגיטלית הגלובלית<br>אפס פרסום · אפס מעקב · קוד פתוח · התוכן נעלם תוך 24-48 שעות</div>`;}
 function delPort(k){S.me.port.splice(k,1);sv();renderProfile();toast('🗑️','הוסר מהתיק');}
 function delSvc(k){S.me.svc.splice(k,1);sv();renderProfile();toast('🗑️','נמחק מהגלריה');}
 function exportData(){const data={profile:S.me,prefs:{countries:S.prefC,langs:S.prefL,topics:S.prefT},myPosts:S.mine,bookmarks:S.bk};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='plaza-my-data.json';a.click();toast('📥','הנתונים שלך הורדו (GDPR)');}
@@ -1343,12 +1393,12 @@ function addPort(){fileInput('image/*',true,fs=>{fs.forEach(f=>S.me.port.unshift
 function svcMedia(k){fileInput('image/*,video/*',false,f=>{S.me.svc[k].m=URL.createObjectURL(f[0]);sv();renderProfile();toast('📷','מדיה נוספה לשירות');});}
 function svcEdit(k){const s=S.me.svc[k];openSheet(`<div class="sh-hd"><h3>✏️ עריכת שירות</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="sh-h" style="margin-top:0">שם השירות</div><input class="inp" id="st" value="${s.t}"><div class="sh-h">מחיר</div><input class="inp" id="sp" value="${s.p}"><div class="sh-h">טקסט / תיאור</div><textarea id="sd">${s.d||''}</textarea><div class="sh-h">קישור</div><input class="inp" id="sl" value="${s.l||''}" placeholder="example.com"></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.svc[${k}].t=eV('st');S.me.svc[${k}].p=eV('sp');S.me.svc[${k}].d=eV('sd');S.me.svc[${k}].l=eV('sl');sv();closeSheet();renderProfile();toast('✅','השירות עודכן')">שמור</button></div>`);}
 function addSvc(){S.me.svc.push({t:'שירות חדש',p:'₪—',m:'🛠️',d:'',l:''});sv();renderProfile();svcEdit(S.me.svc.length-1);}
-function setTh(){S.th=S.th==='dark'?'light':'dark';sv();applyTh();renderProfile();toast(S.th==='dark'?'🌙':'☀️','מצב '+(S.th==='dark'?'כהה':'בהיר'));}
-function setMute(){S.muteAll=!S.muteAll;sv();renderProfile();toast(S.muteAll?'🔕':'🔔',S.muteAll?'הושתק':'הופעל');}
-function setNf(k){if(S.muteAll)return;S.nf[k]=!S.nf[k];sv();renderProfile();toast('🔔','נשמר');}
-function pickLang(){openSheet(`<div class="sh-hd"><h3>🌐 שפת ממשק</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="fl tall">${LANGS.map(l=>`<div class="fi ${S.lang===l[0]?'on':''}" onclick="S.lang='${l[0]}';sv();applyLang();closeSheet();renderProfile();buildFeed();toast('🌐','שפה עודכנה')"><span>${l[2]}</span><span class="l">${l[1]}</span><span class="k">${S.lang===l[0]?'✓':''}</span></div>`).join('')}</div></div>`);}
+function setTh(){S.th=S.th==='dark'?'light':'dark';sv();applyTh();refreshSettingsUI();toast(S.th==='dark'?'🌙':'☀️','מצב '+(S.th==='dark'?'כהה':'בהיר'));}
+function setMute(){S.muteAll=!S.muteAll;sv();refreshSettingsUI();toast(S.muteAll?'🔕':'🔔',S.muteAll?'הושתק':'הופעל');}
+function setNf(k){if(S.muteAll)return;S.nf[k]=!S.nf[k];sv();refreshSettingsUI();toast('🔔','נשמר');}
+function pickLang(){openSheet(`<div class="sh-hd"><h3>🌐 שפת ממשק</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="fl tall">${LANGS.map(l=>`<div class="fi ${S.lang===l[0]?'on':''}" onclick="S.lang='${l[0]}';sv();applyLang();closeSheet();refreshSettingsUI();buildFeed();toast('🌐','שפה עודכנה')"><span>${l[2]}</span><span class="l">${l[1]}</span><span class="k">${S.lang===l[0]?'✓':''}</span></div>`).join('')}</div></div>`);}
 function pick(key,src,label){let sel=[...S[key]];openSheet(`<div class="sh-hd"><h3>בחר ${label}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="srch"><span data-ic="search" class="srch-ic"></span><input id="pq" placeholder="חיפוש..." oninput="document.getElementById('pl').innerHTML=pli(window._pkS,window._pkSel,this.value)"></div><div class="fl tall" id="pl">${pli(src,sel,'')}</div></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" id="psave">שמור (${sel.length})</button></div>`);
- window._pkS=src;window._pkSel=sel;document.getElementById('psave').onclick=()=>{S[key]=[...sel];const m={prefT:'fT',prefL:'fL',prefC:'fC'};if(m[key])S[m[key]]=[...sel];sv();closeSheet();renderProfile();chips();buildFeed();toast('✅','נשמר ויושם אוטומטית — האפליקציה למדה');};
+ window._pkS=src;window._pkSel=sel;document.getElementById('psave').onclick=()=>{S[key]=[...sel];const m={prefT:'fT',prefL:'fL',prefC:'fC'};if(m[key])S[m[key]]=[...sel];sv();closeSheet();refreshSettingsUI();chips();buildFeed();toast('✅','נשמר ויושם אוטומטית — האפליקציה למדה');};
  window.ptg=(id,el)=>{const i=sel.indexOf(id);if(i>=0){sel.splice(i,1);el.classList.remove('on');el.querySelector('.k').textContent='';}else{sel.push(id);el.classList.add('on');el.querySelector('.k').textContent='✓';}document.getElementById('psave').textContent=`שמור (${sel.length})`;};}
 function pli(src,sel,q){q=(q||'').trim().toLowerCase();return src.filter(it=>!q||it[1].toLowerCase().includes(q)).map(it=>`<div class="fi ${sel.includes(it[0])?'on':''}" onclick="ptg('${it[0]}',this)"><span>${it[2]}</span><span class="l">${it[1]}</span><span class="k">${sel.includes(it[0])?'✓':''}</span></div>`).join('');}
 function upBiz(){openSheet(`<div class="sh-hd"><h3>✔️ שדרג לפרופיל עסקי</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div>
@@ -1357,7 +1407,22 @@ function upBiz(){openSheet(`<div class="sh-hd"><h3>✔️ שדרג לפרופי�
   ${[['✔️','תג מאומת (כחול/זהב)','ליד השם בכל פוסט ובחדרים'],['🗂️','תיק עבודות קבוע','גלריה שלא נעלמת'],['🛠️','מוצרים/שירותים עם מדיה+טקסט+קישור','לכל מוצר תמונה/וידאו וקישור משלו'],['🟢','כפתור WhatsApp ישיר','קידומת+מספר → קישור wa.me אוטומטי'],['📞','כפתור חיוג לעסק','tel: ישיר מהפרופיל ומהפוסטים'],['✉️','כפתור אימייל','mailto: ליצירת קשר'],['🔗','קישור כללי + קישורים בפוסטים','אתר/דף נחיתה בכל פוסט'],['💬','צ׳אט עסקי שלא נעלם','שיחות לקוחות נשמרות'],['🔎','חיפוש עסקי גלובלי','לקוחות מוצאים אותך לפי תחום/מדינה'],['📊','אנליטיקס','בלי מעקב על המשתמשים']].map(b=>`<div class="ben"><span class="e">${b[0]}</span><div><b>${b[1]}</b><p>${b[2]}</p></div></div>`).join('')}
   <div style="text-align:center;color:var(--sub);font-size:12px">דוגמאות: לחץ על <b>Lena Audio</b> / <b>אוטו דיל</b> / <b>Nina Records</b> בפיד</div></div>
  <div class="sh-foot"><button class="bt g" onclick="closeSheet()">לא עכשיו</button><button class="bt pp" onclick="S.pMode='b';sv();closeSheet();renderProfile();toast('✔️','שולם דרך PayPal — שודרגת לעסקי (דמו)')">💳 שלם ב-PayPal $10/חודש</button></div>`);}
-function openProf(nm){const p=PROF[nm]||PROF[Object.keys(PROF).find(k=>k.startsWith(nm))];if(!p){toast('👤',nm);return;}const wal=p.wa?waLink('',p.wa):'';
+async function openProf(nm,uid){
+ if(IS_SERVER()&&uid&&uid!=='null'&&uid!=null&&uid!=(API.user&&API.user.id)){
+  try{const u=await API.req('/users/'+uid);if(u&&u.id){const wal=(u.wa_dial&&u.wa_num)?waLink(u.wa_dial,u.wa_num):'';const biz=u.is_business||u.is_verified;const dn=esc(u.display_name||u.username||'');
+   openSheet(`<div class="sh-hd"><h3>פרופיל</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="pf-cov${biz?' bz':''}" style="margin:-14px -16px 0"><div class="pf-av">${u.avatar_url?`<img src="${u.avatar_url}">`:'👤'}</div></div>
+    <div class="pf-nm">${dn}${u.is_verified?` <span class="vb">✔</span>`:''}</div>
+    <div class="pf-handle">@${esc(u.username||'')}${u.location?' · '+esc(u.location):''}</div>
+    ${u.bio?`<div class="pf-bio">${linkify(u.bio)}</div>`:''}
+    <div class="pf-st"><div><b>${u.posts||0}</b><small>פוסטים</small></div><div><b>${u.is_business?'יוצר/ת':'אזרח/ית'}</b><small>סטטוס</small></div></div>
+    <div class="pf-act"><button onclick="closeSheet();contactSeller('${dn.replace(/'/g,'')}',${u.id})">${ic('mail')} בקשת הודעה</button>${wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:''}${u.biz_phone?`<button class="g" onclick="window.open('tel:${u.biz_phone}')">${ic('phone')} חייג</button>`:''}${u.biz_web?`<button class="g" onclick="openInApp('${u.biz_web}')">${ic('link')} אתר</button>`:''}</div>
+    ${u.profession?`<div class="sh-h">תחום</div><div class="card" style="color:var(--text)">${esc(u.profession)}</div>`:''}</div>`);
+   return;}
+  }catch(e){}
+ }
+ openProfDemo(nm);
+}
+function openProfDemo(nm){const p=PROF[nm]||PROF[Object.keys(PROF).find(k=>k.startsWith(nm))];if(!p){toast('👤',nm);return;}const wal=p.wa?waLink('',p.wa):'';
  if(p.k==='b'){openSheet(`<div class="sh-hd"><h3>פרופיל מאומת</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="pf-cov bz" style="margin:-14px -16px 0"><div class="pf-av">${p.av}</div></div>
   <div class="pf-nm">${p.nm} <span class="vb ${p.bd==='gold'?'gold':''}">✔</span></div><div class="pf-s">${p.loc} · פרופיל מאומת</div><div class="pf-p">${p.pr}</div><div class="pf-bio">${p.bio}</div>
   <div class="pf-st">${p.st.map(s=>`<div><b>${s[0]}</b><small>${s[1]}</small></div>`).join('')}</div>
@@ -1520,6 +1585,20 @@ async function translatePost(i,el){const p=POSTS[i];if(!p)return;const o=el.next
  el.textContent='⏳ מתרגם...';
  try{const tr=p._tl||(p._tl=await translateText(p.text,S.lang,p.lang||'en'));o.textContent='🌐 '+tr;o.style.display='block';el.textContent='הסתר תרגום';}
  catch(e){o.textContent='שגיאת תרגום';o.style.display='block';el.textContent='🌐 תרגם את הפוסט';}}
+/* ===== תרגום-הכל גלובלי (lazy, נראים בלבד) ===== */
+let _trQueue=Promise.resolve(),_trST;
+function translateVisibleFeed(){if(!S.trAllGlobal||!feed)return;const fr=feed.getBoundingClientRect();
+ document.querySelectorAll('#feed .fb[data-i]').forEach(po=>{const r=po.getBoundingClientRect();if(r.bottom<fr.top-200||r.top>fr.bottom+500)return;
+  const i=+po.dataset.i,p=POSTS[i];if(!p||!p.text||p._trDone)return;
+  if((p.lang||'').split('-')[0]===(S.lang||'').split('-')[0]){p._trDone=1;return;}
+  p._trDone=1;p._orig=p.text;
+  _trQueue=_trQueue.then(()=>p._tl?Promise.resolve(p._tl):translateText(p.text,S.lang,p.lang||'en')).then(tr=>{p._tl=tr;if(S.trAllGlobal){const t2=document.querySelector(`#feed .fb[data-i="${i}"] .ptxt`);if(t2)t2.innerHTML=linkify(tr);}}).catch(()=>{});});}
+function restoreFeedText(){document.querySelectorAll('#feed .fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];if(p&&p._orig){const tx=po.querySelector('.ptxt');if(tx)tx.innerHTML=linkify(p._orig);}});}
+function toggleTrAllQuick(){S.trAllGlobal=!S.trAllGlobal;sv();
+ const b=document.getElementById('trAllBtn');if(b)b.classList.toggle('on',S.trAllGlobal);
+ if(S.trAllGlobal){toast('🌐','תרגום אוטומטי פעיל — הפיד בשפה שלך');POSTS.forEach(p=>p._trDone=0);translateVisibleFeed();}else{toast('🌐','תרגום אוטומטי כבוי');restoreFeedText();}
+ if(cur==='settings')refreshSettingsUI();}
+if(feed)feed.addEventListener('scroll',()=>{if(S.trAllGlobal){clearTimeout(_trST);_trST=setTimeout(translateVisibleFeed,250);}},{passive:true});
 function postViewers(i){let h=0,id=String(i);for(let k=0;k<id.length;k++)h=(h*31+id.charCodeAt(k))%140;return 30+h;}
 
 /* ===== Rating ===== */
@@ -1554,10 +1633,10 @@ function postMenu(i){const p=POSTS[i];if(!p)return;const url=postUrl(p,i);const 
 function editPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>✏️ עריכת פוסט</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><textarea id="edTx" style="height:150px" maxlength="5000">${p.text||''}</textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="saveEdit(${i})">שמור</button></div>`);}
 function saveEdit(i){const p=POSTS[i],v=eV('edTx');p.text=v;if(p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'PUT',body:{text:v}}).catch(()=>{});closeSheet();buildFeed();toast('✏️','הפוסט עודכן');}
 function deletePost(i){openSheet(`<div class="sh-hd"><h3>🗑️ מחיקת פוסט</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><p style="color:var(--text);font-size:14px;line-height:1.6">למחוק את הפוסט לצמיתות? לא ניתן לשחזר.</p></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" style="background:var(--bad)" onclick="doDeletePost(${i})">מחק</button></div>`);}
-function doDeletePost(i){const p=POSTS[i];if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'DELETE'}).catch(()=>{});if(p)POSTS.splice(i,1);sv();closeSheet();buildFeed();toast('🗑️','הפוסט נמחק');}
+function doDeletePost(i){const p=POSTS[i];if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'DELETE'}).catch(()=>{});closeSheet();const el=document.querySelector(`#feed .fb[data-i="${i}"]`);dissolveCard(el,()=>{if(p)POSTS.splice(i,1);sv();buildFeed();});toast('🗑️','הפוסט נמחק');}
 function extendPost(i){const p=POSTS[i];if(p){p._m=(p._m??p.mins)+1440;p.mins=(p.mins||0)+1440;}if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid+'/extend',{method:'POST'}).catch(()=>{});toast('⏳','חיי הפוסט הוארכו ב-24 שעות');}
 function bkById(i){S.bk[i]=1;sv();buildFeed();toast('🔖','נשמר — snapshot יישאר גם אחרי שייעלם');}
-function hidePost(i){S.hidden=S.hidden||[];const p=POSTS[i];const key=p&&p._sid?'s'+p._sid:'i'+i;if(!S.hidden.includes(key))S.hidden.push(key);sv();buildFeed();toast('🙈','הפוסט הוסתר מהפיד שלך');}
+function hidePost(i){S.hidden=S.hidden||[];const p=POSTS[i];const key=p&&p._sid?'s'+p._sid:'i'+i;if(!S.hidden.includes(key))S.hidden.push(key);sv();const el=document.querySelector(`#feed .fb[data-i="${i}"]`);dissolveCard(el,()=>buildFeed());toast('🙈','הפוסט הוסתר מהפיד שלך');}
 function blockUser(nm){S.blocked=S.blocked||[];if(!S.blocked.includes(nm))S.blocked.push(nm);sv();buildFeed();toast('🚫',nm+' נחסם — לא תראה עוד את הפוסטים שלו');}
 function reportPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>⚠️ דיווח על פוסט</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">${[['ספאם','spam'],['הטרדה','harassment'],['תוכן לא הולם','inappropriate'],['מידע מטעה','misinfo'],['אחר','other']].map(r=>`<div class="mi" onclick="doReport(${i},'${r[1]}')"><span class="mc">${ic('report')}</span>${r[0]}<span class="mv">›</span></div>`).join('')}</div>`);}
 function doReport(i,reason){const p=POSTS[i];if(p&&p._sid&&IS_SERVER())API.req('/reports',{method:'POST',body:{target_type:'post',target_id:p._sid,reason}}).catch(()=>{});closeSheet();toast('✅','הדיווח נשלח — תודה שעזרת לשמור על הקהילה');}
