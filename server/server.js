@@ -14,6 +14,8 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 
 const ROOT = path.join(__dirname, '..');
+// טעינת .env מקומי אם קיים (ב-Render משתני הסביבה אמיתיים — אין קובץ, וזה בסדר)
+try{const _ep=path.join(ROOT,'.env');if(fs.existsSync(_ep)){fs.readFileSync(_ep,'utf8').split(/\r?\n/).forEach(l=>{const m=l.match(/^\s*([A-Za-z0-9_]+)\s*=\s*(.*)$/);if(m&&process.env[m[1]]===undefined){let v=m[2].trim();if((v[0]==='"'&&v.slice(-1)==='"')||(v[0]==="'"&&v.slice(-1)==="'"))v=v.slice(1,-1);process.env[m[1]]=v;}});}}catch(e){}
 const DB_PATH = path.join(ROOT, 'db', 'plaza.db');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const UPLOAD_DIR = path.join(ROOT, 'uploads');
@@ -62,6 +64,13 @@ function sign(u){return jwt.sign({id:u.id,username:u.username,is_admin:u.is_admi
 function auth(req,res,next){const h=req.headers.authorization||'';const t=h.replace('Bearer ','');try{req.user=jwt.verify(t,JWT_SECRET);next();}catch(e){res.status(401).json({error:'unauthorized'});}}
 function adminOnly(req,res,next){if(!req.user||!req.user.is_admin)return res.status(403).json({error:'admin required'});next();}
 function now(){return Math.floor(Date.now()/1000);}
+function notify(userId,fromId,type,payload){
+  if(!userId||userId===fromId)return; // לא שולחים התראה לעצמך
+  try{
+    db.prepare('INSERT INTO notifications(user_id,type,payload,expires_at) VALUES(?,?,?,?)').run(userId,type,JSON.stringify(payload||{}),now()+24*3600);
+    if(io)io.to('user:'+userId).emit('notif:new',{type,payload});
+  }catch(e){}
+}
 
 // ─── Health check ────────────────────────────────
 app.get('/api/health',(_,res)=>res.json({ok:true,t:now(),v:'2.0'}));
@@ -274,7 +283,10 @@ app.post('/api/posts/:id/like',auth,(req,res)=>{
   const pid=+req.params.id,uid=req.user.id;
   const ex=db.prepare('SELECT id FROM likes WHERE post_id=? AND user_id=?').get(pid,uid);
   if(ex){db.prepare('DELETE FROM likes WHERE id=?').run(ex.id);db.prepare('UPDATE posts SET like_count=MAX(0,like_count-1) WHERE id=?').run(pid);res.json({liked:false});}
-  else{db.prepare('INSERT INTO likes(post_id,user_id) VALUES(?,?)').run(pid,uid);db.prepare('UPDATE posts SET like_count=like_count+1 WHERE id=?').run(pid);res.json({liked:true});}
+  else{db.prepare('INSERT INTO likes(post_id,user_id) VALUES(?,?)').run(pid,uid);db.prepare('UPDATE posts SET like_count=like_count+1 WHERE id=?').run(pid);
+    const p=db.prepare('SELECT user_id,text FROM posts WHERE id=?').get(pid);const me=db.prepare('SELECT display_name,username FROM users WHERE id=?').get(uid)||{};
+    if(p)notify(p.user_id,uid,'like',{post_id:pid,from:me.display_name||me.username,text:(p.text||'').slice(0,50)});
+    res.json({liked:true});}
 });
 app.get('/api/posts/:id/comments',(req,res)=>{
   const c=db.prepare('SELECT c.*,u.display_name,u.avatar_url FROM comments c JOIN users u ON u.id=c.user_id WHERE c.post_id=? ORDER BY c.created_at ASC').all(req.params.id);
@@ -285,6 +297,8 @@ app.post('/api/posts/:id/comments',auth,(req,res)=>{
   const r=db.prepare('INSERT INTO comments(post_id,user_id,text,audio_url) VALUES(?,?,?,?)').run(req.params.id,req.user.id,text||null,audio_url||null);
   db.prepare('UPDATE posts SET comment_count=comment_count+1 WHERE id=?').run(req.params.id);
   io.emit('comment:new',{post_id:+req.params.id,id:r.lastInsertRowid});
+  const p=db.prepare('SELECT user_id FROM posts WHERE id=?').get(req.params.id);const me=db.prepare('SELECT display_name,username FROM users WHERE id=?').get(req.user.id)||{};
+  if(p)notify(p.user_id,req.user.id,'comment',{post_id:+req.params.id,from:me.display_name||me.username,text:(text||'').slice(0,50)});
   res.json({id:r.lastInsertRowid});
 });
 app.post('/api/posts/:id/bookmark',auth,(req,res)=>{
@@ -301,9 +315,32 @@ app.get('/api/rooms/:topic/messages',(req,res)=>{const r=db.prepare('SELECT * FR
 app.post('/api/rooms/:topic/messages',auth,(req,res)=>{const r=db.prepare('SELECT * FROM rooms WHERE topic=?').get(req.params.topic);if(!r)return res.status(404).json({error:'no room'});const {text,audio_url,image_url}=req.body;const exp=now()+48*3600;const ins=db.prepare('INSERT INTO room_messages(room_id,user_id,text,audio_url,image_url,expires_at) VALUES(?,?,?,?,?,?)').run(r.id,req.user.id,text||null,audio_url||null,image_url||null,exp);io.to('room:'+r.topic).emit('room:msg',{id:ins.lastInsertRowid,topic:r.topic,user_id:req.user.id,text,audio_url,image_url,created_at:now()});res.json({id:ins.lastInsertRowid});});
 
 // ─── Private chats / message requests ─────────────
-app.post('/api/private/request',auth,(req,res)=>{const {to_id}=req.body;const exp=now()+24*3600;const r=db.prepare("INSERT INTO private_chats(a_id,b_id,status,expires_at) VALUES(?,?,'pending',?)").run(req.user.id,to_id,exp);db.prepare('INSERT INTO notifications(user_id,type,payload) VALUES(?,?,?)').run(to_id,'message_request',JSON.stringify({chat_id:r.lastInsertRowid,from:req.user.id}));res.json({id:r.lastInsertRowid});});
+app.post('/api/private/request',auth,(req,res)=>{const {to_id,note}=req.body;if(!to_id)return res.status(400).json({error:'no target'});const exp=now()+24*3600;
+  const ex=db.prepare("SELECT * FROM private_chats WHERE ((a_id=? AND b_id=?) OR (a_id=? AND b_id=?)) AND expires_at>?").get(req.user.id,to_id,to_id,req.user.id,now());
+  if(ex)return res.json({id:ex.id,existing:1,status:ex.status});
+  const r=db.prepare("INSERT INTO private_chats(a_id,b_id,status,expires_at) VALUES(?,?,'pending',?)").run(req.user.id,to_id,exp);
+  const me=db.prepare('SELECT display_name,username FROM users WHERE id=?').get(req.user.id)||{};
+  notify(to_id,req.user.id,'message_request',{chat_id:r.lastInsertRowid,from:req.user.id,from_name:me.display_name||me.username,note:note||''});
+  res.json({id:r.lastInsertRowid});});
 app.post('/api/private/:id/respond',auth,(req,res)=>{const {action}=req.body;const c=db.prepare('SELECT * FROM private_chats WHERE id=?').get(req.params.id);if(!c||c.b_id!==req.user.id)return res.status(403).json({error:'forbidden'});const st=action==='accept'?'accepted':action==='decline'?'declined':'blocked';db.prepare('UPDATE private_chats SET status=? WHERE id=?').run(st,req.params.id);res.json({status:st});});
-app.get('/api/private',auth,(req,res)=>{res.json(db.prepare("SELECT * FROM private_chats WHERE (a_id=? OR b_id=?) AND expires_at>?").all(req.user.id,req.user.id,now()));});
+app.get('/api/private',auth,(req,res)=>{
+  const uid=req.user.id;
+  const rows=db.prepare("SELECT * FROM private_chats WHERE (a_id=? OR b_id=?) AND expires_at>? ORDER BY id DESC").all(uid,uid,now());
+  res.json(rows.map(c=>{
+    const otherId=c.a_id===uid?c.b_id:c.a_id;
+    const other=db.prepare('SELECT id,username,display_name,avatar_url FROM users WHERE id=?').get(otherId)||{};
+    const last=db.prepare('SELECT text,audio_url,image_url,created_at FROM private_messages WHERE chat_id=? ORDER BY id DESC LIMIT 1').get(c.id);
+    const unread=db.prepare('SELECT COUNT(*) n FROM private_messages WHERE chat_id=? AND user_id!=? AND seen=0').get(c.id,uid).n;
+    return {...c, other_id:otherId, other_name:other.display_name||other.username||'משתמש', other_avatar:other.avatar_url||'',
+      last_text:last?(last.text||(last.audio_url?'🎙️ הודעה קולית':last.image_url?'📷 תמונה':'')):'', unread};
+  }));
+});
+app.get('/api/private/:id/messages',auth,(req,res)=>{
+  const c=db.prepare('SELECT * FROM private_chats WHERE id=?').get(req.params.id);
+  if(!c||(c.a_id!==req.user.id&&c.b_id!==req.user.id))return res.status(403).json({error:'forbidden'});
+  db.prepare('UPDATE private_messages SET seen=1 WHERE chat_id=? AND user_id!=?').run(req.params.id,req.user.id);
+  res.json(db.prepare('SELECT m.*,u.display_name,u.avatar_url FROM private_messages m JOIN users u ON u.id=m.user_id WHERE m.chat_id=? ORDER BY m.created_at ASC LIMIT 200').all(req.params.id));
+});
 app.post('/api/private/:id/messages',auth,(req,res)=>{const c=db.prepare('SELECT * FROM private_chats WHERE id=?').get(req.params.id);if(!c||c.status!=='accepted')return res.status(403).json({error:'not accepted'});const {text,audio_url,image_url}=req.body;const r=db.prepare('INSERT INTO private_messages(chat_id,user_id,text,audio_url,image_url) VALUES(?,?,?,?,?)').run(req.params.id,req.user.id,text||null,audio_url||null,image_url||null);io.to('chat:'+req.params.id).emit('private:msg',{chat_id:+req.params.id,id:r.lastInsertRowid,user_id:req.user.id,text,audio_url,image_url});res.json({id:r.lastInsertRowid});});
 
 // ─── Topic requests (100 votes → admin) ──────────
@@ -313,6 +350,23 @@ app.post('/api/topic-requests/:id/vote',auth,(req,res)=>{try{db.prepare('INSERT 
 
 // ─── Reports ──────────────────────────────────────
 app.post('/api/reports',auth,(req,res)=>{const {target_type,target_id,reason}=req.body;db.prepare('INSERT INTO reports(reporter_id,target_type,target_id,reason) VALUES(?,?,?,?)').run(req.user.id,target_type,target_id,reason);res.json({ok:1});});
+
+// ─── Notifications ────────────────────────────────
+app.get('/api/notifications',auth,(req,res)=>{
+  const rows=db.prepare('SELECT * FROM notifications WHERE user_id=? AND (expires_at IS NULL OR expires_at>?) ORDER BY created_at DESC LIMIT 80').all(req.user.id,now());
+  res.json(rows.map(n=>({...n,payload:n.payload?(()=>{try{return JSON.parse(n.payload);}catch(e){return null;}})():null})));
+});
+app.get('/api/notifications/unread',auth,(req,res)=>{res.json({count:db.prepare('SELECT COUNT(*) c FROM notifications WHERE user_id=? AND read=0 AND (expires_at IS NULL OR expires_at>?)').get(req.user.id,now()).c});});
+app.post('/api/notifications/read',auth,(req,res)=>{db.prepare('UPDATE notifications SET read=1 WHERE user_id=?').run(req.user.id);res.json({ok:1});});
+
+// ─── Public user profile ──────────────────────────
+app.get('/api/users/:id',(req,res)=>{
+  const byId=/^\d+$/.test(req.params.id);
+  const u=db.prepare(`SELECT id,username,display_name,avatar_url,cover_url,location,country,lang,bio,profession,hobby,wa_dial,wa_num,biz_email,biz_phone,biz_web,is_verified,is_business,created_at FROM users WHERE ${byId?'id=?':'username=?'}`).get(req.params.id);
+  if(!u)return res.status(404).json({error:'not found'});
+  u.posts=db.prepare('SELECT COUNT(*) c FROM posts WHERE user_id=? AND expires_at>? AND hidden=0').get(u.id,now()).c;
+  res.json(u);
+});
 
 // ─── Admin ───────────────────────────────────────
 app.get('/api/admin/stats',auth,adminOnly,(_,res)=>{
@@ -337,7 +391,7 @@ app.get('/api/admin/reports',auth,adminOnly,(_,res)=>{res.json(db.prepare('SELEC
 // ─── Socket.io ───────────────────────────────────
 io.use((socket,next)=>{const t=socket.handshake.auth&&socket.handshake.auth.token;if(!t)return next();try{socket.user=jwt.verify(t,JWT_SECRET);}catch(e){}next();});
 io.on('connection',sock=>{
-  if(sock.user)db.prepare('UPDATE users SET last_seen=? WHERE id=?').run(now(),sock.user.id);
+  if(sock.user){db.prepare('UPDATE users SET last_seen=? WHERE id=?').run(now(),sock.user.id);sock.join('user:'+sock.user.id);}
   sock.on('room:join',topic=>sock.join('room:'+topic));
   sock.on('room:leave',topic=>sock.leave('room:'+topic));
   sock.on('chat:join',cid=>sock.join('chat:'+cid));
