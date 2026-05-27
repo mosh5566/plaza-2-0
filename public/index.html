@@ -331,6 +331,25 @@
   .feed{scroll-snap-type:y proximity}
   .toast .e{font-size:18px}
   /* ═══════════ PLAZA 3.0 — Minimal-Clean Premium (Apple/IG) ═══════════ */
+  /* אייקוני SVG נקיים — יורשים צבע (currentColor) וגודל (1em) */
+  .ic{width:1em;height:1em;display:inline-block;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.16em}
+  .ic.fill{fill:currentColor;stroke:none}
+  .sc-title h2 .ic,.sh-hd h3 .ic{width:21px;height:21px;stroke-width:2}
+  .mi .mc .ic{width:20px;height:20px}
+  .fa .ic,.va .ic{width:19px;height:19px}
+  .composer .i .ic{width:20px;height:20px}
+  .ib .ic{width:19px;height:19px}
+  .av .ic{width:18px;height:18px}
+  .toast .e .ic{width:19px;height:19px}
+  .empty .e .ic{width:46px;height:46px;stroke-width:1.4;opacity:.55}
+  .bk-ic .ic{width:18px;height:18px}
+  /* חץ "חזרה" ב-RTL מצביע ימינה */
+  .sc-title .bk .ic,.rhead .bk .ic{width:16px;height:16px;vertical-align:-.18em}
+  .sc-title .bk,.rhead .bk{display:inline-flex;align-items:center;gap:5px}
+  .srch>span[data-ic]{display:inline-flex;align-items:center;color:var(--mut);flex:0 0 auto}
+  .srch .srch-ic .ic{width:17px;height:17px}
+  .composer .snd .ic{width:19px;height:19px}
+  .fa,.va{align-items:center}
   /* כרטיסים: ללא מסגרת, צל רך, מרווח נדיב */
   .fb,.card,.svc,.req,.ben{border:none;box-shadow:var(--shadow)}
   .card{padding:15px}
@@ -378,7 +397,7 @@
   .screen.on{animation:scrIn .42s cubic-bezier(.34,1.28,.5,1)}
   @keyframes scrIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
   /* כניסת כרטיסי פיד עם spring עדין */
-  @media (prefers-reduced-motion:no-preference){.feed .fb{animation:cardIn .45s cubic-bezier(.34,1.2,.5,1) both}}
+  @media (prefers-reduced-motion:no-preference){.feed .fb.enter{animation:cardIn .5s cubic-bezier(.34,1.2,.5,1) both}}
   @keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.99)}to{opacity:1;transform:none}}
 </style>
 </head>
@@ -409,56 +428,56 @@
     </section>
 
     <section class="screen" id="s-rooms">
-      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה לכיכר</div><h2>💬 חדרי צאט</h2><p>חדר לכל קטגוריה · ההודעות נעלמות תוך 48 שעות</p></div>
-      <div class="body"><div class="srch" style="margin:14px 14px 4px"><span>🔍</span><input id="roomSearch" placeholder="חפש חדר/קטגוריה..." oninput="renderRooms()"></div><div class="list"><div class="gridc" id="roomsGrid"></div></div></div>
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה לכיכר</div><h2 data-ic="chat">חדרי צאט</h2><p>חדר לכל קטגוריה · ההודעות נעלמות תוך 48 שעות</p></div>
+      <div class="body"><div class="srch" style="margin:14px 14px 4px"><span data-ic="search" class="srch-ic"></span><input id="roomSearch" placeholder="חפש חדר/קטגוריה..." oninput="renderRooms()"></div><div class="list"><div class="gridc" id="roomsGrid"></div></div></div>
     </section>
 
     <section class="screen" id="s-room">
-      <div class="rhead"><div class="top"><span class="bk" id="rBack" onclick="go('rooms')">→</span><div class="ti"><b id="rTitle">💻 טכנולוגיה</b><small><span class="live"></span><span id="rOnline">412</span> מחוברים · ⏳ ההודעות נעלמות תוך 48 שעות</small></div><button class="tr" id="rTrAll" onclick="trAllToggle()">🌐 תרגם הכל</button></div><div class="catbar" id="catbar"></div><input id="rmSearch" placeholder="🔍 חפש מילת מפתח בחדר זה..." oninput="roomFilter(this.value)" style="margin-top:8px;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px;outline:none;color:var(--text)"></div>
+      <div class="rhead"><div class="top"><span class="bk" id="rBack" data-ic="back" onclick="go('rooms')"></span><div class="ti"><b id="rTitle">💻 טכנולוגיה</b><small><span class="live"></span><span id="rOnline">412</span> מחוברים · ⏳ ההודעות נעלמות תוך 48 שעות</small></div><button class="tr" id="rTrAll" onclick="trAllToggle()">🌐 תרגם הכל</button></div><div class="catbar" id="catbar"></div><input id="rmSearch" placeholder="🔍 חפש מילת מפתח בחדר זה..." oninput="roomFilter(this.value)" style="margin-top:8px;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px;outline:none;color:var(--text)"></div>
       <div class="chat" id="chat"></div>
       <div class="composer">
-        <button class="snd" onclick="sendMsg()">➤</button>
+        <button class="snd" data-ic="send" onclick="sendMsg()"></button>
         <input class="cinp" id="cin" placeholder="כתוב הודעה..." onkeydown="if(event.key==='Enter')sendMsg()">
-        <span class="i" onclick="chatEmoji()" title="אימוג׳י">😀</span>
-        <span class="i" onclick="pickChatImg()" title="תמונה">📷</span>
-        <span class="i" onclick="pickChatFile()" title="קובץ">📎</span>
+        <span class="i" data-ic="smiley" onclick="chatEmoji()" title="אימוג׳י"></span>
+        <span class="i" data-ic="image" onclick="pickChatImg()" title="תמונה"></span>
+        <span class="i" data-ic="paperclip" onclick="pickChatFile()" title="קובץ"></span>
         <span class="i" id="recBtn" onclick="recVoice()" title="הקלטה">🎙️</span>
       </div>
     </section>
 
     <section class="screen" id="s-search">
-      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה</div><h2>🔍 חיפוש</h2><p>הקלד מילת מפתח בכל שפה — וראה מה אנשים פרסמו</p></div>
-      <div class="body"><div class="list"><div class="srch" style="margin-bottom:12px"><span>🔍</span><input id="qin" placeholder="נושא, מקום, אנשים, מילה בכל שפה..." oninput="doSearch()"></div><div id="qres"></div></div></div>
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה</div><h2 data-ic="search">חיפוש</h2><p>הקלד מילת מפתח בכל שפה — וראה מה אנשים פרסמו</p></div>
+      <div class="body"><div class="list"><div class="srch" style="margin-bottom:12px"><span data-ic="search" class="srch-ic"></span><input id="qin" placeholder="נושא, מקום, אנשים, מילה בכל שפה..." oninput="doSearch()"></div><div id="qres"></div></div></div>
     </section>
 
     <section class="screen" id="s-create">
-      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה</div><h2>＋ שתף עם העולם</h2><p>בחר סוג — מה שתעלה ייעלם תוך 24 שעות</p></div>
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה</div><h2 data-ic="plus">שתף עם העולם</h2><p>בחר סוג — מה שתעלה ייעלם תוך 24 שעות</p></div>
       <div class="body"><div class="list"><div class="gridc" id="createGrid"></div></div></div>
     </section>
 
     <section class="screen" id="s-myposts">
-      <div class="sc-title"><div class="bk" onclick="go('profile')">→ פרופיל</div><h2>📝 הפוסטים שלי</h2><p>פעילים עכשיו · עריכה / מחיקה / הארכה</p></div>
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('profile')">פרופיל</div><h2 data-ic="edit">הפוסטים שלי</h2><p>פעילים עכשיו · עריכה / מחיקה / הארכה</p></div>
       <div class="body"><div class="list" id="myList"></div></div>
     </section>
 
     <section class="screen" id="s-bm">
-      <div class="sc-title"><div class="bk" onclick="go('profile')">→ פרופיל</div><h2>🔖 סימניות</h2><p>Snapshot נשמר — גם אם הפוסט נעלם</p></div>
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('profile')">פרופיל</div><h2 data-ic="bookmark">סימניות</h2><p>Snapshot נשמר — גם אם הפוסט נעלם</p></div>
       <div class="body"><div class="list" id="bmList"></div></div>
     </section>
 
     <section class="screen" id="s-msgs">
-      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה</div><h2>💌 הודעות פרטיות</h2><p>בקשות עם אישור · חסימה ודיווח</p></div>
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה</div><h2 data-ic="mail">הודעות פרטיות</h2><p>בקשות עם אישור · חסימה ודיווח</p></div>
       <div class="tabs"><div class="tab on" id="tbC" onclick="msgTab('c')">צ'אטים</div><div class="tab" id="tbR" onclick="msgTab('r')">בקשות <span id="reqN"></span></div></div>
       <div class="body"><div class="list" id="msgBody"></div></div>
     </section>
 
     <section class="screen" id="s-notif">
-      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה</div><h2>🔔 התראות</h2><p>גם ההתראות נעלמות אחרי 30 דקות</p></div>
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה</div><h2 data-ic="bell">התראות</h2><p>גם ההתראות נעלמות אחרי 30 דקות</p></div>
       <div class="body"><div class="list" id="ntList"></div></div>
     </section>
 
     <section class="screen" id="s-profile">
-      <div class="sc-title"><div class="bk" onclick="go('feed')">← חזרה</div><h2>👤 הפרופיל שלי</h2></div>
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה</div><h2 data-ic="user">הפרופיל שלי</h2></div>
       <div class="body"><div class="list" id="pWrap"></div></div>
     </section>
   </div>
@@ -466,7 +485,7 @@
   <div class="nav" id="nav"></div>
   <div class="ov" id="ov" onclick="closeSheet()"></div>
   <div class="sh" id="sh"><div class="grip"></div><div id="shIn"></div></div>
-  <div class="iv" id="iv"><span class="x" onclick="document.getElementById('iv').classList.remove('on')">✕</span><div class="c" id="ivc">🖼️</div><div class="nav2" id="ivnav" style="display:none"><span onclick="galStep(1)">‹</span><span onclick="galStep(-1)">›</span></div></div>
+  <div class="iv" id="iv"><span class="x" data-ic="close" onclick="document.getElementById('iv').classList.remove('on')"></span><div class="c" id="ivc">🖼️</div><div class="nav2" id="ivnav" style="display:none"><span onclick="galStep(1)">‹</span><span onclick="galStep(-1)">›</span></div></div>
   <div class="toast" id="toast"><span class="e" id="te">⏳</span><div id="tt"></div></div>
   <input type="file" id="fileIn" style="display:none">
   <div class="recOv" id="recOv" onclick="stopAnyRec()"><div class="mic">🎙️</div><div class="bars">${'<i></i>'.repeat(0)}</div><div class="tm" id="recTm">0:00</div><div class="ht">🔴 מקליט... הקש בכל מקום כדי לעצור ולשמוע</div><button style="margin-top:6px;background:var(--bad);color:#fff;border:none;border-radius:10px;padding:11px 26px;font-weight:800;font-size:14px;cursor:pointer">⏹ עצור הקלטה</button></div>
@@ -630,22 +649,22 @@ function postCard(p,i){if(p.type==='video')return videoCard(p,i);
  return `<div class="fb" data-i="${i}">
   <div class="fbh"><div class="av" onclick="openProf('${p.nm}')">${avH(p)}</div>
    <div class="who" onclick="openProf('${p.nm}')"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}</div></div>
-   <div class="pcd"><span class="cdt">--</span> ⏳</div><span class="pmenu" onclick="postMenu(${i})">⋯</span></div>
+   <div class="pcd"><span class="cdt">--</span>${ic('clock')}</div><span class="pmenu" onclick="postMenu(${i})">${ic('more')}</span></div>
   ${postText(p,i)}
   ${mediaBlock(p,i)}
   ${p.snd&&String(p.snd).startsWith('http')?`<div class="vsnd"><audio controls src="${p.snd}"></audio></div>`:''}
-  ${p.link?`<div class="lk-card" onclick="openInApp('${p.link}')"><span class="lic">🔗</span><div><div class="lt">קישור מצורף — נפתח באפליקציה</div><div class="lu">${p.link}</div></div></div>`:''}
+  ${p.link?`<div class="lk-card" onclick="openInApp('${p.link}')"><span class="lic">${ic('link')}</span><div><div class="lt">קישור מצורף — נפתח באפליקציה</div><div class="lu">${p.link}</div></div></div>`:''}
   ${wa?`<div class="wabtn" onclick="window.open('${wa}','_blank')"><span>🟢</span> צור קשר ב-WhatsApp</div>`:''}
   <div style="padding:0 13px 9px;display:flex;gap:6px;flex-wrap:wrap;font-size:11px">
    ${eyeHtml(i)}
-   ${p.autoExt?'<span style="background:var(--acc-soft);color:var(--acc);font-weight:700;padding:3px 8px;border-radius:7px">♻️ הארכה אוטו׳</span>':''}
-   ${p.sched?'<span style="background:var(--surface2);color:var(--warn);font-weight:700;padding:3px 8px;border-radius:7px">⏰ תוזמן</span>':''}
+   ${p.autoExt?`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--acc-soft);color:var(--acc);font-weight:700;padding:3px 8px;border-radius:7px">${ic('extend')} הארכה אוטו׳</span>`:''}
+   ${p.sched?`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface2);color:var(--warn);font-weight:700;padding:3px 8px;border-radius:7px">${ic('clock')} תוזמן</span>`:''}
   </div>
   <div class="fbf">
-   <div class="fa lk" onclick="like(${i},this)"><span class="ic">🤍</span><span id="lk${i}">${(p.likes/1000).toFixed(1)}K</span></div>
-   <div class="fa" onclick="openCom(${i})">💬 <span id="cm${i}">${p.com}</span></div>
-   <div class="fa" onclick="sharePost(${i})">↗️ שתף</div>
-   <div class="fa bk" onclick="bk(${i},this)">🔖 שמור</div>
+   <div class="fa lk" onclick="like(${i},this)">${ic('heart')}<span id="lk${i}">${(p.likes/1000).toFixed(1)}K</span></div>
+   <div class="fa" onclick="openCom(${i})">${ic('comment')}<span id="cm${i}">${p.com}</span></div>
+   <div class="fa" onclick="sharePost(${i})">${ic('share')}שתף</div>
+   <div class="fa bk" onclick="bk(${i},this)">${ic('bookmark')}שמור</div>
   </div></div>`;
 }
 function videoCard(p,i){const t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&pr.wa?waLink('',pr.wa):'';
@@ -654,13 +673,13 @@ function videoCard(p,i){const t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&p
   ${p.snd?`<audio src="${p.snd}" autoplay loop></audio>`:''}
   <div class="vhd"><div class="av" onclick="openProf('${p.nm}')">${avH(p)}</div>
    <div class="who" onclick="openProf('${p.nm}')" style="flex:1"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}</div></div>
-   <div class="pcd"><span class="cdt">--</span> ⏳</div><span class="pmenu" style="color:#fff" onclick="postMenu(${i})">⋯</span></div>
-  <div class="vfoot"><div class="ptx" style="padding:0">${linkify(p.text||'')}</div>${p.link?`<div class="lk-card" style="margin:8px 0 0;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.2)" onclick="openInApp('${p.link}')"><span class="lic">🔗</span><div><div class="lt" style="color:#fff">קישור</div><div class="lu" style="color:#ddd">${p.link}</div></div></div>`:''}</div>
+   <div class="pcd"><span class="cdt">--</span>${ic('clock')}</div><span class="pmenu" style="color:#fff" onclick="postMenu(${i})">${ic('more')}</span></div>
+  <div class="vfoot"><div class="ptx" style="padding:0">${linkify(p.text||'')}</div>${p.link?`<div class="lk-card" style="margin:8px 0 0;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.2)" onclick="openInApp('${p.link}')"><span class="lic">${ic('link')}</span><div><div class="lt" style="color:#fff">קישור</div><div class="lu" style="color:#ddd">${p.link}</div></div></div>`:''}</div>
   <div class="vacts">
-   <div class="va lk" onclick="like(${i},this)"><span class="ic">🤍</span><small id="lk${i}">${(p.likes/1000).toFixed(1)}K</small></div>
-   <div class="va" onclick="openCom(${i})">💬<small id="cm${i}">${p.com}</small></div>
-   <div class="va" onclick="sharePost(${i})">↗️<small>שתף</small></div>
-   <div class="va bk" onclick="bk(${i},this)">🔖<small>שמור</small></div>
+   <div class="va lk" onclick="like(${i},this)">${ic('heart')}<small id="lk${i}">${(p.likes/1000).toFixed(1)}K</small></div>
+   <div class="va" onclick="openCom(${i})">${ic('comment')}<small id="cm${i}">${p.com}</small></div>
+   <div class="va" onclick="sharePost(${i})">${ic('share')}<small>שתף</small></div>
+   <div class="va bk" onclick="bk(${i},this)">${ic('bookmark')}<small>שמור</small></div>
    ${wa?`<div class="va" onclick="window.open('${wa}','_blank')" style="background:var(--wa)">🟢<small>וואטסאפ</small></div>`:''}
   </div></div>`;
 }
@@ -669,10 +688,13 @@ function passes(p){const key=p._sid?'s'+p._sid:'i'+POSTS.indexOf(p);
  if(S.blocked&&S.blocked.includes(p.nm))return false;
  if(S.fG&&S.fG!=='all'&&p.gender&&p.gender!=='all'&&p.gender!==S.fG)return false;
  return (!S.fP.length||S.fP.includes(p.type))&&(!S.fL.length||S.fL.includes(p.lang))&&(!S.fC.length||S.fC.includes(p.country))&&(!S.fT.length||S.fT.includes(p.topicId));}
+let _seenCards=new Set();
 function buildFeed(){const f=POSTS.filter(passes);
- feed.innerHTML=f.length?f.map(p=>postCard(p,POSTS.indexOf(p))).join(''):`<div class="empty"><div class="e">🌫️</div><p>אין פוסטים בסינון הזה</p></div>`;
- for(const k in S.likes){if(S.likes[k]){const e=document.querySelector(`.fb[data-i="${k}"] .lk`);if(e){e.classList.add('on');e.querySelector('.ic').textContent='❤️';}}}
- for(const k in S.bk){if(S.bk[k]){const e=document.querySelector(`.fb[data-i="${k}"] .bk`);if(e)e.classList.add('on');}}}
+ feed.innerHTML=f.length?f.map(p=>postCard(p,POSTS.indexOf(p))).join(''):`<div class="empty"><div class="e">${ic('search')}</div><p>אין פוסטים בסינון הזה</p></div>`;
+ let ni=0; // אנימציית כניסה רק לכרטיסים שלא נראו עדיין
+ document.querySelectorAll('#feed .fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];const key=p&&p._sid?'s'+p._sid:'i'+po.dataset.i;if(!_seenCards.has(key)){_seenCards.add(key);if(ni<7){po.classList.add('enter');po.style.animationDelay=(ni*45)+'ms';ni++;}}});
+ for(const k in S.likes){if(S.likes[k]){const e=document.querySelector(`.fb[data-i="${k}"] .lk`);if(e){e.classList.add('on');const ico=e.querySelector('.ic');if(ico)ico.classList.add('fill');}}}
+ for(const k in S.bk){if(S.bk[k]){const e=document.querySelector(`.fb[data-i="${k}"] .bk`);if(e){e.classList.add('on');const ico=e.querySelector('.ic');if(ico)ico.classList.add('fill');}}}}
 function chips(){const c=document.getElementById('chips');let h='';
  const a=(arr,src,key)=>arr.forEach(id=>{const it=src.find(x=>x[0]===id);if(it)h+=`<div class="ch" onclick="rmF('${key}','${id}')">${it[2]} ${it[1]} <i>✕</i></div>`;});
  a(S.fL,LANGS,'fL');a(S.fC,COUNTRIES,'fC');a(S.fT,TOPICS,'fT');S.fP.forEach(id=>{const it=PTYPES.find(x=>x[0]===id);if(it)h+=`<div class="ch" onclick="rmF('fP','${id}')">${it[2]} ${it[1]} <i>✕</i></div>`;});
@@ -735,9 +757,15 @@ function wireRealtime(){if(!API.socket)return;
  });
 }
 async function refreshNotifBadge(){if(!IS_SERVER())return;try{const r=await API.req('/notifications/unread');const d=document.getElementById('notifDot');if(d)d.style.display=(r&&r.count>0)?'block':'none';}catch(e){}}
-function like(i,el){const c=document.getElementById('lk'+i);let v=parseFloat(c.textContent);if(!S.likes[i]){S.likes[i]=1;el.classList.add('on');el.querySelector('.ic').textContent='❤️';c.textContent=(v+.1).toFixed(1)+'K';}else{S.likes[i]=0;el.classList.remove('on');el.querySelector('.ic').textContent='🤍';c.textContent=(v-.1).toFixed(1)+'K';}sv();
+function like(i,el){const c=document.getElementById('lk'+i);let v=parseFloat(c.textContent);const ico=el.querySelector('.ic');if(!S.likes[i]){S.likes[i]=1;el.classList.add('on');if(ico)ico.classList.add('fill');c.textContent=(v+.1).toFixed(1)+'K';heartBurst(el);}else{S.likes[i]=0;el.classList.remove('on');if(ico)ico.classList.remove('fill');c.textContent=(v-.1).toFixed(1)+'K';}sv();
  if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid){API.req('/posts/'+POSTS[i]._sid+'/like',{method:'POST'}).catch(()=>{});}}
-function bk(i,el){if(!S.bk[i]){S.bk[i]=1;el.classList.add('on');toast('🔖','נשמר — snapshot יישאר גם אחרי שייעלם');}else{S.bk[i]=0;el.classList.remove('on');toast('🔖','הוסר');}sv();
+/* פיצוץ לב עדין בלחיצה (WAAPI) — מאחורי reduced-motion */
+function heartBurst(el){if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;if(!el||!el.animate)return;
+ const r=el.getBoundingClientRect(),host=document.getElementById('app')||document.body,hr=host.getBoundingClientRect();
+ const ring=document.createElement('span');ring.style.cssText=`position:absolute;left:${r.left-hr.left+r.width/2}px;top:${r.top-hr.top+r.height/2}px;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid var(--bad);pointer-events:none;z-index:95`;
+ host.appendChild(ring);
+ ring.animate([{transform:'scale(.4)',opacity:.9},{transform:'scale(2.6)',opacity:0}],{duration:520,easing:'cubic-bezier(.22,1,.36,1)'}).onfinish=()=>ring.remove();}
+function bk(i,el){const ico=el.querySelector('.ic');if(!S.bk[i]){S.bk[i]=1;el.classList.add('on');if(ico)ico.classList.add('fill');toast('🔖','נשמר — snapshot יישאר גם אחרי שייעלם');}else{S.bk[i]=0;el.classList.remove('on');if(ico)ico.classList.remove('fill');toast('🔖','הוסר');}sv();
  if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid){API.req('/posts/'+POSTS[i]._sid+'/bookmark',{method:'POST'}).catch(()=>{});}}
 let galP=null,galI=0;
 function galView(i,k){galP=POSTS[i];galI=k;showGal();document.getElementById('iv').classList.add('on');document.getElementById('ivnav').style.display=galP.imgs&&galP.imgs.length>1?'flex':'none';}
@@ -767,11 +795,64 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_deferredIn
 const NAV=[['feed','בית','M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'],['search','חיפוש','search'],['plus','',''],['rooms','חדרי צאט','M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z'],['profile','פרופיל','user']];
 let cur='feed';
 function navSvg(d){if(d==='search')return '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>';if(d==='user')return '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';return `<svg viewBox="0 0 24 24"><path d="${d}"></path></svg>`;}
+/* ===== Clean inline-SVG icon system (Feather/Lucide style) ===== */
+const ICON={
+ home:'<path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ search:'<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>',
+ chat:'<path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"/>',
+ user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+ plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+ bell:'<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+ filter:'<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+ send:'<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+ image:'<rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15.5l-5-5L5 21"/>',
+ paperclip:'<path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+ mic:'<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/>',
+ smiley:'<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+ heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>',
+ comment:'<path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"/>',
+ share:'<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>',
+ bookmark:'<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+ eye:'<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>',
+ eyeOff:'<path d="M17.94 17.94A10 10 0 0 1 12 20c-7 0-11-8-11-8a18 18 0 0 1 5.06-5.94M9.9 4.24A9 9 0 0 1 12 4c7 0 11 8 11 8a18 18 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>',
+ more:'<circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/>',
+ back:'<polyline points="9 18 15 12 9 6"/>',
+ close:'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+ check:'<polyline points="20 6 9 17 4 12"/>',
+ edit:'<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/>',
+ trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>',
+ extend:'<polyline points="23 4 23 10 17 10"/><path d="M20.5 15a9 9 0 1 1-2.13-9.36L23 10"/>',
+ block:'<circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/>',
+ report:'<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
+ link:'<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/>',
+ phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
+ mail:'<rect x="2" y="4" width="20" height="16" rx="2.5"/><path d="M2.5 6.5l9.5 6.5 9.5-6.5"/>',
+ globe:'<circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/>',
+ moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+ qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><line x1="14" y1="17" x2="17" y2="17"/><line x1="20" y1="14" x2="20" y2="21"/><line x1="17" y1="20" x2="21" y2="20"/>',
+ download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+ settings:'<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
+ lock:'<rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+ document:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/>',
+ star:'<polygon points="12 2 15 9 22 9.3 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.3 9 9"/>',
+ lightbulb:'<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/>',
+ archive:'<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><line x1="10" y1="12" x2="14" y2="12"/>',
+ logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+ pin:'<path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+ grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'
+};
+ICON.heartFill=ICON.heart; ICON.bookmarkFill=ICON.bookmark; ICON.hide=ICON.eyeOff; ICON.draft=ICON.document; ICON.location=ICON.pin;
+function ic(name,cls){const p=ICON[name];if(!p)return '';return `<svg class="ic ${cls||''}" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;}
+/* מפת אימוג'י→אייקון לטוסטים (משדרגת ~40 קריאות toast בלי לגעת בהן) */
+const TOAST_IC={'🔖':'bookmark','❤️':'heart','✅':'check','✔️':'check','⚠️':'report','🗑️':'trash','✏️':'edit','🚀':'send','🔔':'bell','🌐':'globe','🔗':'link','📥':'download','⏳':'clock','♻️':'extend','🚫':'block','🙈':'hide','📷':'image','🎙️':'mic','🎵':'image','🟢':'check','💬':'chat','✉️':'mail','📊':'chat','🌙':'moon','🗂️':'archive','↩️':'extend','✖️':'close','💾':'download','📍':'pin','🗳️':'check','💡':'lightbulb','🎬':'image','⚡':'check','🎉':'star','😀':'smiley','📎':'paperclip','🔢':'bell','🔕':'bell','🖼️':'image'};
+/* הזרקת אייקונים לכותרות סטטיות עם data-ic */
+function initStaticIcons(){document.querySelectorAll('[data-ic]').forEach(el=>{if(el._iced)return;el._iced=1;el.insertAdjacentHTML('afterbegin',ic(el.dataset.ic,el.dataset.icCls||''));});}
 function nav(){const t=I18N[S.lang]||I18N.en,lbl={feed:t.nHome,search:t.nSearch,rooms:t.nRooms,profile:t.nProfile};
  document.getElementById('nav').innerHTML=NAV.map(n=>{if(n[0]==='plus')return `<div class="nv" onclick="go('create')"><div class="plus"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div></div>`;const on=(cur===n[0]||(n[0]==='rooms'&&cur==='room'))?'on':'';return `<div class="nv ${on}" onclick="go('${n[0]}')">${navSvg(n[2])}<small>${lbl[n[0]]||n[1]}</small></div>`;}).join('');}
 function go(s){cur=s;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-'+s).classList.add('on');nav();
  if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='create')renderCreate();}
-nav();
+nav();initStaticIcons();
 
 /* ===== ROOMS / CHAT ===== */
 function roomMembers(id){let h=0;for(let i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))%900;return 80+h;}
@@ -860,17 +941,17 @@ function recVoice(){const btn=document.getElementById('recBtn');
   mediaRec.start();btn.classList.add('rec');btn.textContent='■';recSecs=0;recTimer=setInterval(()=>recSecs++,1000);showRecOv();
   toast('🎙️','מקליט... 🔴 הקש שוב לעצור');
  }).catch(e=>{toast('🎙️','אין הרשאת מיקרופון — אשר גישה בהגדרות הדפדפן ונסה שוב');});}
-function msgMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b">
- <div class="mi" onclick="sendReq('${nm}')"><span class="mc">✉️</span>שלח בקשת הודעה פרטית<span class="mv">›</span></div>
- <div class="mi" onclick="openProf('${nm.split(' ')[0]}')"><span class="mc">👤</span>הצג פרופיל<span class="mv">›</span></div>
- <div class="mi" onclick="closeSheet();toast('🚫','${nm} נחסם')"><span class="mc">🚫</span>חסום<span class="mv">›</span></div>
- <div class="mi" onclick="closeSheet();toast('⚠️','הדיווח נשלח')"><span class="mc">⚠️</span>דווח<span class="mv">›</span></div></div>`);}
+function msgMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">
+ <div class="mi" onclick="sendReq('${nm}')"><span class="mc">${ic('mail')}</span>שלח בקשת הודעה פרטית<span class="mv">›</span></div>
+ <div class="mi" onclick="openProf('${nm.split(' ')[0]}')"><span class="mc">${ic('user')}</span>הצג פרופיל<span class="mv">›</span></div>
+ <div class="mi" onclick="closeSheet();toast('🚫','${nm} נחסם')"><span class="mc">${ic('block')}</span>חסום<span class="mv">›</span></div>
+ <div class="mi" onclick="closeSheet();toast('⚠️','הדיווח נשלח')"><span class="mc">${ic('report')}</span>דווח<span class="mv">›</span></div></div>`);}
 function sendReq(nm){closeSheet();toast('✉️','בקשת הודעה נשלחה ל-'+nm+' — ממתינה לאישור');}
 
 /* ===== SEARCH ===== */
 function doSearch(){const q=(document.getElementById('qin').value||'').trim().toLowerCase();
  const r=POSTS.filter(p=>{if(!q)return true;const t=tp(p.topicId);return (p.text||'').toLowerCase().includes(q)||(p.nm||'').toLowerCase().includes(q)||(t&&(t[1].includes(q)||t[0].includes(q)));});
- document.getElementById('qres').innerHTML=(q&&r.length)?r.map(p=>{const t=tp(p.topicId);return `<div class="card" onclick="go('feed')"><div style="color:var(--text);font-weight:700;font-size:13.5px">${p.av} ${p.nm} · ${t?t[1]:''}</div><div style="color:var(--sub);font-size:12px;margin-top:4px">${p.text.slice(0,46)}…</div></div>`;}).join(''):(q?`<div class="empty"><div class="e">🌫️</div><p>לא נמצא — אולי כבר נעלם</p></div>`:`<div class="empty"><div class="e">🔍</div><p>הקלד מילה בכל שפה<br>וראה מה אנשים פרסמו עליה</p></div>`);}
+ document.getElementById('qres').innerHTML=(q&&r.length)?r.map(p=>{const t=tp(p.topicId);return `<div class="card" onclick="go('feed')"><div style="color:var(--text);font-weight:700;font-size:13.5px">${p.av} ${p.nm} · ${t?t[1]:''}</div><div style="color:var(--sub);font-size:12px;margin-top:4px">${p.text.slice(0,46)}…</div></div>`;}).join(''):(q?`<div class="empty"><div class="e">${ic('search')}</div><p>לא נמצא — אולי כבר נעלם</p></div>`:`<div class="empty"><div class="e">${ic('search')}</div><p>הקלד מילה בכל שפה<br>וראה מה אנשים פרסמו עליה</p></div>`);}
 doSearch();
 
 /* ===== FILE INPUT ===== */
@@ -902,36 +983,36 @@ function fmtSize(b){if(!b)return '';if(b<1024)return b+'B';if(b<1048576)return M
 function compose(){const em=C.em,label=C.label,id=C.type;
  let prev='';
  if(id==='file'&&C.files&&C.files.length){
-  prev='<div style="margin-bottom:10px">'+C.files.map((fl,k)=>`<div style="display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:10px;margin-bottom:7px">${fl.type&&fl.type.startsWith('image')?`<img src="${fl.url}" style="width:46px;height:46px;border-radius:8px;object-fit:cover">`:`<div style="width:46px;height:46px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px">${fileIcon(fl.type)}</div>`}<div style="flex:1;min-width:0"><div style="color:var(--text);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${fl.name}</div><div style="color:var(--mut);font-size:11px">${fmtSize(fl.size)} · ${((fl.type||'').split('/')[1]||'קובץ').toUpperCase()}</div></div><span onclick="C.files.splice(${k},1);C.picks.splice(${k},1);compose()" style="color:var(--bad);cursor:pointer;font-size:16px;padding:4px">✕</span></div>`).join('')+'</div>';
+  prev='<div style="margin-bottom:10px">'+C.files.map((fl,k)=>`<div style="display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:10px;margin-bottom:7px">${fl.type&&fl.type.startsWith('image')?`<img src="${fl.url}" style="width:46px;height:46px;border-radius:8px;object-fit:cover">`:`<div style="width:46px;height:46px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px">${fileIcon(fl.type)}</div>`}<div style="flex:1;min-width:0"><div style="color:var(--text);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${fl.name}</div><div style="color:var(--mut);font-size:11px">${fmtSize(fl.size)} · ${((fl.type||'').split('/')[1]||'קובץ').toUpperCase()}</div></div><span onclick="C.files.splice(${k},1);C.picks.splice(${k},1);compose()" style="color:var(--bad);cursor:pointer;font-size:16px;padding:4px">${ic('close')}</span></div>`).join('')+'</div>';
  } else {
-  prev=C.picks.length?`<div class="prev">${C.picks.map((p,k)=>`<div class="pv" style="position:relative">${isImg(p)?`<img src="${p}">`:em}<span onclick="C.picks.splice(${k},1);compose()" style="position:absolute;top:-5px;left:-5px;background:var(--bad);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">✕</span></div>`).join('')}</div>`:(C.vid?`<div class="prev"><div class="pv"><video src="${C.vid}"></video></div></div>`:'');
+  prev=C.picks.length?`<div class="prev">${C.picks.map((p,k)=>`<div class="pv" style="position:relative">${isImg(p)?`<img src="${p}">`:em}<span onclick="C.picks.splice(${k},1);compose()" style="position:absolute;top:-5px;left:-5px;background:var(--bad);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">${ic('close')}</span></div>`).join('')}</div>`:(C.vid?`<div class="prev"><div class="pv"><video src="${C.vid}"></video></div></div>`:'');
  }
  let f=`<div class="sh-h" style="margin-top:0">${id==='product'?'תיאור המוצר':id==='poll'?'שאלת הסקר':'כתוב כיתוב / הסבר — אפשר טקסט ארוך'}</div>
   <div style="position:relative"><textarea id="cText" maxlength="5000" style="height:110px" placeholder="${id==='poll'?'מה השאלה?':'מה אתה משתף? ספר בהרחבה...'}">${C.text}</textarea><span onclick="grab();emojiPick()" style="position:absolute;bottom:16px;left:10px;font-size:21px;cursor:pointer" title="אימוג׳ים">😀</span></div>`;
  if(id==='poll'){const o=C.pollOpts||['','','',''];f+=[0,1,2,3].map(i=>`<input class="inp" id="po${i+1}" value="${o[i]||''}" placeholder="אפשרות ${i+1}${i>1?' (לא חובה)':''}">`).join('');}
- if(id==='product')f+=`<input class="inp" id="pT" value="${C.pT}" placeholder="שם המוצר"><input class="inp" id="pP" value="${C.pP}" placeholder="מחיר ₪"><div class="mi" onclick="grab();pickShip()"><span class="mc">🚚</span>אפשרות משלוח<span class="mv" id="shLbl">${C.ship} ›</span></div><div class="mi" onclick="grab();fileInput('image/*',true,f=>{C.picks=C.picks.concat(f.map(x=>URL.createObjectURL(x)));compose();})"><span class="mc">🖼️</span>הוסף תמונות/וידאו מהגלריה<span class="mv">${C.picks.length} ›</span></div>`;
+ if(id==='product')f+=`<input class="inp" id="pT" value="${C.pT}" placeholder="שם המוצר"><input class="inp" id="pP" value="${C.pP}" placeholder="מחיר ₪"><div class="mi" onclick="grab();pickShip()"><span class="mc">${ic('send')}</span>אפשרות משלוח<span class="mv" id="shLbl">${C.ship} ›</span></div><div class="mi" onclick="grab();fileInput('image/*',true,f=>{C.picks=C.picks.concat(f.map(x=>URL.createObjectURL(x)));compose();})"><span class="mc">${ic('image')}</span>הוסף תמונות/וידאו מהגלריה<span class="mv">${C.picks.length} ›</span></div>`;
  if(id==='job')f+=`<input class="inp" id="jT" value="${C.jT||''}" placeholder="כותרת המשרה"><input class="inp" id="jC" value="${C.jC||''}" placeholder="שם החברה"><input class="inp" id="jLoc" value="${C.jLoc||''}" placeholder="מיקום / מרחוק"><input class="inp" id="jSal" value="${C.jSal||''}" placeholder="טווח שכר (לא חובה)"><div class="sh-h">איך מגישים מועמדות</div><div class="seg"><b class="${(C.jApply||'profile')==='profile'?'on':''}" onclick="grab();C.jApply='profile';compose()">📥 לפרופיל בפלאזה</b><b class="${C.jApply==='wa'?'on':''}" onclick="grab();C.jApply='wa';compose()">🟢 לוואטסאפ</b></div>${C.jApply==='wa'?`<input class="inp" id="jWa" value="${C.jWa||''}" placeholder="מספר וואטסאפ (לדוגמה 972501234567)">`:''}`;
  if(id==='location')f+=`<div class="ibx" style="margin:0 0 8px;padding:0;overflow:hidden">${C.loc&&C.loc.lat&&C.loc.lat!=='—'?`<iframe style="width:100%;height:170px;border:none" src="https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(C.loc.lng)-0.01},${parseFloat(C.loc.lat)-0.006},${parseFloat(C.loc.lng)+0.01},${parseFloat(C.loc.lat)+0.006}&marker=${C.loc.lat},${C.loc.lng}&layer=mapnik"></iframe>`:`<div style="height:120px;background:linear-gradient(160deg,#1c2b40,#13324a);display:flex;align-items:center;justify-content:center;font-size:34px">🗺️📍</div>`}</div><input class="inp" id="locAddr" value="${(C.loc&&C.loc.addr)||''}" placeholder="שם המקום / כתובת"><div class="seg"><b onclick="grab();geoLocate()">📍 אתר אותי אוטומטית</b></div>`;
- if(id==='video')f+=`<div class="mi" onclick="grab();fileInput('audio/*',false,fs=>{C.snd=URL.createObjectURL(fs[0]);C.sndName=fs[0].name;compose();toast('🎵','סאונד נטען');})"><span class="mc">🎵</span>הוסף סאונד מהגלריה<span class="mv">${(C.snd&&!String(C.snd).startsWith('lib:'))?'✓ '+(C.sndName||'נטען'):'בחר קובץ ›'}</span></div><div class="mi" onclick="grab();openSounds()"><span class="mc">🎶</span>ספריית סאונדים (Pixabay/YouTube*)<span class="mv">${(C.snd&&String(C.snd).startsWith('lib:'))?'✓ '+(C.sndName||''):'פתח ›'}</span></div>${(C.snd&&!String(C.snd).startsWith('lib:'))?`<audio controls src="${C.snd}" style="width:100%;margin-bottom:8px"></audio>`:''}`;
+ if(id==='video')f+=`<div class="mi" onclick="grab();fileInput('audio/*',false,fs=>{C.snd=URL.createObjectURL(fs[0]);C.sndName=fs[0].name;compose();toast('🎵','סאונד נטען');})"><span class="mc">${ic('play')}</span>הוסף סאונד מהגלריה<span class="mv">${(C.snd&&!String(C.snd).startsWith('lib:'))?'✓ '+(C.sndName||'נטען'):'בחר קובץ ›'}</span></div><div class="mi" onclick="grab();openSounds()"><span class="mc">${ic('play')}</span>ספריית סאונדים (Pixabay/YouTube*)<span class="mv">${(C.snd&&String(C.snd).startsWith('lib:'))?'✓ '+(C.sndName||''):'פתח ›'}</span></div>${(C.snd&&!String(C.snd).startsWith('lib:'))?`<audio controls src="${C.snd}" style="width:100%;margin-bottom:8px"></audio>`:''}`;
  if(id==='audio')f+=`<div class="ibx" style="text-align:center;margin:0 0 8px"><button class="vp" id="cRec" style="width:54px;height:54px;font-size:20px" onclick="recCreate()">🎙️</button><div id="cRecS" style="color:var(--sub);font-size:12px;margin-top:8px">${C.audio?'✓ הוקלט · '+(C.audioDur||'')+' — הקש להקליט מחדש':'הקש להקלטה אמיתית'}</div>${C.audio?`<audio controls src="${C.audio}" style="width:100%;margin-top:8px"></audio>`:''}</div>`;
  f+=`<input class="inp" id="cLink" value="${C.link}" placeholder="🔗 קישור (יופיע ככפתור לחיץ מתחת לפוסט)">`;
  f+=`<div class="sh-h">למי הפוסט מיועד</div><div class="seg" id="gseg"><b class="${(C.gender||'all')==='all'?'on':''}" onclick="C.gender='all';document.querySelectorAll('#gseg b').forEach(b=>b.classList.remove('on'));this.classList.add('on')">👥 לכולם</b><b class="${C.gender==='male'?'on':''}" onclick="C.gender='male';document.querySelectorAll('#gseg b').forEach(b=>b.classList.remove('on'));this.classList.add('on')">👨 גברים</b><b class="${C.gender==='female'?'on':''}" onclick="C.gender='female';document.querySelectorAll('#gseg b').forEach(b=>b.classList.remove('on'));this.classList.add('on')">👩 נשים</b></div>`;
- openSheet(`<div class="sh-hd"><h3>${em} פוסט ${label} חדש</h3><span class="x" onclick="closeSheet()">✕</span></div>
+ openSheet(`<div class="sh-hd"><h3>${em} פוסט ${label} חדש</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div>
   <div class="sh-b">${prev}${f}
-   <div class="mi" onclick="grab();pickMeta('topic')"><span class="mc">🏷️</span>נושא<span class="mv">${(tp(C.topic)||['','בחר',''])[2]} ${(tp(C.topic)||['','בחר'])[1]} ›</span></div>
-   <div class="mi" onclick="grab();pickMeta('country')"><span class="mc">🌍</span>מדינה<span class="mv">${(COUNTRIES.find(x=>x[0]===C.country)||['','בחר',''])[2]} ${(COUNTRIES.find(x=>x[0]===C.country)||['','בחר'])[1]} ›</span></div>
-   <div class="mi" onclick="grab();pickMeta('lang')"><span class="mc">🗣️</span>שפה<span class="mv">${(LANGS.find(x=>x[0]===C.lang)||['','בחר'])[1]} ›</span></div>
+   <div class="mi" onclick="grab();pickMeta('topic')"><span class="mc">${ic('grid')}</span>נושא<span class="mv">${(tp(C.topic)||['','בחר',''])[2]} ${(tp(C.topic)||['','בחר'])[1]} ›</span></div>
+   <div class="mi" onclick="grab();pickMeta('country')"><span class="mc">${ic('globe')}</span>מדינה<span class="mv">${(COUNTRIES.find(x=>x[0]===C.country)||['','בחר',''])[2]} ${(COUNTRIES.find(x=>x[0]===C.country)||['','בחר'])[1]} ›</span></div>
+   <div class="mi" onclick="grab();pickMeta('lang')"><span class="mc">${ic('globe')}</span>שפה<span class="mv">${(LANGS.find(x=>x[0]===C.lang)||['','בחר'])[1]} ›</span></div>
    <div class="sh-h">משך חיים — מתי הפוסט נעלם</div>
    <div class="seg" id="es"><b class="${C.exp===24?'on':''}" onclick="C.exp=24;document.querySelectorAll('#es b').forEach(b=>b.classList.remove('on'));this.classList.add('on')">24 שעות</b><b class="${C.exp===48?'on':''}" onclick="C.exp=48;document.querySelectorAll('#es b').forEach(b=>b.classList.remove('on'));this.classList.add('on')">48 שעות</b></div>
    <div class="sh-h">תזמון והארכה</div>
-   <div class="mi" onclick="grab();pickSched()"><span class="mc">⏰</span>תזמון פרסום (תאריך + שעה)<span class="mv" id="schLbl">${C.sched||'פרסם עכשיו'} ›</span></div>
-   <div class="mi"><span class="mc">♻️</span>חבילת חיים — הארכה אוטומטית<div class="sw ${C.autoExt?'on':''}" onclick="C.autoExt=!C.autoExt;this.classList.toggle('on');toast('♻️',C.autoExt?'הפוסט יתחדש אוטומטית':'בוטל')"><i></i></div></div>
+   <div class="mi" onclick="grab();pickSched()"><span class="mc">${ic('clock')}</span>תזמון פרסום (תאריך + שעה)<span class="mv" id="schLbl">${C.sched||'פרסם עכשיו'} ›</span></div>
+   <div class="mi"><span class="mc">${ic('extend')}</span>חבילת חיים — הארכה אוטומטית<div class="sw ${C.autoExt?'on':''}" onclick="C.autoExt=!C.autoExt;this.classList.toggle('on');toast('♻️',C.autoExt?'הפוסט יתחדש אוטומטית':'בוטל')"><i></i></div></div>
    <div class="note">הכל בחינם · כולם נהנים מכל הפיצ׳רים · אפס פרסום · אפס מעקב</div></div>
   <div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="publish()">🚀 פרסם</button></div>`);}
 function pickShip(){selSheet('אפשרות משלוח',SHIP.map(s=>[s,s,'🚚']),C.ship,v=>{C.ship=v;compose();});}
 function pickMeta(kind){const src=kind==='topic'?TOPICS:kind==='country'?COUNTRIES:LANGS;const cv=kind==='topic'?C.topic:kind==='country'?C.country:C.lang;
  selSheet(kind==='topic'?'בחר נושא':kind==='country'?'בחר מדינה':'בחר שפה',src,cv,v=>{C[kind]=v;compose();});}
-function selSheet(title,arr,cv,cb){openSheet(`<div class="sh-hd"><h3>${title}</h3><span class="x" onclick="compose()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="ssq" placeholder="חיפוש..." oninput="document.getElementById('ssl').innerHTML=selItems(window._ssA,'${cv}',this.value)"></div><div class="fl tall" id="ssl">${selItems(arr,cv,'')}</div></div>`);window._ssA=arr;window._ssCb=cb;}
+function selSheet(title,arr,cv,cb){openSheet(`<div class="sh-hd"><h3>${title}</h3><span class="x" onclick="compose()">${ic('close')}</span></div><div class="sh-b"><div class="srch"><span data-ic="search" class="srch-ic"></span><input id="ssq" placeholder="חיפוש..." oninput="document.getElementById('ssl').innerHTML=selItems(window._ssA,'${cv}',this.value)"></div><div class="fl tall" id="ssl">${selItems(arr,cv,'')}</div></div>`);window._ssA=arr;window._ssCb=cb;}
 function selItems(arr,cv,q){q=(q||'').trim().toLowerCase();return arr.filter(it=>!q||(it[1]+'').toLowerCase().includes(q)).map(it=>`<div class="fi ${it[0]===cv?'on':''}" onclick="window._ssCb('${it[0]}')"><span>${it[2]||'•'}</span><span class="l">${it[1]}</span><span class="k">${it[0]===cv?'✓':''}</span></div>`).join('');}
 function em0(){return C.picks[0]&&!isImg(C.picks[0])?'📎':C.em;}
 function makeNP(){const me=S.me,np={e:em0(),av:me.av,avImg:me.avImg,nm:me.nm,meta:'🇮🇱 עכשיו',type:C.type,topicId:C.topic,lang:C.lang,country:C.country,text:C.text,mins:C.exp*60,likes:0,com:0,link:(C.link||'').trim(),gender:C.gender||'all'};
@@ -955,7 +1036,7 @@ function publish(){grab();
  if(C.type==='audio'&&!C.audio){toast('🎙️','הקלט שמע לפני פרסום');return;}
  let np;try{np=makeNP();}catch(e){console.warn('makeNP',e);toast('⚠️','שגיאה בהכנת הפוסט — נסה שוב');return;}
  window._np=np;
- openSheet(`<div class="sh-hd"><h3>👁️ תצוגה מקדימה — כך זה ייראה</h3><span class="x" onclick="closeSheet()">✕</span></div>
+ openSheet(`<div class="sh-hd"><h3>👁️ תצוגה מקדימה — כך זה ייראה</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div>
   <div class="sh-b" style="background:var(--bg)"><div class="feed" style="padding:0;overflow:visible">${postCard(np,'-1')}</div>
   <div class="note">כך הפוסט יוצג בכיכר. נעלם תוך ${C.exp} שעות.</div></div>
   <div class="sh-foot"><button class="bt g" onclick="compose()">← עריכה</button><button class="bt dim" onclick="saveDraft()">💾 טיוטה</button><button class="bt" onclick="confirmPublish()">🚀 פרסם</button></div>`);}
@@ -1002,10 +1083,10 @@ function recCreate(){const b=document.getElementById('cRec'),s=document.getEleme
 function renderMine(){const L=document.getElementById('myList');
  if(IS_SERVER()){const mine=POSTS.filter(p=>p._mine||(API.user&&p.uid===API.user.id));
   L.innerHTML=mine.length?mine.map(p=>{const i=POSTS.indexOf(p);const t=tp(p.topicId);const mins=Math.max(0,p._m??p.mins);
-   return `<div class="card"><div class="row"><span style="font-size:18px">${isImg(p.e)?'🖼️':p.e}</span><b style="color:var(--text);font-size:13px">${t?t[2]+' '+t[1]:''}</b><span style="margin-right:auto;color:var(--mut);font-size:11px">❤️ ${p.likes||0} · 💬 ${p.com||0} · ⏳ ${Math.floor(mins/60)}ש׳</span></div><div style="color:var(--text);font-size:13.5px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(p.text||'')||'(ללא טקסט)'}</div><div style="display:flex;gap:7px"><button class="bt dim" style="flex:1;padding:8px;font-size:12px" onclick="editPost(${i})">✏️ עריכה</button><button class="bt dim" style="flex:1;padding:8px;font-size:12px" onclick="extendPost(${i})">⏳ הארך</button><button class="bt" style="flex:0 0 auto;padding:8px 14px;font-size:12px;background:var(--bad)" onclick="deletePost(${i})">🗑️</button></div></div>`;}).join(''):`<div class="empty"><div class="e">📝</div><p>אין לך פוסטים פעילים<br>פרסם משהו מהכיכר ✨</p></div>`;
+   return `<div class="card"><div class="row"><span style="font-size:18px">${isImg(p.e)?'🖼️':p.e}</span><b style="color:var(--text);font-size:13px">${t?t[2]+' '+t[1]:''}</b><span style="margin-right:auto;color:var(--mut);font-size:11px">❤️ ${p.likes||0} · 💬 ${p.com||0} · ⏳ ${Math.floor(mins/60)}ש׳</span></div><div style="color:var(--text);font-size:13.5px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(p.text||'')||'(ללא טקסט)'}</div><div style="display:flex;gap:7px"><button class="bt dim" style="flex:1;padding:8px;font-size:12px" onclick="editPost(${i})">✏️ עריכה</button><button class="bt dim" style="flex:1;padding:8px;font-size:12px" onclick="extendPost(${i})">⏳ הארך</button><button class="bt" style="flex:0 0 auto;padding:8px 14px;font-size:12px;background:var(--bad)" onclick="deletePost(${i})">🗑️</button></div></div>`;}).join(''):`<div class="empty"><div class="e">${ic('edit')}</div><p>אין לך פוסטים פעילים<br>פרסם משהו מהכיכר ✨</p></div>`;
   return;}
  const seed=[{e:'🌅',type:'text',topicId:'environment',text:'הזריחה הבוקר הייתה מטורפת 🌊',exp:48,mins:1320,likes:212,com:34}];const all=S.mine.concat(seed);
- if(!all.length){L.innerHTML=`<div class="empty"><div class="e">📝</div><p>אין לך פוסטים פעילים</p></div>`;return;}
+ if(!all.length){L.innerHTML=`<div class="empty"><div class="e">${ic('edit')}</div><p>אין לך פוסטים פעילים</p></div>`;return;}
  L.innerHTML=all.map((p,k)=>{const t=tp(p.topicId);return `<div class="card"><div class="row"><span style="font-size:18px">${isImg(p.e)?'🖼️':p.e}</span><b style="color:var(--text);font-size:13px">${t?t[2]+' '+t[1]:''}</b><span style="margin-right:auto;color:var(--mut);font-size:11px">❤️ ${p.likes} · ⏳ ${Math.floor(p.mins/60)}ש׳</span></div><div style="color:var(--text);font-size:13.5px;margin:9px 0" id="mt${k}">${p.text}</div><div style="display:flex;gap:7px"><button class="bt dim" style="flex:1;padding:8px;font-size:12px" onclick="editMine(${k})">✏️ עריכה</button><button class="bt dim" style="flex:1;padding:8px;font-size:12px" onclick="toast('⏳','חיי הפוסט הוארכו ב-24ש׳')">⏳ הארך</button><button class="bt" style="flex:0 0 auto;padding:8px 14px;font-size:12px;background:var(--bad)" onclick="delMine(${k})">🗑️</button></div></div>`;}).join('');}
 function editMine(k){const d=document.getElementById('mt'+k),v=d.textContent;d.innerHTML=`<textarea id="me${k}" style="height:64px">${v}</textarea><div style="display:flex;gap:7px"><button class="bt" style="padding:8px;font-size:12px" onclick="saveMine(${k})">שמור</button><button class="bt g" onclick="renderMine()">בטל</button></div>`;}
 function saveMine(k){const v=document.getElementById('me'+k).value;if(k<S.mine.length)S.mine[k].text=v;sv();renderMine();toast('✏️','עודכן');}
@@ -1014,9 +1095,9 @@ async function renderBm(){const L=document.getElementById('bmList');
  if(IS_SERVER()){try{const bs=await API.req('/bookmarks');if(Array.isArray(bs)){
    L.innerHTML=bs.length?bs.map(b=>{const p=b.snapshot||{};const t=tp(p.topic);const live=(p.expires_at||0)>Math.floor(Date.now()/1000);
     return `<div class="card"><div class="row"><span class="av" style="width:32px;height:32px;font-size:15px">📌</span><b style="color:var(--text);font-size:13px">${t?t[2]+' '+t[1]:'פוסט'}</b><span style="margin-right:auto;color:var(--mut);font-size:10.5px">❤️ ${p.like_count||0}</span></div><div style="color:var(--text);font-size:13px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(p.text||'')||'(מדיה)'}</div><div style="display:flex;justify-content:space-between"><span style="color:var(--mut);font-size:11px">📸 snapshot</span>${live?'<span style="color:var(--ok);font-size:11px;font-weight:700">✓ חי</span>':'<span style="background:var(--bad);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px">⚠️ נעלם</span>'}</div></div>`;
-   }).join(''):`<div class="empty"><div class="e">🔖</div><p>אין סימניות עדיין<br>שמור פוסט מהפיד</p></div>`;return;}}catch(e){}}
+   }).join(''):`<div class="empty"><div class="e">${ic('bookmark')}</div><p>אין סימניות עדיין<br>שמור פוסט מהפיד</p></div>`;return;}}catch(e){}}
  const ids=Object.keys(S.bk).filter(k=>S.bk[k]);
- if(!ids.length){L.innerHTML=`<div class="empty"><div class="e">🔖</div><p>אין סימניות עדיין<br>שמור פוסט מהפיד</p></div>`;return;}
+ if(!ids.length){L.innerHTML=`<div class="empty"><div class="e">${ic('bookmark')}</div><p>אין סימניות עדיין<br>שמור פוסט מהפיד</p></div>`;return;}
  L.innerHTML=ids.map((id,n)=>{const p=POSTS[id];if(!p)return '';const t=tp(p.topicId),del=n%3===2;return `<div class="card"><div class="row"><span class="av" style="width:32px;height:32px;font-size:15px">${avH(p)}</span><b style="color:var(--text);font-size:13px">${p.nm}</b><span style="margin-right:auto;background:var(--surface2);color:var(--sub);font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:7px">${t?t[2]+' '+t[1]:''}</span></div><div style="color:var(--text);font-size:13px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${p.text}</div><div style="display:flex;justify-content:space-between"><span style="color:var(--mut);font-size:11px">📸 snapshot</span>${del?'<span style="background:var(--bad);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px">⚠️ המקור נמחק</span>':'<span style="color:var(--ok);font-size:11px;font-weight:700">✓ חי</span>'}</div></div>`;}).join('');}
 
 /* ===== MESSAGES ===== */
@@ -1033,10 +1114,10 @@ async function loadPrivateChats(){if(!IS_SERVER()){renderMsgs();return;}
 function renderMsgsServer(){const L=document.getElementById('msgBody');const acc=window._srvAccepted||[],reqs=window._srvRequests||[],sent=window._srvSent||[];
  document.getElementById('reqN').textContent=reqs.length?`(${reqs.length})`:'';mbadge();
  if(mTab==='r'){
-  L.innerHTML=(reqs.length?reqs.map(r=>`<div class="req"><div class="ra">🧑</div><div class="rb"><b>${esc(r.nm)}</b><p>רוצה לשלוח לך הודעה פרטית</p><div class="ba"><button class="y" onclick="srvRespond(${r.id},'accept')">✓ אשר</button><button class="n" onclick="srvRespond(${r.id},'decline')">דחה</button><button class="bl" onclick="srvRespond(${r.id},'block')">חסום</button></div></div></div>`).join(''):`<div class="empty"><div class="e">✉️</div><p>אין בקשות ממתינות</p></div>`)
+  L.innerHTML=(reqs.length?reqs.map(r=>`<div class="req"><div class="ra">🧑</div><div class="rb"><b>${esc(r.nm)}</b><p>רוצה לשלוח לך הודעה פרטית</p><div class="ba"><button class="y" onclick="srvRespond(${r.id},'accept')">✓ אשר</button><button class="n" onclick="srvRespond(${r.id},'decline')">דחה</button><button class="bl" onclick="srvRespond(${r.id},'block')">חסום</button></div></div></div>`).join(''):`<div class="empty"><div class="e">${ic('mail')}</div><p>אין בקשות ממתינות</p></div>`)
    +(sent.length?`<div class="sh-h">בקשות שאתה שלחת</div>`+sent.map(s=>`<div class="card"><div class="row"><span style="font-size:17px">✉️</span><b style="color:var(--text);font-size:13px">${esc(s.nm)}</b><span style="margin-right:auto;color:var(--warn);font-size:11px;font-weight:700">ממתינה</span></div></div>`).join(''):'');
   return;}
- const list=acc.length?acc.map(c=>`<div class="card" style="cursor:pointer" onclick="openPChatSrv(${c.id},'${esc(c.nm).replace(/'/g,'')}')"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">💬</span><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${esc(c.nm)}</b><div style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.last)}</div></div>${c.nw?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad);flex:0 0 auto"></span>':''}</div></div>`).join(''):`<div class="empty"><div class="e">💌</div><p>אין צ'אטים פעילים עדיין<br>אשר בקשת הודעה או צור קשר עם מוכר</p></div>`;
+ const list=acc.length?acc.map(c=>`<div class="card" style="cursor:pointer" onclick="openPChatSrv(${c.id},'${esc(c.nm).replace(/'/g,'')}')"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">💬</span><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${esc(c.nm)}</b><div style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.last)}</div></div>${c.nw?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad);flex:0 0 auto"></span>':''}</div></div>`).join(''):`<div class="empty"><div class="e">${ic('mail')}</div><p>אין צ'אטים פעילים עדיין<br>אשר בקשת הודעה או צור קשר עם מוכר</p></div>`;
  L.innerHTML=(reqs.length?`<div class="sh-h" style="margin-top:0">⏳ בקשות ממתינות (${reqs.length}) — אשר ב'בקשות'</div>`:'')+(acc.length?`<div class="sh-h">צ'אטים פעילים</div>`:'')+list;}
 async function srvRespond(id,action){try{await API.req('/private/'+id+'/respond',{method:'POST',body:{action}});}catch(e){}toast(action==='accept'?'✅':action==='block'?'🚫':'✖️',action==='accept'?'אושר! התחילו לשוחח':action==='block'?'נחסם':'נדחה');if(action==='accept'){mTab='c';msgTab('c');}loadPrivateChats();refreshNotifBadge();}
 let _srvChatId=null;
@@ -1058,7 +1139,7 @@ function renderMsgs(){if(IS_SERVER()&&window._srvLoaded)return renderMsgsServer(
  }
  const arch=(S.archived||[]).length;
  const toolbar=S.pchats.length?`<div style="display:flex;gap:8px;margin:0 0 10px"><button class="bt dim" style="padding:8px;font-size:12px" onclick="toggleChatSel()">${chatSelMode?'✕ בטל בחירה':'☑️ בחר'}</button><button class="bt dim" style="padding:8px;font-size:12px" onclick="showArchive()">🗂️ ארכיון${arch?' ('+arch+')':''}</button></div>`:(arch?`<div style="margin-bottom:10px"><button class="bt dim" style="padding:8px;font-size:12px" onclick="showArchive()">🗂️ ארכיון (${arch})</button></div>`:'');
- const list=S.pchats.length?S.pchats.map(c=>{const nm=(c.nm||'').replace(/'/g,'');const sel=chatSel.includes(nm);return `<div class="card" style="cursor:pointer" onclick="${chatSelMode?`selChat('${nm}')`:`openPChat('${nm}')`}"><div class="row">${chatSelMode?`<span style="width:22px;height:22px;border-radius:6px;border:2px solid ${sel?'var(--acc)':'var(--mut)'};background:${sel?'var(--acc)':'transparent'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex:0 0 auto">${sel?'✓':''}</span>`:`<span class="av" style="width:38px;height:38px;font-size:16px">💬</span>`}<div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${nm}</b><div style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.last||''}</div></div>${c.nw&&!chatSelMode?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad);flex:0 0 auto"></span>':''}${!chatSelMode?`<span onclick="event.stopPropagation();chatMenu('${nm}')" style="color:var(--mut);font-size:20px;padding:0 6px;cursor:pointer;flex:0 0 auto">⋯</span>`:''}</div></div>`;}).join(''):(pend?'':`<div class="empty"><div class="e">💌</div><p>אין צ'אטים פרטיים עדיין<br>אשר בקשת הודעה או צור קשר עם מוכר</p></div>`);
+ const list=S.pchats.length?S.pchats.map(c=>{const nm=(c.nm||'').replace(/'/g,'');const sel=chatSel.includes(nm);return `<div class="card" style="cursor:pointer" onclick="${chatSelMode?`selChat('${nm}')`:`openPChat('${nm}')`}"><div class="row">${chatSelMode?`<span style="width:22px;height:22px;border-radius:6px;border:2px solid ${sel?'var(--acc)':'var(--mut)'};background:${sel?'var(--acc)':'transparent'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex:0 0 auto">${sel?'✓':''}</span>`:`<span class="av" style="width:38px;height:38px;font-size:16px">💬</span>`}<div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${nm}</b><div style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.last||''}</div></div>${c.nw&&!chatSelMode?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad);flex:0 0 auto"></span>':''}${!chatSelMode?`<span onclick="event.stopPropagation();chatMenu('${nm}')" style="color:var(--mut);font-size:20px;padding:0 6px;cursor:pointer;flex:0 0 auto">⋯</span>`:''}</div></div>`;}).join(''):(pend?'':`<div class="empty"><div class="e">${ic('mail')}</div><p>אין צ'אטים פרטיים עדיין<br>אשר בקשת הודעה או צור קשר עם מוכר</p></div>`);
  const bulk=(chatSelMode&&chatSel.length)?`<div style="position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:var(--bg)"><button class="bt dim" style="flex:1" onclick="archiveChats(chatSel.slice())">🗂️ לארכיון (${chatSel.length})</button><button class="bt" style="flex:1;background:var(--bad)" onclick="deleteChats(chatSel.slice())">🗑️ מחק (${chatSel.length})</button></div>`:'';
  L.innerHTML=pend+(S.pchats.length?`<div class="sh-h">צ'אטים פעילים</div>`:'')+toolbar+list+bulk;}
 let chatSelMode=false,chatSel=[];
@@ -1067,8 +1148,8 @@ function selChat(nm){const i=chatSel.indexOf(nm);if(i>=0)chatSel.splice(i,1);els
 function archiveChats(names){S.archived=S.archived||[];names.forEach(nm=>{if(!S.archived.includes(nm))S.archived.push(nm);});S.pchats=S.pchats.filter(c=>!names.includes(c.nm));chatSel=[];chatSelMode=false;sv();renderMsgs();toast('🗂️','הועבר לארכיון');}
 function deleteChats(names){S.pchats=S.pchats.filter(c=>!names.includes(c.nm));S.archived=(S.archived||[]).filter(a=>!names.includes(a));chatSel=[];chatSelMode=false;sv();renderMsgs();toast('🗑️','הצ׳אטים נמחקו');}
 function restoreChat(nm){S.archived=(S.archived||[]).filter(a=>a!==nm);if(!S.pchats.find(c=>c.nm===nm))S.pchats.unshift({nm,last:'שוחזר מהארכיון',nw:0});sv();showArchive();toast('↩️','שוחזר');}
-function chatMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="mi" onclick="closeSheet();openPChat('${nm}')"><span class="mc">💬</span>פתח צ׳אט<span class="mv">›</span></div><div class="mi" onclick="closeSheet();archiveChats(['${nm}'])"><span class="mc">🗂️</span>העבר לארכיון<span class="mv">›</span></div><div class="mi" onclick="closeSheet();deleteChats(['${nm}'])"><span class="mc" style="color:var(--bad)">🗑️</span><span style="color:var(--bad)">מחק צ׳אט</span><span class="mv">›</span></div></div>`);}
-function showArchive(){const L=document.getElementById('msgBody');const a=S.archived||[];L.innerHTML=`<div class="sh-h" style="margin-top:0"><span onclick="renderMsgs()" style="color:var(--acc);cursor:pointer">← חזרה לצ׳אטים</span></div>`+(a.length?a.map(nm=>`<div class="card"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">🗂️</span><b style="flex:1;color:var(--text);font-size:13px">${nm}</b><button class="bt dim" style="flex:0 0 auto;padding:7px 12px;font-size:12px" onclick="restoreChat('${nm}')">↩️ שחזר</button><button class="bt" style="flex:0 0 auto;padding:7px 12px;font-size:12px;background:var(--bad)" onclick="deleteChats(['${nm}'])">🗑️</button></div></div>`).join(''):`<div class="empty"><div class="e">🗂️</div><p>הארכיון ריק</p></div>`);}
+function chatMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="mi" onclick="closeSheet();openPChat('${nm}')"><span class="mc">${ic('chat')}</span>פתח צ׳אט<span class="mv">›</span></div><div class="mi" onclick="closeSheet();archiveChats(['${nm}'])"><span class="mc">${ic('archive')}</span>העבר לארכיון<span class="mv">›</span></div><div class="mi" onclick="closeSheet();deleteChats(['${nm}'])"><span class="mc" style="color:var(--bad)">${ic('trash')}</span><span style="color:var(--bad)">מחק צ׳אט</span><span class="mv">›</span></div></div>`);}
+function showArchive(){const L=document.getElementById('msgBody');const a=S.archived||[];L.innerHTML=`<div class="sh-h" style="margin-top:0"><span onclick="renderMsgs()" style="color:var(--acc);cursor:pointer">← חזרה לצ׳אטים</span></div>`+(a.length?a.map(nm=>`<div class="card"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">🗂️</span><b style="flex:1;color:var(--text);font-size:13px">${nm}</b><button class="bt dim" style="flex:0 0 auto;padding:7px 12px;font-size:12px" onclick="restoreChat('${nm}')">↩️ שחזר</button><button class="bt" style="flex:0 0 auto;padding:7px 12px;font-size:12px;background:var(--bad)" onclick="deleteChats(['${nm}'])">🗑️</button></div></div>`).join(''):`<div class="empty"><div class="e">${ic('archive')}</div><p>הארכיון ריק</p></div>`);}
 function reqAcc(nm){if(S.reqN>0)S.reqN--;S.pchats.unshift({nm,last:'הבקשה אושרה — התחילו לשוחח 👋',nw:1});sv();mbadge();toast('✅','אושר! הצ׳אט קפץ לכפתור ההודעות העגול למעלה (תג אדום)');mTab='c';msgTab('c');}
 function reqDec(b){if(S.reqN>0)S.reqN--;sv();renderMsgs();mbadge();toast(b?'🚫':'✖️',b?'נחסם ודווח':'נדחה');}
 function contactSeller(nm,uid){
@@ -1083,7 +1164,7 @@ function contactSeller(nm,uid){
  if(!S.pchats.find(c=>c.nm===nm)){S.pchats.unshift({nm,last:'שיחה עם המוכר/ת נפתחה',nw:1});sv();}mbadge();toast('💬','נפתחה שיחה — מופיעה למעלה בכפתור ההודעות');}
 
 /* ===== NOTIF ===== */
-function ntIcon(t){return ({like:'❤️',comment:'💬',message_request:'✉️',topic_request_sent:'💡',topic_request:'💡',milestone:'🔥'})[t]||'🔔';}
+function ntIcon(t){return ({like:'heart',comment:'comment',message_request:'mail',topic_request_sent:'lightbulb',topic_request:'lightbulb',milestone:'star'})[t]||'bell';}
 function ntTitle(t,p){const f=p.from_name||p.from||'מישהו';
  if(t==='like')return f+' אהב/ה את הפוסט שלך';
  if(t==='comment')return f+' הגיב/ה לך';
@@ -1097,14 +1178,14 @@ async function renderNt(){const L=document.getElementById('ntList');
   try{const ns=await API.req('/notifications');
    if(Array.isArray(ns)){
     L.innerHTML=ns.length?ns.map(n=>{const p=n.payload||{};const sub=p.text?('"'+p.text+'"'):(p.note?('"'+p.note+'"'):ntSub(n.type));
-     return `<div class="card" style="display:flex;gap:11px;${!n.read?'border-color:var(--acc)':''}"><div class="av" style="width:36px;height:36px;font-size:16px">${ntIcon(n.type)}</div><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:12.5px">${esc(ntTitle(n.type,p))}</b><p style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(sub||'')}</p></div><span style="color:var(--mut);font-size:10px;flex:0 0 auto">${timeAgo(n.created_at)}</span></div>`;
-    }).join(''):`<div class="empty"><div class="e">🔔</div><p>אין התראות חדשות<br>כאן יופיעו לייקים, תגובות ובקשות הודעה</p></div>`;
+     return `<div class="card" style="display:flex;gap:11px;${!n.read?'border-color:var(--acc)':''}"><div class="av" style="width:36px;height:36px;font-size:16px">${ic(ntIcon(n.type))}</div><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:12.5px">${esc(ntTitle(n.type,p))}</b><p style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(sub||'')}</p></div><span style="color:var(--mut);font-size:10px;flex:0 0 auto">${timeAgo(n.created_at)}</span></div>`;
+    }).join(''):`<div class="empty"><div class="e">${ic('bell')}</div><p>אין התראות חדשות<br>כאן יופיעו לייקים, תגובות ובקשות הודעה</p></div>`;
     API.req('/notifications/read',{method:'POST'}).catch(()=>{});setTimeout(refreshNotifBadge,500);
     return;
    }
   }catch(e){}
  }
- L.innerHTML=[['❤️','נועה ועוד 240 אהבו את הפוסט שלך','"הזריחה הבוקר..."','2 דק׳',1],['✉️','Daniel שלח בקשת הודעה','💻 טכנולוגיה','4 דק׳',1],['💬','Diego הגיב לך','"increíble!"','6 דק׳',1],['🔥','הפוסט שלך עבר 1,000 לייקים','מיילסטון 🎉','12 דק׳',0]].map(n=>`<div class="card" style="display:flex;gap:11px;${n[4]?'border-color:var(--acc)':''}"><div class="av" style="width:36px;height:36px;font-size:16px">${n[0]}</div><div style="flex:1"><b style="color:var(--text);font-size:12.5px">${n[1]}</b><p style="color:var(--sub);font-size:12px;margin-top:2px">${n[2]}</p></div><span style="color:var(--mut);font-size:10px">${n[3]}</span></div>`).join('');}
+ L.innerHTML=[['heart','נועה ועוד 240 אהבו את הפוסט שלך','"הזריחה הבוקר..."','2 דק׳',1],['mail','Daniel שלח בקשת הודעה','💻 טכנולוגיה','4 דק׳',1],['comment','Diego הגיב לך','"increíble!"','6 דק׳',1],['star','הפוסט שלך עבר 1,000 לייקים','מיילסטון','12 דק׳',0]].map(n=>`<div class="card" style="display:flex;gap:11px;${n[4]?'border-color:var(--acc)':''}"><div class="av" style="width:36px;height:36px;font-size:16px">${ic(n[0])}</div><div style="flex:1"><b style="color:var(--text);font-size:12.5px">${n[1]}</b><p style="color:var(--sub);font-size:12px;margin-top:2px">${n[2]}</p></div><span style="color:var(--mut);font-size:10px">${n[3]}</span></div>`).join('');}
 
 /* ===== PROFILE ===== */
 function nmList(a){return a.length?(a.length+' נבחרו'):'לא הוגדר';}
@@ -1116,48 +1197,48 @@ function renderProfile(){const ln=(LANGS.find(l=>l[0]===S.lang)||['','עברית
    <div class="pf-nm">${me.bnm||me.nm}</div><div class="pf-s">${me.loc} · 🗣️ ${me.lng||'—'}${me.hobby?' · 🎯 '+me.hobby:''}</div>
    ${me.bpr?`<div class="pf-p">${me.bpr}</div>`:''}<div class="pf-bio">${me.bbio||''}</div>
    <div class="pf-act"><button onclick="editBiz()">✏️ ערוך פרופיל</button>${wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:''}${me.bph?`<button class="g" onclick="window.open('tel:${me.bph}')">📞 חייג</button>`:''}${me.bem?`<button class="g" onclick="window.open('mailto:${me.bem}')">✉️ אימייל</button>`:''}${me.bweb?`<button class="g" onclick="openInApp('${me.bweb}')">🔗 אתר</button>`:''}<button class="g" onclick="showQR()">📱 QR</button></div>`;
- const portfolio=`<div class="sh-h">🗂️ תיק עבודות / גלריה <span style="float:left;color:var(--acc);cursor:pointer" onclick="addPort()">＋ הוסף</span></div><div class="fbg n3" style="border-radius:10px;overflow:hidden">${me.port.map((w,k)=>`<div style="position:relative;aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden"><div onclick="zoomOne('${w}')" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">${isImg(w)?`<img src="${w}" style="width:100%;height:100%;object-fit:cover">`:w}</div><span onclick="delPort(${k})" style="position:absolute;top:3px;left:3px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">✕</span></div>`).join('')||'<div style="grid-column:1/-1;color:var(--mut);text-align:center;padding:18px;font-size:12px">אין עדיין — לחץ "הוסף"</div>'}</div>`;
+ const portfolio=`<div class="sh-h">🗂️ תיק עבודות / גלריה <span style="float:left;color:var(--acc);cursor:pointer" onclick="addPort()">＋ הוסף</span></div><div class="fbg n3" style="border-radius:10px;overflow:hidden">${me.port.map((w,k)=>`<div style="position:relative;aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden"><div onclick="zoomOne('${w}')" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">${isImg(w)?`<img src="${w}" style="width:100%;height:100%;object-fit:cover">`:w}</div><span onclick="delPort(${k})" style="position:absolute;top:3px;left:3px;background:rgba(0,0,0,.6);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">${ic('close')}</span></div>`).join('')||'<div style="grid-column:1/-1;color:var(--mut);text-align:center;padding:18px;font-size:12px">אין עדיין — לחץ "הוסף"</div>'}</div>`;
  // גלריה בסגנון אינסטגרם: תמונה/וידאו גדול + כיתוב + מחיר + קישור, עם עריכה/מחיקה
  const gallery=`<div class="sh-h">🛍️ גלריה / מוצרים ושירותים</div>${me.svc.map((s,k)=>`<div class="svc">${isImg(s.m)?`<div class="sm" style="min-height:160px;border-radius:10px;margin-bottom:8px">${String(s.m).includes('video')?`<video src="${s.m}" controls style="width:100%"></video>`:`<img src="${s.m}" style="width:100%">`}</div>`:''}<div class="sr">${s.m&&!isImg(s.m)?s.m:'🏷️'} ${s.t}${s.p?`<span class="pr">${s.p}</span>`:''}</div>${s.d?`<div class="sd">${linkify(s.d)}</div>`:''}${s.l?`<a class="slk" onclick="openInApp('${s.l}');return false" href="#">🔗 ${s.l}</a>`:''}<div style="display:flex;gap:7px;margin-top:8px"><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcMedia(${k})">📷 מדיה</button><button class="bt dim" style="padding:7px;font-size:11px" onclick="svcEdit(${k})">✏️ ערוך</button><button class="bt" style="padding:7px;font-size:11px;flex:0 0 auto;background:var(--bad)" onclick="delSvc(${k})">🗑️</button></div></div>`).join('')}<div class="svc" onclick="addSvc()" style="cursor:pointer;color:var(--acc);text-align:center">＋ הוסף לגלריה (תמונה + טקסט + מחיר)</div>`;
  const content=`<div class="sh-h">התוכן שלי</div>
-  <div class="mi" onclick="go('myposts')"><span class="mc">📝</span>הפוסטים שלי<span class="mv">${S.mine.length+1} ›</span></div>
-  <div class="mi" onclick="go('bm')"><span class="mc">🔖</span>סימניות<span class="mv">${Object.values(S.bk).filter(Boolean).length} ›</span></div>
-  <div class="mi" onclick="go('msgs')"><span class="mc">💌</span>הודעות פרטיות<span class="mv">${S.reqN} בקשות ›</span></div>`;
+  <div class="mi" onclick="go('myposts')"><span class="mc">${ic('edit')}</span>הפוסטים שלי<span class="mv">${S.mine.length+1} ›</span></div>
+  <div class="mi" onclick="go('bm')"><span class="mc">${ic('bookmark')}</span>סימניות<span class="mv">${Object.values(S.bk).filter(Boolean).length} ›</span></div>
+  <div class="mi" onclick="go('msgs')"><span class="mc">${ic('mail')}</span>הודעות פרטיות<span class="mv">${S.reqN} בקשות ›</span></div>`;
  const profileView=head+content+portfolio+gallery;
  const settingsView=`<div class="sh-h" style="margin-top:0">סינוני ברירת מחדל</div>
-  <div class="mi" onclick="pick('prefC',COUNTRIES,'מדינות')"><span class="mc">🌍</span>מדינות מועדפות<span class="mv">${nmList(S.prefC)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
-  <div class="mi" onclick="pick('prefL',LANGS,'שפות')"><span class="mc">🗣️</span>שפות מועדפות<span class="mv">${nmList(S.prefL)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
-  <div class="mi" onclick="pick('prefT',TOPICS,'תחומים')"><span class="mc">🏷️</span>תחומים מועדפים<span class="mv">${nmList(S.prefT)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
+  <div class="mi" onclick="pick('prefC',COUNTRIES,'מדינות')"><span class="mc">${ic('globe')}</span>מדינות מועדפות<span class="mv">${nmList(S.prefC)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
+  <div class="mi" onclick="pick('prefL',LANGS,'שפות')"><span class="mc">${ic('globe')}</span>שפות מועדפות<span class="mv">${nmList(S.prefL)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
+  <div class="mi" onclick="pick('prefT',TOPICS,'תחומים')"><span class="mc">${ic('grid')}</span>תחומים מועדפים<span class="mv">${nmList(S.prefT)} · <b style="color:var(--acc)">עריכה</b> ›</span></div>
   <div class="sh-h">מראה ושפה</div>
-  <div class="mi"><span class="mc">🌙</span>מצב כהה<div class="sw ${S.th==='dark'?'on':''}" onclick="setTh()"><i></i></div></div>
-  <div class="mi" onclick="pickLang()"><span class="mc">🌐</span>שפת ממשק<span class="mv">${ln} ›</span></div>
+  <div class="mi"><span class="mc">${ic('moon')}</span>מצב כהה<div class="sw ${S.th==='dark'?'on':''}" onclick="setTh()"><i></i></div></div>
+  <div class="mi" onclick="pickLang()"><span class="mc">${ic('globe')}</span>שפת ממשק<span class="mv">${ln} ›</span></div>
   <div class="sh-h">התראות</div>
-  <div class="mi"><span class="mc">🔢</span>הסתר מונה הודעות שלא נקראו<div class="sw ${S.hideBadge?'on':''}" onclick="S.hideBadge=!S.hideBadge;sv();mbadge();renderProfile()"><i></i></div></div>
-  <div class="mi"><span class="mc">🔕</span>השתק את כל ההתראות<div class="sw ${mute?'on':''}" onclick="setMute()"><i></i></div></div>
-  <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">💬</span>תגובות לפוסטים שלך<div class="sw ${!mute&&S.nf.comments?'on':''}" onclick="setNf('comments')"><i></i></div></div>
-  <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">💌</span>צ'אטים<div class="sw ${!mute&&S.nf.chats?'on':''}" onclick="setNf('chats')"><i></i></div></div>
+  <div class="mi"><span class="mc">${ic('eye')}</span>הסתר מונה הודעות שלא נקראו<div class="sw ${S.hideBadge?'on':''}" onclick="S.hideBadge=!S.hideBadge;sv();mbadge();renderProfile()"><i></i></div></div>
+  <div class="mi"><span class="mc">${ic('bell')}</span>השתק את כל ההתראות<div class="sw ${mute?'on':''}" onclick="setMute()"><i></i></div></div>
+  <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">${ic('chat')}</span>תגובות לפוסטים שלך<div class="sw ${!mute&&S.nf.comments?'on':''}" onclick="setNf('comments')"><i></i></div></div>
+  <div class="mi" style="${mute?'opacity:.4;pointer-events:none':''}"><span class="mc">${ic('mail')}</span>צ'אטים<div class="sw ${!mute&&S.nf.chats?'on':''}" onclick="setNf('chats')"><i></i></div></div>
   <div class="sh-h">חשבון ופרטיות</div>
-  <div class="mi" onclick="openInApp(location.origin+'/privacy')"><span class="mc">🔒</span>מדיניות פרטיות<span class="mv">›</span></div>
-  <div class="mi" onclick="openInApp(location.origin+'/terms')"><span class="mc">📜</span>תנאי שימוש<span class="mv">›</span></div>
-  <div class="mi" onclick="exportData()"><span class="mc">📥</span>ייצא את הנתונים שלי<span class="mv">›</span></div>
-  <div class="mi" onclick="deleteAccount()"><span class="mc" style="color:var(--bad)">⚠️</span><span style="color:var(--bad)">מחק את החשבון שלי</span><span class="mv">›</span></div>
-  <div class="mi" onclick="IS_SERVER()?API.logout():(localStorage.removeItem('plazaGuest'),location.href='/login.html')"><span class="mc">🚪</span>התנתק<span class="mv">›</span></div>`;
+  <div class="mi" onclick="openInApp(location.origin+'/privacy')"><span class="mc">${ic('lock')}</span>מדיניות פרטיות<span class="mv">›</span></div>
+  <div class="mi" onclick="openInApp(location.origin+'/terms')"><span class="mc">${ic('document')}</span>תנאי שימוש<span class="mv">›</span></div>
+  <div class="mi" onclick="exportData()"><span class="mc">${ic('download')}</span>ייצא את הנתונים שלי<span class="mv">›</span></div>
+  <div class="mi" onclick="deleteAccount()"><span class="mc" style="color:var(--bad)">${ic('report')}</span><span style="color:var(--bad)">מחק את החשבון שלי</span><span class="mv">›</span></div>
+  <div class="mi" onclick="IS_SERVER()?API.logout():(localStorage.removeItem('plazaGuest'),location.href='/login.html')"><span class="mc">${ic('logout')}</span>התנתק<span class="mv">›</span></div>`;
  document.getElementById('pWrap').innerHTML=tabsBar+(profTab==='profile'?profileView:settingsView);}
 function delPort(k){S.me.port.splice(k,1);sv();renderProfile();toast('🗑️','הוסר מהתיק');}
 function delSvc(k){S.me.svc.splice(k,1);sv();renderProfile();toast('🗑️','נמחק מהגלריה');}
 function exportData(){const data={profile:S.me,prefs:{countries:S.prefC,langs:S.prefL,topics:S.prefT},myPosts:S.mine,bookmarks:S.bk};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='plaza-my-data.json';a.click();toast('📥','הנתונים שלך הורדו (GDPR)');}
-function deleteAccount(){openSheet(`<div class="sh-hd"><h3>⚠️ מחיקת חשבון</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><p style="color:var(--text);font-size:14px;line-height:1.7">פעולה זו תמחק לצמיתות את החשבון, הפוסטים, וההודעות שלך. לא ניתן לשחזר.</p></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" style="background:var(--bad)" onclick="doDeleteAccount()">מחק לצמיתות</button></div>`);}
+function deleteAccount(){openSheet(`<div class="sh-hd"><h3>⚠️ מחיקת חשבון</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><p style="color:var(--text);font-size:14px;line-height:1.7">פעולה זו תמחק לצמיתות את החשבון, הפוסטים, וההודעות שלך. לא ניתן לשחזר.</p></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" style="background:var(--bad)" onclick="doDeleteAccount()">מחק לצמיתות</button></div>`);}
 function doDeleteAccount(){if(IS_SERVER())API.req('/me/delete',{method:'POST'}).catch(()=>{});localStorage.clear();closeSheet();toast('👋','החשבון נמחק');setTimeout(()=>location.href='/login.html',900);}
 function zoomOne(m){document.getElementById('ivc').innerHTML=isImg(m)?`<img src="${m}">`:`<span style="font-size:150px">${m}</span>`;document.getElementById('ivnav').style.display='none';document.getElementById('iv').classList.add('on');}
 function pickAvatar(){fileInput('image/*',false,f=>{S.me.avImg=URL.createObjectURL(f[0]);sv();renderProfile();toast('🖼️','תמונת הפרופיל עודכנה');});}
-function editReg(){openSheet(`<div class="sh-hd"><h3>✏️ עריכת פרופיל רגיל</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="text-align:center;margin-bottom:12px"><div class="pf-av" style="position:relative;margin:0 auto;right:auto;bottom:auto" onclick="pickAvatar()">${S.me.avImg?`<img src="${S.me.avImg}">`:S.me.av}</div><div style="color:var(--sub);font-size:11px;margin-top:6px">לחץ להחלפת תמונה (גלריה אמיתית)</div></div>
+function editReg(){openSheet(`<div class="sh-hd"><h3>✏️ עריכת פרופיל רגיל</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div style="text-align:center;margin-bottom:12px"><div class="pf-av" style="position:relative;margin:0 auto;right:auto;bottom:auto" onclick="pickAvatar()">${S.me.avImg?`<img src="${S.me.avImg}">`:S.me.av}</div><div style="color:var(--sub);font-size:11px;margin-top:6px">לחץ להחלפת תמונה (גלריה אמיתית)</div></div>
  <div class="sh-h" style="margin-top:0">שם / כינוי</div><input class="inp" id="enm" value="${S.me.nm}">
  <div class="sh-h">מיקום</div><input class="inp" id="eloc" value="${S.me.loc}">
  <div class="sh-h">שפה</div><input class="inp" id="elng" value="${S.me.lng}">
  <div class="sh-h">תחביב</div><input class="inp" id="ehob" value="${S.me.hobby}" placeholder="לדוגמה: צילום, ריצה, גיטרה"></div>
  <div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.nm=eV('enm');S.me.loc=eV('eloc');S.me.lng=eV('elng');S.me.hobby=eV('ehob');sv();closeSheet();renderProfile();toast('✅','נשמר')">שמור</button></div>`);}
 function eV(id){return (document.getElementById(id)||{}).value||'';}
-function editBiz(){openSheet(`<div class="sh-hd"><h3>✏️ עריכת פרופיל עסקי</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="text-align:center;margin-bottom:12px"><div class="pf-av" style="position:relative;margin:0 auto;right:auto;bottom:auto" onclick="pickAvatar()">${S.me.avImg?`<img src="${S.me.avImg}">`:S.me.av}</div></div>
+function editBiz(){openSheet(`<div class="sh-hd"><h3>✏️ עריכת פרופיל עסקי</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div style="text-align:center;margin-bottom:12px"><div class="pf-av" style="position:relative;margin:0 auto;right:auto;bottom:auto" onclick="pickAvatar()">${S.me.avImg?`<img src="${S.me.avImg}">`:S.me.av}</div></div>
  <div class="sh-h" style="margin-top:0">שם העסק</div><input class="inp" id="bnm" value="${S.me.bnm}">
  <div class="sh-h">תחום (מקצוע)</div><input class="inp" id="bpr" value="${S.me.bpr}">
  <div class="sh-h">תיאור העסק</div><textarea id="bbio">${S.me.bbio}</textarea>
@@ -1169,30 +1250,30 @@ function editBiz(){openSheet(`<div class="sh-hd"><h3>✏️ עריכת פרופ�
  <div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.bnm=eV('bnm');S.me.bpr=eV('bpr');S.me.bbio=eV('bbio');S.me.waD=eV('bwd');S.me.waN=eV('bwn').replace(/\\D/g,'');S.me.bph=eV('bph');S.me.bem=eV('bem');S.me.bweb=eV('bweb');sv();closeSheet();renderProfile();toast('✅','נשמר — כפתורי קשר פעילים')">שמור</button></div>`);}
 function addPort(){fileInput('image/*',true,fs=>{fs.forEach(f=>S.me.port.unshift(URL.createObjectURL(f)));sv();renderProfile();toast('🗂️','נוסף לתיק העבודות');});}
 function svcMedia(k){fileInput('image/*,video/*',false,f=>{S.me.svc[k].m=URL.createObjectURL(f[0]);sv();renderProfile();toast('📷','מדיה נוספה לשירות');});}
-function svcEdit(k){const s=S.me.svc[k];openSheet(`<div class="sh-hd"><h3>✏️ עריכת שירות</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="sh-h" style="margin-top:0">שם השירות</div><input class="inp" id="st" value="${s.t}"><div class="sh-h">מחיר</div><input class="inp" id="sp" value="${s.p}"><div class="sh-h">טקסט / תיאור</div><textarea id="sd">${s.d||''}</textarea><div class="sh-h">קישור</div><input class="inp" id="sl" value="${s.l||''}" placeholder="example.com"></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.svc[${k}].t=eV('st');S.me.svc[${k}].p=eV('sp');S.me.svc[${k}].d=eV('sd');S.me.svc[${k}].l=eV('sl');sv();closeSheet();renderProfile();toast('✅','השירות עודכן')">שמור</button></div>`);}
+function svcEdit(k){const s=S.me.svc[k];openSheet(`<div class="sh-hd"><h3>✏️ עריכת שירות</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="sh-h" style="margin-top:0">שם השירות</div><input class="inp" id="st" value="${s.t}"><div class="sh-h">מחיר</div><input class="inp" id="sp" value="${s.p}"><div class="sh-h">טקסט / תיאור</div><textarea id="sd">${s.d||''}</textarea><div class="sh-h">קישור</div><input class="inp" id="sl" value="${s.l||''}" placeholder="example.com"></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="S.me.svc[${k}].t=eV('st');S.me.svc[${k}].p=eV('sp');S.me.svc[${k}].d=eV('sd');S.me.svc[${k}].l=eV('sl');sv();closeSheet();renderProfile();toast('✅','השירות עודכן')">שמור</button></div>`);}
 function addSvc(){S.me.svc.push({t:'שירות חדש',p:'₪—',m:'🛠️',d:'',l:''});sv();renderProfile();svcEdit(S.me.svc.length-1);}
 function setTh(){S.th=S.th==='dark'?'light':'dark';sv();applyTh();renderProfile();toast(S.th==='dark'?'🌙':'☀️','מצב '+(S.th==='dark'?'כהה':'בהיר'));}
 function setMute(){S.muteAll=!S.muteAll;sv();renderProfile();toast(S.muteAll?'🔕':'🔔',S.muteAll?'הושתק':'הופעל');}
 function setNf(k){if(S.muteAll)return;S.nf[k]=!S.nf[k];sv();renderProfile();toast('🔔','נשמר');}
-function pickLang(){openSheet(`<div class="sh-hd"><h3>🌐 שפת ממשק</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="fl tall">${LANGS.map(l=>`<div class="fi ${S.lang===l[0]?'on':''}" onclick="S.lang='${l[0]}';sv();applyLang();closeSheet();renderProfile();buildFeed();toast('🌐','שפה עודכנה')"><span>${l[2]}</span><span class="l">${l[1]}</span><span class="k">${S.lang===l[0]?'✓':''}</span></div>`).join('')}</div></div>`);}
-function pick(key,src,label){let sel=[...S[key]];openSheet(`<div class="sh-hd"><h3>בחר ${label}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="pq" placeholder="חיפוש..." oninput="document.getElementById('pl').innerHTML=pli(window._pkS,window._pkSel,this.value)"></div><div class="fl tall" id="pl">${pli(src,sel,'')}</div></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" id="psave">שמור (${sel.length})</button></div>`);
+function pickLang(){openSheet(`<div class="sh-hd"><h3>🌐 שפת ממשק</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="fl tall">${LANGS.map(l=>`<div class="fi ${S.lang===l[0]?'on':''}" onclick="S.lang='${l[0]}';sv();applyLang();closeSheet();renderProfile();buildFeed();toast('🌐','שפה עודכנה')"><span>${l[2]}</span><span class="l">${l[1]}</span><span class="k">${S.lang===l[0]?'✓':''}</span></div>`).join('')}</div></div>`);}
+function pick(key,src,label){let sel=[...S[key]];openSheet(`<div class="sh-hd"><h3>בחר ${label}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="srch"><span data-ic="search" class="srch-ic"></span><input id="pq" placeholder="חיפוש..." oninput="document.getElementById('pl').innerHTML=pli(window._pkS,window._pkSel,this.value)"></div><div class="fl tall" id="pl">${pli(src,sel,'')}</div></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" id="psave">שמור (${sel.length})</button></div>`);
  window._pkS=src;window._pkSel=sel;document.getElementById('psave').onclick=()=>{S[key]=[...sel];const m={prefT:'fT',prefL:'fL',prefC:'fC'};if(m[key])S[m[key]]=[...sel];sv();closeSheet();renderProfile();chips();buildFeed();toast('✅','נשמר ויושם אוטומטית — האפליקציה למדה');};
  window.ptg=(id,el)=>{const i=sel.indexOf(id);if(i>=0){sel.splice(i,1);el.classList.remove('on');el.querySelector('.k').textContent='';}else{sel.push(id);el.classList.add('on');el.querySelector('.k').textContent='✓';}document.getElementById('psave').textContent=`שמור (${sel.length})`;};}
 function pli(src,sel,q){q=(q||'').trim().toLowerCase();return src.filter(it=>!q||it[1].toLowerCase().includes(q)).map(it=>`<div class="fi ${sel.includes(it[0])?'on':''}" onclick="ptg('${it[0]}',this)"><span>${it[2]}</span><span class="l">${it[1]}</span><span class="k">${sel.includes(it[0])?'✓':''}</span></div>`).join('');}
-function upBiz(){openSheet(`<div class="sh-hd"><h3>✔️ שדרג לפרופיל עסקי</h3><span class="x" onclick="closeSheet()">✕</span></div>
+function upBiz(){openSheet(`<div class="sh-hd"><h3>✔️ שדרג לפרופיל עסקי</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div>
  <div class="sh-b"><div style="text-align:center;padding:2px 0"><div style="font-size:38px">✔️</div><div style="color:var(--text);font-size:18px;font-weight:800;margin-top:6px">פרופיל עסקי מאומת</div></div>
   <div class="price">$10 <small>/ לחודש</small></div>
   ${[['✔️','תג מאומת (כחול/זהב)','ליד השם בכל פוסט ובחדרים'],['🗂️','תיק עבודות קבוע','גלריה שלא נעלמת'],['🛠️','מוצרים/שירותים עם מדיה+טקסט+קישור','לכל מוצר תמונה/וידאו וקישור משלו'],['🟢','כפתור WhatsApp ישיר','קידומת+מספר → קישור wa.me אוטומטי'],['📞','כפתור חיוג לעסק','tel: ישיר מהפרופיל ומהפוסטים'],['✉️','כפתור אימייל','mailto: ליצירת קשר'],['🔗','קישור כללי + קישורים בפוסטים','אתר/דף נחיתה בכל פוסט'],['💬','צ׳אט עסקי שלא נעלם','שיחות לקוחות נשמרות'],['🔎','חיפוש עסקי גלובלי','לקוחות מוצאים אותך לפי תחום/מדינה'],['📊','אנליטיקס','בלי מעקב על המשתמשים']].map(b=>`<div class="ben"><span class="e">${b[0]}</span><div><b>${b[1]}</b><p>${b[2]}</p></div></div>`).join('')}
   <div style="text-align:center;color:var(--sub);font-size:12px">דוגמאות: לחץ על <b>Lena Audio</b> / <b>אוטו דיל</b> / <b>Nina Records</b> בפיד</div></div>
  <div class="sh-foot"><button class="bt g" onclick="closeSheet()">לא עכשיו</button><button class="bt pp" onclick="S.pMode='b';sv();closeSheet();renderProfile();toast('✔️','שולם דרך PayPal — שודרגת לעסקי (דמו)')">💳 שלם ב-PayPal $10/חודש</button></div>`);}
 function openProf(nm){const p=PROF[nm]||PROF[Object.keys(PROF).find(k=>k.startsWith(nm))];if(!p){toast('👤',nm);return;}const wal=p.wa?waLink('',p.wa):'';
- if(p.k==='b'){openSheet(`<div class="sh-hd"><h3>פרופיל מאומת</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="pf-cov bz" style="margin:-14px -16px 0"><div class="pf-av">${p.av}</div></div>
+ if(p.k==='b'){openSheet(`<div class="sh-hd"><h3>פרופיל מאומת</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="pf-cov bz" style="margin:-14px -16px 0"><div class="pf-av">${p.av}</div></div>
   <div class="pf-nm">${p.nm} <span class="vb ${p.bd==='gold'?'gold':''}">✔</span></div><div class="pf-s">${p.loc} · פרופיל מאומת</div><div class="pf-p">${p.pr}</div><div class="pf-bio">${p.bio}</div>
   <div class="pf-st">${p.st.map(s=>`<div><b>${s[0]}</b><small>${s[1]}</small></div>`).join('')}</div>
   <div class="pf-act"><button onclick="closeSheet();contactSeller('${p.nm}')">💬 צ׳אט</button>${wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:''}${p.ph?`<button class="g" onclick="window.open('tel:${(p.ph||'').replace(/\\s/g,'')}')">📞 חייג</button>`:''}${p.em?`<button class="g" onclick="window.open('mailto:${p.em}')">✉️ אימייל</button>`:''}<button class="g" onclick="openInApp('${p.web}')">🔗 ${p.web}</button><button class="g" onclick="closeSheet();rateBiz('${p.nm}')">⭐ דרג</button></div>
   <div class="sh-h">🗂️ תיק עבודות</div><div class="fbg n3" style="border-radius:10px;overflow:hidden">${p.port.map(w=>`<div onclick="zoomOne('${w}')" style="aspect-ratio:1;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:30px">${w}</div>`).join('')}</div>
   <div class="sh-h">🛠️ שירותים ומחירון</div>${p.svc.map(s=>`<div class="svc"><div class="sr">${s.m||'🛠️'} ${s.t}<span class="pr">${s.p}</span></div>${s.d?`<div class="sd">${s.d}</div>`:''}${s.l?`<a class="slk" href="https://${s.l}" target="_blank">🔗 ${s.l}</a>`:''}</div>`).join('')}</div>`);}
- else{openSheet(`<div class="sh-hd"><h3>פרופיל</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div class="pf-cov" style="margin:-14px -16px 0"><div class="pf-av">${avH(p)}</div></div>
+ else{openSheet(`<div class="sh-hd"><h3>פרופיל</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="pf-cov" style="margin:-14px -16px 0"><div class="pf-av">${avH(p)}</div></div>
   <div class="pf-nm">${p.nm}</div><div class="pf-s">${p.loc} · ${p.j}</div>
   <div class="note" style="margin-top:10px">🔒 פרופיל מינימלי — בלי גרף חברתי, אין עוקבים. רק שיחה כאן ועכשיו.</div>
   <div class="pf-act"><button onclick="closeSheet();sendReq('${p.nm}')">✉️ בקשת הודעה</button></div></div>`);}
@@ -1200,32 +1281,37 @@ function openProf(nm){const p=PROF[nm]||PROF[Object.keys(PROF).find(k=>k.startsW
 
 /* ===== SHEET / SHARED ===== */
 const ov=document.getElementById('ov'),sh=document.getElementById('sh'),shi=document.getElementById('shIn');
-function openSheet(h){shi.innerHTML=h;ov.classList.add('on');sh.classList.add('on');}
+function openSheet(h){shi.innerHTML=h;initStaticIcons();ov.classList.add('on');sh.classList.add('on');}
 function closeSheet(){ov.classList.remove('on');sh.classList.remove('on');document.getElementById('iv').classList.remove('on');}
 let _comReply=null;
 async function openCom(i){let list=COM[i]||[];
- if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid){try{const cs=await API.req('/posts/'+POSTS[i]._sid+'/comments');if(Array.isArray(cs)){list=cs.map(c=>({a:'👤',n:c.display_name||'משתמש',t:c.audio_url?('🎙️ <audio controls src="'+c.audio_url+'" style="max-width:200px"></audio>'):linkify(c.text||''),m:''}));COM[i]=list;}}catch(e){}}
+ if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid){try{const cs=await API.req('/posts/'+POSTS[i]._sid+'/comments');if(Array.isArray(cs)){list=cs.map(c=>({a:'👤',n:c.display_name||'משתמש',t:c.audio_url?('🎙️ <audio controls src="'+c.audio_url+'" style="max-width:200px"></audio>'):linkify(c.text||''),raw:c.audio_url?'':(c.text||''),m:''}));COM[i]=list;}}catch(e){}}
  _comReply=null;const cnt=(document.getElementById('cm'+i)||{}).textContent||list.length;
- openSheet(`<div class="sh-hd"><h3>💬 תגובות (${cnt})</h3><span class="x" onclick="closeSheet()">✕</span></div>
-  <div class="sh-b" id="cb">${list.length?list.map((c,ci)=>comRow(i,c,ci)).join(''):'<div class="empty"><div class="e">💬</div><p>היה/י הראשון/ה להגיב</p></div>'}</div>
+ openSheet(`<div class="sh-hd"><h3>💬 תגובות (${cnt})</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div>
+  <div class="sh-b" id="cb">${list.length?list.map((c,ci)=>comRow(i,c,ci)).join(''):`<div class="empty"><div class="e">${ic('chat')}</div><p>היה/י הראשון/ה להגיב</p></div>`}</div>
   <div class="sh-foot"><span onclick="emojiCom()" style="font-size:21px;cursor:pointer;align-self:center" title="אימוג׳ים">😀</span><button class="bt dim" style="flex:0 0 auto;padding:13px 13px" onclick="recPostComment(${i})">🎙️</button><input class="inp" id="ci" style="margin:0" placeholder="הגב/י..." onkeydown="if(event.key==='Enter')addCom(${i})"><button class="bt" style="flex:0 0 auto;padding:13px 16px" onclick="addCom(${i})">שלח</button></div>`);
  setTimeout(()=>{const cb=document.getElementById('cb');if(cb)cb.scrollTop=cb.scrollHeight;},60);}
-function comRow(i,c,ci){return `<div class="row" style="align-items:flex-start;margin-bottom:13px${c.reply?';margin-right:30px;border-right:2px solid var(--line);padding-right:8px':''}"><div class="av" style="width:32px;height:32px;font-size:14px">${c.a||'👤'}</div><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:12px">${c.n}</b><div style="color:var(--text);font-size:13px;margin-top:2px;word-break:break-word">${c.t}</div><div style="margin-top:3px;display:flex;gap:14px;align-items:center"><span style="color:var(--mut);font-size:10.5px">${c.m||'עכשיו'}</span><span style="color:var(--acc);font-size:11px;font-weight:700;cursor:pointer" onclick="replyTo(${i},'${(c.n||'').replace(/'/g,'').split(' ')[0]}')">↩️ השב</span></div></div></div>`;}
+function comRow(i,c,ci){const raw=c.raw!=null?c.raw:(c.t||'');const hasText=raw&&!/<audio|<img/.test(c.t||'')&&raw.replace(/<[^>]+>/g,'').trim().length>0;
+ return `<div class="row" style="align-items:flex-start;margin-bottom:13px${c.reply?';margin-right:30px;border-right:2px solid var(--line);padding-right:8px':''}"><div class="av" style="width:32px;height:32px;font-size:14px">${c.a||'👤'}</div><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:12px">${c.n}</b><div style="color:var(--text);font-size:13px;margin-top:2px;word-break:break-word">${c.t}</div><div style="margin-top:3px;display:flex;gap:14px;align-items:center"><span style="color:var(--mut);font-size:10.5px">${c.m||'עכשיו'}</span><span style="color:var(--acc);font-size:11px;font-weight:700;cursor:pointer" onclick="replyTo(${i},'${(c.n||'').replace(/'/g,'').split(' ')[0]}')">↩️ השב</span>${hasText?`<span class="trb" style="color:var(--acc);font-size:11px;font-weight:700;cursor:pointer" onclick="trComment(this,'${encodeURIComponent(raw).replace(/'/g,'%27')}')">🌐 תרגם</span>`:''}</div><div class="cTro" style="display:none;margin-top:5px;font-size:12.5px;color:var(--acc);background:var(--surface2);padding:7px 9px;border-radius:8px"></div></div></div>`;}
+async function trComment(el,enc){const wrap=el.parentElement.parentElement,o=wrap.querySelector('.cTro');if(!o)return;
+ if(o.style.display==='block'){o.style.display='none';el.textContent='🌐 תרגם';return;}
+ const src=decodeURIComponent(enc||'').replace(/<[^>]+>/g,'');o.style.display='block';o.textContent='⏳ מתרגם...';
+ try{const tr=await translateText(src,S.lang);o.textContent='🌐 '+tr;el.textContent='הסתר';}catch(e){o.textContent='שגיאת תרגום';}}
 function replyTo(i,nm){_comReply=nm;const ci=document.getElementById('ci');if(ci){ci.placeholder='תגובה ל-'+nm+'...';ci.focus();}toast('↩️','משיב/ה ל-'+nm);}
 function emojiCom(){let bar=document.getElementById('emojiBar');if(bar){bar.remove();return;}const set='😀 😂 🤣 ❤️ 🔥 👍 🙏 🎉 😍 🤔 👏 😢 🙌 💯 ✨ 😎 🥳 😮 😅 🤝 💪 👀 ✅ 🤯 🙈 😴 🤩 😭'.split(' ');bar=document.createElement('div');bar.id='emojiBar';bar.style.cssText='display:flex;flex-wrap:wrap;gap:4px;padding:8px 12px;border-top:1px solid var(--line);max-height:130px;overflow-y:auto';bar.innerHTML=set.map(e=>`<span style="font-size:23px;cursor:pointer;padding:2px" onclick="var c=document.getElementById('ci');c.value+='${e}';c.focus()">${e}</span>`).join('');const foot=document.querySelector('#sh .sh-foot');if(foot)foot.parentElement.insertBefore(bar,foot);}
 function addCom(i){const v=document.getElementById('ci');if(!v.value.trim())return;const txt=v.value.trim();const full=(_comReply?'<b style="color:var(--acc)">@'+_comReply+'</b> ':'')+linkify(txt);
- COM[i]=COM[i]||[];COM[i].push({a:'🦊',n:(S.me.nm||'אתה')+' (אתה)',t:full,m:'עכשיו',reply:!!_comReply});
+ COM[i]=COM[i]||[];COM[i].push({a:'🦊',n:(S.me.nm||'אתה')+' (אתה)',t:full,raw:txt,m:'עכשיו',reply:!!_comReply});
  const cb=document.getElementById('cb');const wasEmpty=cb.querySelector('.empty');if(wasEmpty)cb.innerHTML='';
  cb.insertAdjacentHTML('beforeend',comRow(i,COM[i][COM[i].length-1],COM[i].length-1));
  const c=document.getElementById('cm'+i);if(c)c.textContent=parseInt(c.textContent||0)+1;
  if(_comReply)toast('🔔',_comReply+' יקבל התראה על התגובה שלך');
  if(IS_SERVER()&&POSTS[i]&&POSTS[i]._sid)API.req('/posts/'+POSTS[i]._sid+'/comments',{method:'POST',body:{text:(_comReply?'@'+_comReply+' ':'')+txt}}).catch(()=>{});
  _comReply=null;const eb=document.getElementById('emojiBar');if(eb)eb.remove();v.value='';v.placeholder='הגב/י...';cb.scrollTop=9e9;}
-function openShare(){openSheet(`<div class="sh-hd"><h3>↗️ שתף</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">${[['🔗','העתק'],['💬','צ׳אט'],['🟢','WhatsApp'],['📸','סטורי'],['✈️','Telegram'],['🐦','X'],['📧','מייל'],['🔖','שמור']].map(s=>`<div style="text-align:center;cursor:pointer" onclick="toast('${s[0]}','${s[1]}')"><div style="width:48px;height:48px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:21px;margin:0 auto">${s[0]}</div><div style="color:var(--text);font-size:11px;margin-top:6px">${s[1]}</div></div>`).join('')}</div></div>`);}
-let tT;function toast(e,t){const x=document.getElementById('toast');document.getElementById('te').textContent=e;document.getElementById('tt').innerHTML=t;x.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>x.classList.remove('on'),3200);}
+function openShare(){openSheet(`<div class="sh-hd"><h3>↗️ שתף</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">${[['🔗','העתק'],['💬','צ׳אט'],['🟢','WhatsApp'],['📸','סטורי'],['✈️','Telegram'],['🐦','X'],['📧','מייל'],['🔖','שמור']].map(s=>`<div style="text-align:center;cursor:pointer" onclick="toast('${s[0]}','${s[1]}')"><div style="width:48px;height:48px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:21px;margin:0 auto">${s[0]}</div><div style="color:var(--text);font-size:11px;margin-top:6px">${s[1]}</div></div>`).join('')}</div></div>`);}
+let tT;function toast(e,t){const x=document.getElementById('toast'),te=document.getElementById('te');const nm=TOAST_IC[e];if(nm){te.innerHTML=ic(nm);}else{te.textContent=e;}document.getElementById('tt').innerHTML=t;x.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>x.classList.remove('on'),3200);}
 function filterApply(){}
 function openFilter(){window._T={fL:[...S.fL],fC:[...S.fC],fT:[...S.fT],fP:[...S.fP],fG:S.fG||'all'};const T=window._T;
- openSheet(`<div class="sh-hd"><h3>פילטרים</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b">
+ openSheet(`<div class="sh-hd"><h3>פילטרים</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">
   <div class="sh-h" style="margin-top:0">👥 למי מיועד הפוסט</div>
   <div class="seg" id="fgSeg"><b class="${T.fG==='all'?'on':''}" onclick="setFG('all',this)">👥 הכל</b><b class="${T.fG==='male'?'on':''}" onclick="setFG('male',this)">👨 גברים</b><b class="${T.fG==='female'?'on':''}" onclick="setFG('female',this)">👩 נשים</b></div>
   ${acc('שפה','fL',LANGS,true)}${acc('מדינה','fC',COUNTRIES,true)}${acc('קטגוריה','fT',TOPICS,true)}${acc('סוג פוסט','fP',PTYPES,false)}</div>
@@ -1243,7 +1329,7 @@ function closeInApp(){document.getElementById('inapp').classList.remove('on');do
 
 /* ===== QR for profile ===== */
 function showQR(){const me=S.me;const url='https://plaza-concept-demo-2026.netlify.app/';const qrPng='https://api.qrserver.com/v1/create-qr-code/?size=320x320&format=png&data='+encodeURIComponent(url);
- openSheet(`<div class="sh-hd"><h3>📱 QR לפרופיל</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b qrwrap"><div style="color:var(--text);font-size:15px;font-weight:800;margin-bottom:8px">${me.bnm||me.nm}</div><img id="qrImg" src="${qrPng}" alt="QR"><div class="note" style="margin-top:14px">סרוק כדי לפתוח את פלאזה ישירות במכשיר. שתף בכרטיס ביקור, שלט בחנות, פליירים.</div></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">סגור</button><button class="bt dim" onclick="dlQR('${qrPng}','plaza-qr.png')">⬇️ הורד תמונה</button><button class="bt" onclick="printQR('${qrPng}','${me.bnm||me.nm}')">🖨️ PDF/הדפס</button></div>`);}
+ openSheet(`<div class="sh-hd"><h3>📱 QR לפרופיל</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b qrwrap"><div style="color:var(--text);font-size:15px;font-weight:800;margin-bottom:8px">${me.bnm||me.nm}</div><img id="qrImg" src="${qrPng}" alt="QR"><div class="note" style="margin-top:14px">סרוק כדי לפתוח את פלאזה ישירות במכשיר. שתף בכרטיס ביקור, שלט בחנות, פליירים.</div></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">סגור</button><button class="bt dim" onclick="dlQR('${qrPng}','plaza-qr.png')">⬇️ הורד תמונה</button><button class="bt" onclick="printQR('${qrPng}','${me.bnm||me.nm}')">🖨️ PDF/הדפס</button></div>`);}
 function dlQR(u,fn){fetch(u).then(r=>r.blob()).then(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;document.body.appendChild(a);a.click();a.remove();toast('⬇️','הקובץ הורד');});}
 /* ===== ספריית סאונדים — מתנגנת אמיתית (CDN חינמי), עם הכנה ל-Pixabay ===== */
 let SOUNDS=[
@@ -1261,7 +1347,7 @@ let SOUNDS=[
  {n:'🎹 Lo-Fi',d:'',url:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3'},
 ];
 let _sndPreview=null;
-async function openSounds(){openSheet(`<div class="sh-hd"><h3>🎵 ספריית סאונדים</h3><span class="x" onclick="compose()">✕</span></div><div class="sh-b"><div class="srch"><span>🔍</span><input id="snQ" placeholder="חפש מוזיקה (אנגלית)..." oninput="searchSounds(this.value)"></div><div class="fl tall" id="snL"><div style="padding:22px;text-align:center;color:var(--mut)">טוען מוזיקה... 🎵</div></div><div class="note" style="margin-top:10px">אלפי טראקים חינמיים (Creative Commons) — הקש ▶ להאזנה, "בחר" לצירוף לסרטון.</div></div>`);loadSounds('');}
+async function openSounds(){openSheet(`<div class="sh-hd"><h3>🎵 ספריית סאונדים</h3><span class="x" onclick="compose()">${ic('close')}</span></div><div class="sh-b"><div class="srch"><span data-ic="search" class="srch-ic"></span><input id="snQ" placeholder="חפש מוזיקה (אנגלית)..." oninput="searchSounds(this.value)"></div><div class="fl tall" id="snL"><div style="padding:22px;text-align:center;color:var(--mut)">טוען מוזיקה... 🎵</div></div><div class="note" style="margin-top:10px">אלפי טראקים חינמיים (Creative Commons) — הקש ▶ להאזנה, "בחר" לצירוף לסרטון.</div></div>`);loadSounds('');}
 let _sndT;function searchSounds(q){clearTimeout(_sndT);_sndT=setTimeout(()=>loadSounds(q),400);}
 async function loadSounds(q){window._localSounds=window._localSounds||SOUNDS.slice();const el=document.getElementById('snL');if(el)el.innerHTML='<div style="padding:22px;text-align:center;color:var(--mut)">טוען... 🎵</div>';
  let hits=null;try{const r=await fetch('/api/sounds?q='+encodeURIComponent(q||''));if(r.ok){const j=await r.json();if(j&&j.hits&&j.hits.length)hits=j.hits;}}catch(e){}
@@ -1284,7 +1370,7 @@ const EMOJI={
  '🎉':'🎉 🎊 🎈 🎁 🎀 🪄 🎏 🎐 🧧 🏮 💡 🔦 🕯 📱 💻 🖥 🖨 🖱 💾 💿 📷 📸 📹 🎥 📞 ☎️ 📺 📻 🎙 ⏰ ⌛ ⏳ 📡 🔋 🔌 💎 ⚖️ 🔧 🔨 ⚙️ 🧲 🔫 🧨 🔪 🗡 🛡 🔑 🗝 🚪 🛏 🧸 🖼 🛍 🛒 💰 💵 💳 🧾 ✉️ 📩 📨 📦 📫 📅 📌 📎 ✂️ 📏 🔍 🔒 🔓',
 };
 function emojiPick(){const cats=Object.keys(EMOJI);
- openSheet(`<div class="sh-hd"><h3>😀 הוסף אימוג׳ים</h3><span class="x" onclick="compose()">✕</span></div>
+ openSheet(`<div class="sh-hd"><h3>😀 הוסף אימוג׳ים</h3><span class="x" onclick="compose()">${ic('close')}</span></div>
   <div class="sh-b" style="padding-top:8px"><div id="emGrid" style="display:flex;flex-wrap:wrap;gap:2px">${emGridHtml(cats[0])}</div></div>
   <div class="sh-foot" style="flex-direction:column;gap:8px"><div style="display:flex;gap:6px;overflow-x:auto;width:100%">${cats.map(c=>`<button class="bt dim" style="flex:0 0 auto;padding:7px 11px;font-size:18px" onclick="document.getElementById('emGrid').innerHTML=emGridHtml('${c}')">${c}</button>`).join('')}</div><button class="bt" style="width:100%" onclick="compose()">✓ סיום</button></div>`);}
 function emAdd(ch){C.text=(C.text||'')+ch;toast('😀',ch);}
@@ -1298,11 +1384,11 @@ function saveTopicReqs(a){localStorage.setItem(TOPIC_REQ_KEY,JSON.stringify(a));
 async function openTopicReq(){let reqs=getTopicReqs(),server=false;
  if(IS_SERVER()){try{const r=await API.req('/topic-requests');if(Array.isArray(r)){reqs=r.map(x=>({id:x.id,t:x.topic_name,v:x.votes}));server=true;}}catch(e){}}
  window._trServer=server;
- openSheet(`<div class="sh-hd"><h3>💡 בקש נושא לחדר חדש</h3><span class="x" onclick="closeSheet()">✕</span></div>
+ openSheet(`<div class="sh-hd"><h3>💡 בקש נושא לחדר חדש</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div>
  <div class="sh-b"><div class="note" style="margin:0 0 10px">הצע נושא חדש לחדר. כשהוא יגיע ל-100 הצבעות — יישלח אוטומטית לאישור מנהל הפלטפורמה.</div>
   <div class="srch"><input id="ntq" placeholder="שם הנושא החדש..."><button class="bt" style="padding:8px 12px;flex:0 0 auto" onclick="addTopicReq()">+ הוסף</button></div>
   <div class="sh-h" style="margin-top:14px">נושאים פתוחים להצבעה</div>
-  <div id="trList">${reqs.length?reqs.map((r,k)=>`<div class="card"><div class="row"><span style="font-size:18px">💡</span><b style="color:var(--text);font-size:13px">${esc(r.t)}</b><span style="margin-right:auto;color:var(--mut);font-size:11px">${r.v||0}/100 הצבעות</span><button class="bt" style="flex:0 0 auto;padding:7px 12px;font-size:12px" onclick="${server?`voteTopicSrv(${r.id})`:`voteTopic(${k})`}">👍 הצבע</button></div></div>`).join(''):'<div class="empty"><div class="e">💡</div><p>אין בקשות עדיין — הצע אחת!</p></div>'}</div></div>`);}
+  <div id="trList">${reqs.length?reqs.map((r,k)=>`<div class="card"><div class="row"><span style="font-size:18px;color:var(--acc)">${ic('lightbulb')}</span><b style="color:var(--text);font-size:13px">${esc(r.t)}</b><span style="margin-right:auto;color:var(--mut);font-size:11px">${r.v||0}/100 הצבעות</span><button class="bt" style="flex:0 0 auto;padding:7px 12px;font-size:12px" onclick="${server?`voteTopicSrv(${r.id})`:`voteTopic(${k})`}">הצבע</button></div></div>`).join(''):`<div class="empty"><div class="e">${ic('lightbulb')}</div><p>אין בקשות עדיין — הצע אחת!</p></div>`}</div></div>`);}
 function addTopicReq(){const v=document.getElementById('ntq').value.trim();if(!v){toast('💡','כתוב שם נושא');return;}
  if(IS_SERVER()){API.req('/topic-requests',{method:'POST',body:{topic_name:v}}).then(()=>{openTopicReq();toast('💡','הצעה נוספה');}).catch(()=>toast('⚠️','נכשל'));return;}
  const a=getTopicReqs();a.unshift({t:v,v:1});saveTopicReqs(a);openTopicReq();toast('💡','הצעה נוספה');}
@@ -1320,7 +1406,7 @@ function printQR(u,nm){const w=window.open('','_blank');w.document.write('<html>
 
 /* ===== Schedule publish ===== */
 function pickSched(){const now=new Date(),pad=n=>String(n).padStart(2,'0');const def=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
- openSheet(`<div class="sh-hd"><h3>⏰ תזמון פרסום</h3><span class="x" onclick="compose()">✕</span></div>
+ openSheet(`<div class="sh-hd"><h3>⏰ תזמון פרסום</h3><span class="x" onclick="compose()">${ic('close')}</span></div>
  <div class="sh-b"><div class="note" style="margin:0 0 10px">בחר תאריך ושעה — הפוסט יתפרסם אוטומטית וייעלם 24ש׳ אחר כך.</div>
   <input class="inp" id="schI" type="datetime-local" value="${C.sched||def}">
   <div class="seg" style="margin-top:10px"><b onclick="C.sched='';compose()">פרסם עכשיו</b><b onclick="C.sched=document.getElementById('schI').value;compose();toast('⏰','תוזמן ל-'+C.sched)">תזמן</b></div></div>`);}
@@ -1346,7 +1432,7 @@ async function translatePost(i,el){const p=POSTS[i];if(!p)return;const o=el.next
 function postViewers(i){let h=0,id=String(i);for(let k=0;k<id.length;k++)h=(h*31+id.charCodeAt(k))%140;return 30+h;}
 
 /* ===== Rating ===== */
-function rateBiz(nm){openSheet(`<div class="sh-hd"><h3>⭐ דירוג ${nm}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="text-align:center;font-size:38px;color:var(--warn);margin:14px 0" id="rStars">${'☆'.repeat(5)}</div><div id="rTxt" style="text-align:center;color:var(--sub);font-size:12px">בחר דירוג 1–5</div><div style="display:flex;gap:10px;justify-content:center;margin:14px 0">${[1,2,3,4,5].map(n=>`<button class="bt dim" style="padding:9px 14px" onclick="document.getElementById('rStars').textContent='⭐'.repeat(${n})+'☆'.repeat(5-${n});document.getElementById('rTxt').textContent='${n} כוכבים'">${n}</button>`).join('')}</div><textarea placeholder="ספר על העסקה (לא חובה)"></textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">בטל</button><button class="bt" onclick="closeSheet();toast('⭐','תודה! הדירוג נשלח')">שלח דירוג</button></div>`);}
+function rateBiz(nm){openSheet(`<div class="sh-hd"><h3>⭐ דירוג ${nm}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div style="text-align:center;font-size:38px;color:var(--warn);margin:14px 0" id="rStars">${'☆'.repeat(5)}</div><div id="rTxt" style="text-align:center;color:var(--sub);font-size:12px">בחר דירוג 1–5</div><div style="display:flex;gap:10px;justify-content:center;margin:14px 0">${[1,2,3,4,5].map(n=>`<button class="bt dim" style="padding:9px 14px" onclick="document.getElementById('rStars').textContent='⭐'.repeat(${n})+'☆'.repeat(5-${n});document.getElementById('rTxt').textContent='${n} כוכבים'">${n}</button>`).join('')}</div><textarea placeholder="ספר על העסקה (לא חובה)"></textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">בטל</button><button class="bt" onclick="closeSheet();toast('⭐','תודה! הדירוג נשלח')">שלח דירוג</button></div>`);}
 
 /* ===== Post text (linkify + show more) + viewers ===== */
 function postText(p,i){if(!p.text)return '';const raw=linkify(p.text);const long=String(p.text).length>240;
@@ -1359,30 +1445,30 @@ setInterval(()=>{document.querySelectorAll('.feed .fb[data-i]').forEach(po=>{con
 function isMine(p){return !!(p&&(p._mine||p.nm===S.me.nm||(S.me.bnm&&p.nm===S.me.bnm)));}
 function postMenu(i){const p=POSTS[i];if(!p)return;const url=postUrl(p,i);const nm=(p.nm||'').replace(/'/g,'');
  const items=isMine(p)?[
-  ['✏️','ערוך פוסט',`closeSheet();editPost(${i})`,''],
-  ['📋','העתק טקסט',`copyText(${JSON.stringify(p.text||'')});closeSheet()`,''],
-  ['🔗','העתק קישור',`copyText('${url}');closeSheet()`,''],
-  ['🔔','התראות על תגובות',`closeSheet();toast('🔔','תקבל התראה על כל תגובה לפוסט')`,''],
-  ['⏳','הארך ב-24 שעות',`closeSheet();extendPost(${i})`,''],
-  ['🗑️','מחק פוסט',`deletePost(${i})`,'bad']
+  ['edit','ערוך פוסט',`closeSheet();editPost(${i})`,''],
+  ['document','העתק טקסט',`copyText(${JSON.stringify(p.text||'')});closeSheet()`,''],
+  ['link','העתק קישור',`copyText('${url}');closeSheet()`,''],
+  ['bell','התראות על תגובות',`closeSheet();toast('🔔','תקבל התראה על כל תגובה לפוסט')`,''],
+  ['extend','הארך ב-24 שעות',`closeSheet();extendPost(${i})`,''],
+  ['trash','מחק פוסט',`deletePost(${i})`,'bad']
  ]:[
-  ['🔖','שמור פוסט',`closeSheet();bkById(${i})`,''],
-  ['🔔','הפעל התראות על הפוסט',`closeSheet();toast('🔔','תקבל התראות על הפוסט הזה')`,''],
-  ['🔗','העתק קישור',`copyText('${url}');closeSheet()`,''],
-  ['🙈','הסתר פוסט',`closeSheet();hidePost(${i})`,''],
-  ['⚠️','דווח על הפוסט',`reportPost(${i})`,'bad'],
-  ['🚫','חסום את '+nm,`closeSheet();blockUser('${nm}')`,'bad']
+  ['bookmark','שמור פוסט',`closeSheet();bkById(${i})`,''],
+  ['bell','הפעל התראות על הפוסט',`closeSheet();toast('🔔','תקבל התראות על הפוסט הזה')`,''],
+  ['link','העתק קישור',`copyText('${url}');closeSheet()`,''],
+  ['hide','הסתר פוסט',`closeSheet();hidePost(${i})`,''],
+  ['report','דווח על הפוסט',`reportPost(${i})`,'bad'],
+  ['block','חסום את '+nm,`closeSheet();blockUser('${nm}')`,'bad']
  ];
- openSheet(`<div class="sh-hd"><h3>${p.nm}</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b">${items.map(it=>`<div class="mi" onclick="${it[2]}"><span class="mc">${it[0]}</span><span style="${it[3]==='bad'?'color:var(--bad)':''}">${it[1]}</span><span class="mv">›</span></div>`).join('')}</div>`);}
-function editPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>✏️ עריכת פוסט</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><textarea id="edTx" style="height:150px" maxlength="5000">${p.text||''}</textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="saveEdit(${i})">שמור</button></div>`);}
+ openSheet(`<div class="sh-hd"><h3>${p.nm}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">${items.map(it=>`<div class="mi" onclick="${it[2]}"><span class="mc">${ic(it[0])}</span><span style="${it[3]==='bad'?'color:var(--bad)':''}">${it[1]}</span><span class="mv">›</span></div>`).join('')}</div>`);}
+function editPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>✏️ עריכת פוסט</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><textarea id="edTx" style="height:150px" maxlength="5000">${p.text||''}</textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="saveEdit(${i})">שמור</button></div>`);}
 function saveEdit(i){const p=POSTS[i],v=eV('edTx');p.text=v;if(p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'PUT',body:{text:v}}).catch(()=>{});closeSheet();buildFeed();toast('✏️','הפוסט עודכן');}
-function deletePost(i){openSheet(`<div class="sh-hd"><h3>🗑️ מחיקת פוסט</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><p style="color:var(--text);font-size:14px;line-height:1.6">למחוק את הפוסט לצמיתות? לא ניתן לשחזר.</p></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" style="background:var(--bad)" onclick="doDeletePost(${i})">מחק</button></div>`);}
+function deletePost(i){openSheet(`<div class="sh-hd"><h3>🗑️ מחיקת פוסט</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><p style="color:var(--text);font-size:14px;line-height:1.6">למחוק את הפוסט לצמיתות? לא ניתן לשחזר.</p></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" style="background:var(--bad)" onclick="doDeletePost(${i})">מחק</button></div>`);}
 function doDeletePost(i){const p=POSTS[i];if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'DELETE'}).catch(()=>{});if(p)POSTS.splice(i,1);sv();closeSheet();buildFeed();toast('🗑️','הפוסט נמחק');}
 function extendPost(i){const p=POSTS[i];if(p){p._m=(p._m??p.mins)+1440;p.mins=(p.mins||0)+1440;}if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid+'/extend',{method:'POST'}).catch(()=>{});toast('⏳','חיי הפוסט הוארכו ב-24 שעות');}
 function bkById(i){S.bk[i]=1;sv();buildFeed();toast('🔖','נשמר — snapshot יישאר גם אחרי שייעלם');}
 function hidePost(i){S.hidden=S.hidden||[];const p=POSTS[i];const key=p&&p._sid?'s'+p._sid:'i'+i;if(!S.hidden.includes(key))S.hidden.push(key);sv();buildFeed();toast('🙈','הפוסט הוסתר מהפיד שלך');}
 function blockUser(nm){S.blocked=S.blocked||[];if(!S.blocked.includes(nm))S.blocked.push(nm);sv();buildFeed();toast('🚫',nm+' נחסם — לא תראה עוד את הפוסטים שלו');}
-function reportPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>⚠️ דיווח על פוסט</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b">${[['ספאם','spam'],['הטרדה','harassment'],['תוכן לא הולם','inappropriate'],['מידע מטעה','misinfo'],['אחר','other']].map(r=>`<div class="mi" onclick="doReport(${i},'${r[1]}')"><span class="mc">🚩</span>${r[0]}<span class="mv">›</span></div>`).join('')}</div>`);}
+function reportPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>⚠️ דיווח על פוסט</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">${[['ספאם','spam'],['הטרדה','harassment'],['תוכן לא הולם','inappropriate'],['מידע מטעה','misinfo'],['אחר','other']].map(r=>`<div class="mi" onclick="doReport(${i},'${r[1]}')"><span class="mc">${ic('report')}</span>${r[0]}<span class="mv">›</span></div>`).join('')}</div>`);}
 function doReport(i,reason){const p=POSTS[i];if(p&&p._sid&&IS_SERVER())API.req('/reports',{method:'POST',body:{target_type:'post',target_id:p._sid,reason}}).catch(()=>{});closeSheet();toast('✅','הדיווח נשלח — תודה שעזרת לשמור על הקהילה');}
 function votePoll(i,oi){const p=POSTS[i];if(!p||!p.poll)return;S.pollVotes=S.pollVotes||{};const k=p._sid?'s'+p._sid:'i'+i;if(S.pollVotes[k]!=null){toast('📊','כבר הצבעת בסקר זה');return;}p.poll[oi].v=(p.poll[oi].v||0)+1;S.pollVotes[k]=oi;sv();buildFeed();toast('✅','ההצבעה נקלטה');}
 function applyJob(i){const p=POSTS[i];toast('📥','המועמדות נשלחה לפרופיל המפרסם');if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid+'/comments',{method:'POST',body:{text:'[מועמדות] '+(S.me.nm||'')}}).catch(()=>{});}
@@ -1396,7 +1482,7 @@ function copyText(t){const ok=()=>toast('🔗','הועתק ללוח');(navigator
 function openShareSheet(url,text){const enc=encodeURIComponent(url),et=encodeURIComponent((text||'')+' ');
  const u=url.replace(/'/g,"\\'");
  const opts=[['🔗','העתק קישור',`copyText('${u}')`],['🟢','WhatsApp',`window.open('https://wa.me/?text=${et}${enc}','_blank')`],['✈️','Telegram',`window.open('https://t.me/share/url?url=${enc}&text=${et}','_blank')`],['🐦','X',`window.open('https://twitter.com/intent/tweet?text=${et}${enc}','_blank')`],['📘','Facebook',`window.open('https://www.facebook.com/sharer/sharer.php?u=${enc}','_blank')`],['📧','אימייל',`window.open('mailto:?subject=PLAZA&body=${et}${enc}')`]];
- openSheet(`<div class="sh-hd"><h3>↗️ שתף</h3><span class="x" onclick="closeSheet()">✕</span></div><div class="sh-b"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">${opts.map(s=>`<div style="text-align:center;cursor:pointer" onclick="${s[2]}"><div style="width:50px;height:50px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto">${s[0]}</div><div style="color:var(--text);font-size:11px;margin-top:6px">${s[1]}</div></div>`).join('')}</div><div style="margin-top:16px;background:var(--surface2);border-radius:10px;padding:10px;display:flex;align-items:center;gap:8px"><input value="${url}" readonly style="flex:1;background:none;border:none;color:var(--sub);font-size:12px;outline:none"><button class="bt" style="flex:0 0 auto;padding:8px 12px;font-size:12px" onclick="copyText('${u}')">העתק</button></div></div>`);}
+ openSheet(`<div class="sh-hd"><h3>↗️ שתף</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">${opts.map(s=>`<div style="text-align:center;cursor:pointer" onclick="${s[2]}"><div style="width:50px;height:50px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto">${s[0]}</div><div style="color:var(--text);font-size:11px;margin-top:6px">${s[1]}</div></div>`).join('')}</div><div style="margin-top:16px;background:var(--surface2);border-radius:10px;padding:10px;display:flex;align-items:center;gap:8px"><input value="${url}" readonly style="flex:1;background:none;border:none;color:var(--sub);font-size:12px;outline:none"><button class="bt" style="flex:0 0 auto;padding:8px 12px;font-size:12px" onclick="copyText('${u}')">העתק</button></div></div>`);}
 
 /* ===== Expiry warning ===== */
 function checkExpiryWarn(){for(let i=0;i<POSTS.length;i++){const p=POSTS[i];if(p._m&&p._m<30&&!p._warned&&S.mine.find(m=>m.text===p.text)){p._warned=1;toast('⏳','הפוסט שלך עומד להיעלם בעוד פחות מ-30 דק׳ — להאריך?');return;}}}
