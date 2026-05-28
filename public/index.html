@@ -36,8 +36,8 @@
   @keyframes scrIn{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:none}}
   .body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
   .body::-webkit-scrollbar{width:0}
-  .hd{flex:0 0 auto;background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line);padding:calc(2px + env(safe-area-inset-top)) 14px 7px;position:relative;z-index:5}
-  .brandwrap{text-align:center;margin-bottom:5px}
+  .hd{flex:0 0 auto;background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line);padding:calc(2px + env(safe-area-inset-top)) 14px 5px;position:relative;z-index:5}
+  .brandwrap{text-align:center;margin-bottom:3px}
   .subt{color:var(--sub);font-size:9.5px;font-weight:600;margin-top:1px;line-height:1.3}
   .hdrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:7px}
   .filt-block{display:flex;align-items:center;gap:9px;cursor:pointer;flex:1;min-width:0}
@@ -58,12 +58,12 @@
   .dot{position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--bad);border:1.5px solid var(--bg)}
   .cbadge{position:absolute;top:-4px;left:-4px;background:var(--bad);color:#fff;font-size:9.5px;font-weight:800;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--bg)}
   .cbadge.acc{background:var(--acc)}
-  .stat{display:flex;gap:7px;margin-top:6px}
-  .st{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px 4px;text-align:center;box-shadow:var(--shadow-sm)}
+  .stat{display:flex;gap:6px;margin-top:4px}
+  .st{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:3px 5px;text-align:center;box-shadow:var(--shadow-sm);display:flex;align-items:baseline;justify-content:center;gap:4px}
   .st:active{transform:scale(.97)}
-  .st b{display:block;color:var(--text);font-size:clamp(15px,4.4vw,18px);font-weight:900;letter-spacing:-.02em}
-  .st small{color:var(--sub);font-size:9.5px;font-weight:700}
-  .st .o{display:flex;align-items:center;justify-content:center;gap:5px}
+  .st b{display:inline;color:var(--text);font-size:clamp(12px,3.5vw,14px);font-weight:900;letter-spacing:-.02em}
+  .st small{color:var(--sub);font-size:8px;font-weight:700}
+  .st .o{display:inline-flex;align-items:center;gap:4px}
   .live{width:6px;height:6px;border-radius:50%;background:var(--ok);display:inline-block}
   .chips{display:flex;gap:6px;margin-top:9px;overflow-x:auto}
   .chips::-webkit-scrollbar{height:0}.chips:empty{display:none}
@@ -213,6 +213,7 @@
   .nv svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .nv small{font-size:9px;font-weight:700}
   .nv.on{color:var(--acc)}
+  .navbadge{position:absolute;top:-2px;left:calc(50% - 16px);min-width:16px;height:16px;padding:0 4px;border-radius:9px;background:var(--bad);color:#fff;font-size:9.5px;font-weight:800;display:none;align-items:center;justify-content:center;box-shadow:0 0 0 2px var(--glass)}
   .nv.plusw{position:relative}
   .nv .plus{width:54px;height:54px;border-radius:18px;background:var(--acc);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px var(--ring),0 2px 6px rgba(0,0,0,.18);transform:translateY(-14px);border:3px solid var(--bg);transition:transform .16s cubic-bezier(.22,1,.36,1)}
   .nv .plus:active{transform:translateY(-14px) scale(.9)}
@@ -603,7 +604,6 @@
             <small id="filtHint">סנן · מרקטפלייס · לפי שפה ומדינה</small>
           </div>
           <div class="ico-row">
-            <div class="ib round" onclick="go('msgs')" title="הודעות"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg><i class="cbadge" id="mbadge">2</i></div>
             <div class="ib" onclick="go('notif')" title="התראות"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><i class="dot" id="notifDot"></i></div>
           </div>
         </div>
@@ -688,7 +688,7 @@
     <canvas class="recwave" id="recWave" width="560" height="80"></canvas>
     <div class="reccap" id="recCap"></div>
     <div class="ht">🔴 מקליט… הקלטה תיעלם תוך 24 שעות</div>
-    <div class="recbtns"><button class="rc-cancel" onclick="cancelAnyRec()">✕ ביטול</button><button class="rc-send" onclick="stopAnyRec()">${ic('send')} שלח</button></div>
+    <div class="recbtns"><button class="rc-cancel" onclick="cancelAnyRec()">ביטול</button><button class="rc-send" onclick="stopAnyRec()">שלח</button></div>
   </div></div>
   <div class="inapp" id="inapp"><div class="inapp-bar"><button onclick="closeInApp()">← חזור לאפליקציה</button><span id="inappUrl"></span></div><iframe id="inappFrame" src="about:blank" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe></div>
 </div>
@@ -837,7 +837,7 @@ function i18n(k){const t=I18N[S.lang]||I18N.en;return t[k]!==undefined?t[k]:(I18
 /* ===== i18n: שכבת תרגום-ריצה אוטומטית של כל הממשק (כל שפה, עם cache) ===== */
 let _i18nCache={};try{_i18nCache=JSON.parse(localStorage.getItem('plaza_i18n')||'{}');}catch(e){}
 let _i18nSaveT;function _i18nSave(){clearTimeout(_i18nSaveT);_i18nSaveT=setTimeout(()=>{try{localStorage.setItem('plaza_i18n',JSON.stringify(_i18nCache));}catch(e){}},1200);}
-const _i18nOrig=new WeakMap();let _i18nObs=null,_i18nTimer=null;
+const _i18nOrig=new Map();const _i18nAttrEls=new Set();let _i18nObs=null,_i18nTimer=null;
 const _i18nSkip=new Set(['PLAZA','plaza']);
 function _hasLetters(s){return /[A-Za-z֐-׿؀-ۿЀ-ӿ一-鿿぀-ヿ가-힯]/.test(s);}
 async function _i18nOne(src,lang){const c=_i18nCache[lang]||(_i18nCache[lang]={});if(c[src]!=null)return c[src];let tr;try{tr=await translateText(src,lang,'he');}catch(e){tr=src;}c[src]=tr;_i18nSave();return tr;}
@@ -847,18 +847,18 @@ async function i18nApply(root){if(!root||S.lang==='he'||root.nodeType!==1)return
  const attrEls=[].slice.call(root.querySelectorAll('[placeholder],[title],[aria-label]')).filter(el=>!(el.closest&&el.closest('[data-noi18n]')));
  const jobs=[];
  nodes.forEach(n=>{if(!_i18nOrig.has(n))_i18nOrig.set(n,n.nodeValue);const orig=_i18nOrig.get(n);const src=(orig||'').trim();if(_hasLetters(src))jobs.push({src,apply:t=>{const lead=(orig.match(/^\s*/)||[''])[0],trail=(orig.match(/\s*$/)||[''])[0];n.nodeValue=lead+t+trail;}});});
- ['placeholder','title','aria-label'].forEach(attr=>{const key='_o_'+attr;attrEls.forEach(el=>{const v=el.getAttribute(attr);if(v&&_hasLetters(v)){if(el[key]==null)el[key]=v;const src=el[key];jobs.push({src,apply:t=>el.setAttribute(attr,t)});}});});
+ ['placeholder','title','aria-label'].forEach(attr=>{const key='_o_'+attr;attrEls.forEach(el=>{const v=el.getAttribute(attr);if(v&&_hasLetters(v)){if(el[key]==null)el[key]=v;_i18nAttrEls.add(el);const src=el[key];jobs.push({src,apply:t=>el.setAttribute(attr,t)});}});});
  if(!jobs.length)return;
  const uniq=Array.from(new Set(jobs.map(j=>j.src)));const map={};let idx=0;const pool=Math.min(8,uniq.length);
  await Promise.all(Array.from({length:pool},()=>(async()=>{while(idx<uniq.length){const s=uniq[idx++];map[s]=await _i18nOne(s,lang);}})()));
  if(S.lang!==lang)return;jobs.forEach(j=>{const t=map[j.src];if(t!=null)j.apply(t);});}
 function i18nObserve(){if(_i18nObs||!window.MutationObserver)return;_i18nObs=new MutationObserver(muts=>{if(S.lang==='he')return;const adds=[];muts.forEach(m=>{if(m.addedNodes)m.addedNodes.forEach(n=>{if(n.nodeType===1)adds.push(n);});});if(!adds.length)return;clearTimeout(_i18nTimer);_i18nTimer=setTimeout(()=>{adds.forEach(n=>{if(n.isConnected)i18nApply(n);});},160);});_i18nObs.observe(document.body,{childList:true,subtree:true});}
 function rerenderCurrent(){try{const s=cur;if(s==='feed')buildFeed();else if(s==='rooms')renderRooms();else if(s==='profile')renderProfile();else if(s==='settings')renderSettings();else if(s==='pedit')renderPEdit();else if(s==='myposts')renderMine();else if(s==='bm')renderBm();else if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());else if(s==='notif')renderNt();else if(s==='search')doSearch();}catch(e){}}
+function i18nRevert(){_i18nOrig.forEach((orig,n)=>{try{if(n.isConnected)n.nodeValue=orig;}catch(e){}});_i18nOrig.clear();
+ _i18nAttrEls.forEach(el=>{['placeholder','title','aria-label'].forEach(a=>{const k='_o_'+a;if(el[k]!=null){try{if(el.isConnected)el.setAttribute(a,el[k]);}catch(e){}el[k]=null;}});});_i18nAttrEls.clear();}
 function applyLang(){const RTL=['he','ar','fa','ur','yi','ps','ckb'];const dir=RTL.includes(S.lang)?'rtl':'ltr';document.documentElement.setAttribute('dir',dir);document.documentElement.lang=S.lang;
- const t=I18N[S.lang]||I18N.en,set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
- set('subt',t.subt);set('lblReg',t.reg);set('lblOnl',t.onl);set('lblP48',t.p48);set('filtHint',t.filtHint);set('brandTxt',t.brand);try{nav();}catch(e){}
- try{rerenderCurrent();}catch(e){}
- if(S.lang!=='he'){i18nObserve();setTimeout(()=>i18nApply(document.body),60);}}
+ try{nav();}catch(e){}try{rerenderCurrent();}catch(e){}
+ if(S.lang==='he'){i18nRevert();}else{i18nObserve();setTimeout(()=>i18nApply(document.body),50);}}
 setTimeout(applyLang,0);
 /* ===== הארכה אוטומטית בתשלום מדורג — קוד מוכן, מוסתר מהממשק (לא מוצג בבטא) =====
    כרגע: הארכה חופשית של עד יום אחד נוסף (autoExt). הלוגיקה למטה מוכנה לחשיפה עתידית:
@@ -1018,7 +1018,7 @@ function renderFav(){const def=['tech','cars','real_estate','sports','food','mus
  const e=document.getElementById('favbar');if(e)e.innerHTML=h;}
 function favPick(id){S.fT=id?[id]:[];sv();chips();buildFeed();renderFav();
  if(id){const t=tp(id);toast('⚡',(t?t[2]+' '+t[1]:'')+' — סינון מהיר הוחל');}}
-function mbadge(){const b=document.getElementById('mbadge');let n;
+function mbadge(){const b=document.getElementById('mbadge');if(!b)return;let n;
  if(IS_SERVER()&&window._srvLoaded){n=(window._srvAccepted||[]).filter(c=>c.nw).length;}
  else n=S.pchats.filter(c=>c.nw).length;
  if(n>0&&!S.hideBadge){b.style.display='flex';b.textContent=n;}else b.style.display='none';}
@@ -1191,8 +1191,8 @@ function ic(name,cls){const p=ICON[name];if(!p)return '';return `<svg class="ic 
 const TOAST_IC={'🔖':'bookmark','❤️':'heart','✅':'check','✔️':'check','⚠️':'report','🗑️':'trash','✏️':'edit','🚀':'send','🔔':'bell','🌐':'globe','🔗':'link','📥':'download','⏳':'clock','♻️':'extend','🚫':'block','🙈':'hide','📷':'image','🎙️':'mic','🎵':'image','🟢':'check','💬':'chat','✉️':'mail','📊':'chat','🌙':'moon','🗂️':'archive','↩️':'extend','✖️':'close','💾':'download','📍':'pin','🗳️':'check','💡':'lightbulb','🎬':'image','⚡':'check','🎉':'star','😀':'smiley','📎':'paperclip','🔢':'bell','🔕':'bell','🖼️':'image'};
 /* הזרקת אייקונים לכותרות סטטיות עם data-ic */
 function initStaticIcons(){document.querySelectorAll('[data-ic]').forEach(el=>{if(el._iced)return;el._iced=1;el.insertAdjacentHTML('afterbegin',ic(el.dataset.ic,el.dataset.icCls||''));});}
-function nav(){const t=I18N[S.lang]||I18N.en,lbl={feed:t.nHome,search:t.nSearch,rooms:t.nRooms,profile:t.nProfile,msgs:t.nMsgs};
- document.getElementById('nav').innerHTML=NAV.map(n=>{if(n[0]==='plus')return `<div class="nv plusw" onclick="go('create')"><div class="plus"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div></div>`;const on=(cur===n[0]||(n[0]==='rooms'&&cur==='room'&&!privCtx)||(n[0]==='msgs'&&cur==='room'&&privCtx))?'on':'';return `<div class="nv ${on}" onclick="go('${n[0]}')">${navSvg(n[2])}<small>${lbl[n[0]]||n[1]}</small></div>`;}).join('');}
+function nav(){
+ document.getElementById('nav').innerHTML=NAV.map(n=>{if(n[0]==='plus')return `<div class="nv plusw" onclick="go('create')"><div class="plus"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div></div>`;const on=(cur===n[0]||(n[0]==='rooms'&&cur==='room'&&!privCtx)||(n[0]==='msgs'&&cur==='room'&&privCtx))?'on':'';return `<div class="nv ${on}" onclick="go('${n[0]}')" style="position:relative">${navSvg(n[2])}<small>${n[1]}</small>${n[0]==='msgs'?'<i class="navbadge" id="mbadge"></i>':''}</div>`;}).join('');setTimeout(mbadge,0);}
 const _rm=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function go(s){const apply=()=>{cur=s;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-'+s).classList.add('on');nav();initStaticIcons();
  if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='settings')renderSettings();if(s==='pedit')renderPEdit();if(s==='search')doSearch();if(s==='create')renderCreate();};
@@ -1230,15 +1230,14 @@ function setRoomScope(s){S.roomScope=s;sv();renderScopeLens();applyScope();
 function applyScope(){let shown=0;document.querySelectorAll('#chat .msg').forEach(el=>{if(el.classList.contains('me')||el.id==='typingI'){el.style.display='';return;}const c=el.dataset.country||'',l=el.dataset.lang||'';const ok=msgInScope(c,l);el.style.display=ok?'':'none';if(ok)shown++;});
  const old=document.getElementById('scopeEmpty');if(old)old.remove();
  if(!shown&&S.roomScope!=='global'){const chat=document.getElementById('chat');const e=document.createElement('div');e.id='scopeEmpty';e.style.cssText='text-align:center;color:var(--mut);font-size:12.5px;padding:24px 16px;line-height:1.6';e.innerHTML='🔭 אין עדיין הודעות בעדשה הזו.<br>היה/י הראשון/ה לכתוב — או חזור/חזרי ל-🌍 גלובלי.';chat.appendChild(e);}}
-const AUTO_REPLIES=['היי! קיבלתי את ההודעה 👋 אחזור אליך בקרוב','תודה על הפנייה! מה תרצה/י לדעת?','שלום 🙂 כן, זה עדיין רלוונטי','היי! אשמח לעזור — אפשר לתאם'];
-function autoReply(){return AUTO_REPLIES[Math.floor(Math.random()*AUTO_REPLIES.length)];}
 function openPChat(nm,opening){privCtx={nm};document.getElementById('rTitle').textContent='💬 '+nm;document.getElementById('rOnline').textContent='פרטי · נעלם תוך 24ש׳';
  document.getElementById('rBack').setAttribute('onclick',"go('msgs')");document.getElementById('rTrAll').style.display='none';document.getElementById('catbar').classList.add('hide');const sb=document.getElementById('scopebar');if(sb)sb.classList.add('hide');
- const c=S.pchats.find(x=>x.nm===nm);if(c)c.nw=0;sv();mbadge();
+ // לוודא שהצ'אט קיים ברשימת ההודעות
+ let c=S.pchats.find(x=>x.nm===nm);if(!c){c={nm,last:opening||'',nw:0,log:[]};S.pchats.unshift(c);}c.nw=0;c.log=c.log||[];if(opening){c.last=opening;c.log.push({me:1,t:opening});}sv();mbadge();
  cur='room';document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-room').classList.add('on');nav();
  const chat=document.getElementById('chat');chat.innerHTML='';
- if(opening){addMsg({w:'אתה',t:opening},true);showTyping(nm);setTimeout(()=>{hideTyping();addMsg({w:nm,t:autoReply()});},1400);}
- else addMsg({w:nm,t:'היי! קיבלתי את ההודעה 👋'});
+ // היסטוריית השיחה (ללא תגובות-בוט)
+ (c.log||[]).forEach(x=>addMsg({w:x.me?'אתה':nm,t:x.t,img:x.img,audio:x.audio},!!x.me));
  chat.scrollTop=chat.scrollHeight;}
 function showTyping(nm){const chat=document.getElementById('chat');if(!chat||document.getElementById('typingI'))return;const tp=document.createElement('div');tp.id='typingI';tp.className='msg';tp.innerHTML=`<div class="w">${esc(nm||'')}</div><div class="b typing"><span></span><span></span><span></span></div>`;chat.appendChild(tp);chat.scrollTop=chat.scrollHeight;}
 function hideTyping(){const t=document.getElementById('typingI');if(t)t.remove();}
@@ -1265,14 +1264,13 @@ function trAllToggle(){trAll=!trAll;document.getElementById('rTrAll').textConten
  else{document.querySelectorAll('#chat .tro').forEach(o=>o.classList.remove('show'));document.querySelectorAll('#chat .trb').forEach(b=>b.textContent='🌐 תרגם');}
  toast('🌐',trAll?'תרגום אוטומטי פעיל — כל ההודעות מתורגמות לשפה שלך':'תרגום כבוי');}
 function sendMsg(){const i=document.getElementById('cin');if(!i.value.trim())return;const text=i.value.trim();addMsg({w:'אתה',t:text},true);i.value='';const eb=document.getElementById('chatEmojiBar');if(eb)eb.remove();
- if(IS_SERVER()&&!privCtx&&curRoom){API.req('/rooms/'+curRoom+'/messages',{method:'POST',body:{text}}).catch(()=>{});}
- if(privCtx&&privCtx.chatId&&IS_SERVER()){API.req('/private/'+privCtx.chatId+'/messages',{method:'POST',body:{text}}).catch(()=>{});const chat=document.getElementById('chat');const sn=document.createElement('div');sn.style.cssText='align-self:flex-start;color:var(--mut);font-size:10px;padding:0 6px';sn.textContent='נשלח ✓';chat.appendChild(sn);chat.scrollTop=chat.scrollHeight;return;}
- if(privCtx){const chat=document.getElementById('chat');
-  const sn=document.createElement('div');sn.style.cssText='align-self:flex-start;color:var(--mut);font-size:10px;padding:0 6px';sn.textContent='נשלח';chat.appendChild(sn);chat.scrollTop=chat.scrollHeight;
-  setTimeout(()=>{sn.textContent='✓✓ נצפה';},1100);
-  let tp=document.getElementById('typingI');if(!tp){tp=document.createElement('div');tp.id='typingI';tp.className='msg';tp.innerHTML=`<div class="w">${privCtx.nm}</div><div class="b">מקליד<span id="td">.</span></div>`;}
-  setTimeout(()=>{chat.appendChild(tp);chat.scrollTop=chat.scrollHeight;let n=1;tp._t=setInterval(()=>{n=n%3+1;const d=document.getElementById('td');if(d)d.textContent='.'.repeat(n);},350);},1500);
-  setTimeout(()=>{clearInterval(tp._t);tp.remove();addMsg({w:privCtx.nm,t:'תודה! 🙏 קיבלתי, אחזור אליך בקרוב'});},3600);}}
+ // חדר ציבורי (שרת)
+ if(IS_SERVER()&&!privCtx&&curRoom){API.req('/rooms/'+curRoom+'/messages',{method:'POST',body:{text}}).catch(()=>{});return;}
+ // צ'אט פרטי (שרת)
+ if(privCtx&&privCtx.chatId&&IS_SERVER()){API.req('/private/'+privCtx.chatId+'/messages',{method:'POST',body:{text}}).then(()=>{window._srvLoaded=false;}).catch(()=>{});const chat=document.getElementById('chat');const sn=document.createElement('div');sn.style.cssText='align-self:flex-start;color:var(--mut);font-size:10px;padding:0 6px';sn.textContent='נשלח ✓';chat.appendChild(sn);chat.scrollTop=chat.scrollHeight;return;}
+ // צ'אט פרטי (דמו) — ללא תגובת-בוט; נשמר ברשימת ההודעות ועולה לראש
+ if(privCtx){const nm=privCtx.nm;let c=S.pchats.find(x=>x.nm===nm);if(!c){c={nm,last:'',nw:0,log:[]};S.pchats.unshift(c);}c.log=c.log||[];c.log.push({me:1,t:text});c.last=text;const idx=S.pchats.indexOf(c);if(idx>0){S.pchats.splice(idx,1);S.pchats.unshift(c);}sv();
+  const chat=document.getElementById('chat');const sn=document.createElement('div');sn.style.cssText='align-self:flex-start;color:var(--mut);font-size:10px;padding:0 6px';sn.textContent='נשלח ✓';chat.appendChild(sn);chat.scrollTop=chat.scrollHeight;}}
 function pickChatImg(){fileInput('image/*',false,f=>{addMsg({w:'אתה',img:URL.createObjectURL(f[0])},true);toast('📷','התמונה נשלחה');});}
 function pickChatFile(){fileInput('*/*',false,f=>{const fl=f[0];addMsg({w:'אתה',file:{name:fl.name,url:URL.createObjectURL(fl),type:fl.type}},true);toast('📎','הקובץ נשלח');});}
 function chatEmoji(){let bar=document.getElementById('chatEmojiBar');if(bar){bar.remove();return;}const set='😀 😂 🤣 ❤️ 🔥 👍 🙏 🎉 😍 🤔 👏 😢 🙌 💯 ✨ 😎 🥳 😮 😅 🤝 💪 👀 ✅ 🤯 🙈 😴 🤩 😭 🥰 😡 🥳 🫶'.split(' ');bar=document.createElement('div');bar.id='chatEmojiBar';bar.style.cssText='display:flex;flex-wrap:wrap;gap:4px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--line);max-height:120px;overflow-y:auto';bar.innerHTML=set.map(e=>`<span style="font-size:23px;cursor:pointer;padding:2px" onclick="var c=document.getElementById('cin');c.value+='${e}';c.focus()">${e}</span>`).join('');const comp=document.querySelector('#s-room .composer');if(comp)comp.parentElement.insertBefore(bar,comp);}
