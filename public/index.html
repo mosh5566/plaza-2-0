@@ -478,6 +478,7 @@
   .catchip{display:flex;align-items:center;gap:9px;background:var(--surface);border-radius:14px;padding:13px;font-size:13.5px;font-weight:700;color:var(--text);box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .15s ease}
   .catchip:active{transform:scale(.97)}
   .catchip span{font-size:20px}
+  .catchip.on{background:var(--grad);color:#fff;box-shadow:var(--glow)}
   /* מרקטפלייס */
   .row2{display:flex;gap:8px}.row2>*{flex:1;min-width:0}
   .spec{display:inline-block;background:var(--acc-soft);color:var(--acc);font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:9999px;margin:2px 0 6px}
@@ -532,9 +533,10 @@
           <div class="st"><b id="stP">2,417</b><small id="lblP48">פוסטים 48ש</small></div>
         </div>
         <div class="hdrow">
+          <div class="ib" onclick="go('search')" title="חיפוש" data-ic="search" style="flex:0 0 auto;background:var(--surface);box-shadow:var(--shadow-sm)"></div>
           <div class="filt-block" onclick="openFilter()">
             <div class="ib" title="סינון"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg><i class="cbadge acc" id="fbadge" style="display:none">0</i></div>
-            <small id="filtHint">סנן את התוכן שתואם לשפה, למדינה ולקטגוריה שלך</small>
+            <small id="filtHint">סנן · מרקטפלייס · לפי שפה ומדינה</small>
           </div>
           <div class="ico-row">
             <div class="ib round" onclick="go('msgs')" title="הודעות"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"></path></svg><i class="cbadge" id="mbadge">2</i></div>
@@ -702,7 +704,7 @@ const GENERIC=[{w:'Alex 🇺🇸',t:'love this room',tl:'אוהב את החדר'
 const COM=POSTS.map(()=>[{a:'🌟',n:'מירב',t:'וואו תודה ששיתפת! 🔥',m:'לפני 2 דק׳'},{a:'🌍',n:'Alex',t:'this is why I stay all day',m:'5 min'}]);
 
 const SK='plaza_demo_v5';
-function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,trAllGlobal:false,lastDigest:'',
+function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,trAllGlobal:false,lastDigest:'',mktMode:false,mktCats:[],mktQ:'',savedSearches:[],
  me:{nm:'משה',handle:'',creator:false,verified:false,loc:'ישראל 🇮🇱',av:'🦊',avImg:'',coverImg:'',lng:'עברית',hobby:'',bnm:'הסטודיו שלי',bpr:'🎨 שירות מאומת',bbio:'',waD:'972',waN:'',bem:'',bph:'',bweb:'',port:['🖼️','🎨','📷'],svc:[{t:'שירות לדוגמה',p:'מ-₪100',m:'🛠️',d:'תיאור השירות',l:''}]},
  prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},cols:['הכל'],bkCol:{},bkView:'הכל',mine:[],pchats:[],reqN:2};
  try{const s=Object.assign(d,JSON.parse(localStorage.getItem(SK)||'{}'));s.nf=Object.assign({comments:true,chats:true},s.nf);s.me=Object.assign(d.me,s.me);return s;}catch(e){return d;}}
@@ -833,6 +835,11 @@ function videoCard(p,i){const t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&p
 function passes(p){const key=p._sid?'s'+p._sid:'i'+POSTS.indexOf(p);
  if(S.hidden&&S.hidden.includes(key))return false;
  if(S.blocked&&S.blocked.includes(p.nm))return false;
+ if(S.mktMode){if(p.type!=='product')return false;const pr=p.prod||{};const cat=pr.cat||'general';
+  if(S.mktCats&&S.mktCats.length&&!S.mktCats.includes(cat))return false;
+  if(S.fC&&S.fC.length&&!S.fC.includes(p.country))return false;
+  if(S.mktQ){const q=S.mktQ.toLowerCase(),v=pr.vehicle||{};if(!((pr.title||'').toLowerCase().includes(q)||(pr.city||'').toLowerCase().includes(q)||(v.make||'').toLowerCase().includes(q)||(v.model||'').toLowerCase().includes(q)||(p.text||'').toLowerCase().includes(q)))return false;}
+  return true;}
  if(S.fG&&S.fG!=='all'&&p.gender&&p.gender!=='all'&&p.gender!==S.fG)return false;
  return (!S.fP.length||S.fP.includes(p.type))&&(!S.fL.length||S.fL.includes(p.lang))&&(!S.fC.length||S.fC.includes(p.country))&&(!S.fT.length||S.fT.includes(p.topicId));}
 /* ===== Skeleton loaders + count-up (Phase 2) ===== */
@@ -863,10 +870,17 @@ function buildFeed(){_feedList=POSTS.filter(passes);_feedCursor=0;try{_presentSi
 function showFeedEnd(){if(document.getElementById('feedEnd'))return;const sent=document.getElementById('feedSentinel');
  const h=`<div class="feedend" id="feedEnd">${ic('check')}<b>ראית את כל מה שטרי ✨</b><p>בפלאזה התוכן זמני — כשנגמר, נגמר. חזור/חזרי מאוחר יותר לגלות מה חדש, או צור/צרי משהו עכשיו.</p><div class="ea"><button class="p" onclick="go('create')">${ic('plus')} פרסם משהו</button><button onclick="go('rooms')">${ic('chat')} חדרים</button></div></div>`;
  if(sent)sent.insertAdjacentHTML('beforebegin',h);else feed.insertAdjacentHTML('beforeend',h);}
-function chips(){const c=document.getElementById('chips');let h='';
+function chips(){const c=document.getElementById('chips');const b=document.getElementById('fbadge');let h='';
+ if(S.mktMode){h=`<div class="ch" style="background:var(--grad);color:#fff" onclick="exitMkt()">🛍️ מרקטפלייס <i style="color:#fff">✕</i></div>`;
+  (S.mktCats||[]).forEach(id=>{const it=mkt(id);h+=`<div class="ch" onclick="rmMkt('${id}')">${it[2]} ${it[1]} <i>✕</i></div>`;});
+  (S.fC||[]).forEach(id=>{const it=COUNTRIES.find(x=>x[0]===id);if(it)h+=`<div class="ch" onclick="rmF('fC','${id}')">${it[2]} ${it[1]} <i>✕</i></div>`;});
+  if(S.mktQ)h+=`<div class="ch">🔎 ${esc(S.mktQ)}</div>`;
+  c.innerHTML=h;b.style.display='flex';b.textContent='🛍️';return;}
  const a=(arr,src,key)=>arr.forEach(id=>{const it=src.find(x=>x[0]===id);if(it)h+=`<div class="ch" onclick="rmF('${key}','${id}')">${it[2]} ${it[1]} <i>✕</i></div>`;});
  a(S.fL,LANGS,'fL');a(S.fC,COUNTRIES,'fC');a(S.fT,TOPICS,'fT');S.fP.forEach(id=>{const it=PTYPES.find(x=>x[0]===id);if(it)h+=`<div class="ch" onclick="rmF('fP','${id}')">${it[2]} ${it[1]} <i>✕</i></div>`;});
- c.innerHTML=h;const n=S.fL.length+S.fC.length+S.fT.length+S.fP.length,b=document.getElementById('fbadge');if(n){b.style.display='flex';b.textContent=n;}else b.style.display='none';}
+ c.innerHTML=h;const n=S.fL.length+S.fC.length+S.fT.length+S.fP.length;if(n){b.style.display='flex';b.textContent=n;}else b.style.display='none';}
+function exitMkt(){S.mktMode=false;S.mktCats=[];S.mktQ='';sv();chips();buildFeed();toast('🏠','חזרה לפיד הרגיל');}
+function rmMkt(id){S.mktCats=(S.mktCats||[]).filter(x=>x!==id);sv();chips();buildFeed();}
 function rmF(k,id){S[k]=S[k].filter(x=>x!==id);sv();chips();buildFeed();}
 function renderFav(){const def=['tech','cars','real_estate','sports','food','music','news','ai','travel','gaming'];
  const ids=(S.prefT&&S.prefT.length)?S.prefT:def;const cur=S.fT[0]||'';
@@ -978,7 +992,7 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();_deferredIn
 });
 
 /* ===== NAV ===== */
-const NAV=[['feed','בית','M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'],['search','גלה','explore'],['plus','',''],['rooms','חדרי צאט','M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z'],['profile','פרופיל','user']];
+const NAV=[['feed','בית','M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'],['rooms','חדרי צאט','M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z'],['plus','',''],['profile','פרופיל','user']];
 let cur='feed';
 function navSvg(d){if(d==='explore')return '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><polygon points="16.2 7.8 10.5 10.5 7.8 16.2 13.5 13.5 16.2 7.8"></polygon></svg>';if(d==='search')return '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>';if(d==='user')return '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';return `<svg viewBox="0 0 24 24"><path d="${d}"></path></svg>`;}
 /* ===== Clean inline-SVG icon system (Feather/Lucide style) ===== */
@@ -1038,7 +1052,7 @@ function nav(){const t=I18N[S.lang]||I18N.en,lbl={feed:t.nHome,search:t.nSearch,
  document.getElementById('nav').innerHTML=NAV.map(n=>{if(n[0]==='plus')return `<div class="nv" onclick="go('create')"><div class="plus"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div></div>`;const on=(cur===n[0]||(n[0]==='rooms'&&cur==='room'))?'on':'';return `<div class="nv ${on}" onclick="go('${n[0]}')">${navSvg(n[2])}<small>${lbl[n[0]]||n[1]}</small></div>`;}).join('');}
 const _rm=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function go(s){const apply=()=>{cur=s;document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-'+s).classList.add('on');nav();initStaticIcons();
- if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='settings')renderSettings();if(s==='pedit')renderPEdit();if(s==='create')renderCreate();};
+ if(s==='rooms')renderRooms();if(s==='myposts')renderMine();if(s==='bm')renderBm();if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());if(s==='notif')renderNt();if(s==='profile')renderProfile();if(s==='settings')renderSettings();if(s==='pedit')renderPEdit();if(s==='search')doSearch();if(s==='create')renderCreate();};
  if(document.startViewTransition&&!_rm()){document.startViewTransition(apply);}else{apply();}}
 if(document.startViewTransition)document.documentElement.classList.add('has-vt');
 nav();initStaticIcons();
@@ -1143,16 +1157,10 @@ function marketCat(id){_mktCat=(_mktCat===id?'':id);doSearch();}
 function mktCardHTML(p){const i=POSTS.indexOf(p);const sp=prodSpec(p.prod||{});const img=p.imgs&&p.imgs[0];
  return `<div class="mkt-card" onclick="searchOpen(${i})">${img?`<div class="mkt-img">${cell(img)}</div>`:`<div class="mkt-img ph">${mkt((p.prod&&p.prod.cat)||'general')[2]}</div>`}<div class="mkt-b"><div class="mkt-pr">${esc((p.prod&&p.prod.price)||'')}</div><div class="mkt-t">${esc((p.prod&&p.prod.title)||'')}</div><div class="mkt-sp">${sp}</div></div></div>`;}
 function searchHome(){
- const products=POSTS.filter(p=>p.type==='product'&&(!_mktCat||((p.prod&&p.prod.cat)||'general')===_mktCat));
- const jobs=POSTS.filter(p=>p.type==='job').slice(0,5);
- const trend=POSTS.slice().sort((a,b)=>((b.com||0)*3+(b.likes||0))-((a.com||0)*3+(a.likes||0))).slice(0,6);
+ const trend=POSTS.slice().sort((a,b)=>((b.com||0)*3+(b.likes||0))-((a.com||0)*3+(a.likes||0))).slice(0,8);
  const cats=TOPICS;
- let h=`<div class="sh-h" style="margin-top:0;display:flex;justify-content:space-between;align-items:center"><span>🛍️ מרקטפלייס</span><span style="color:var(--acc);font-weight:700;cursor:pointer" onclick="createKind('product','מוצר','🏷️')">＋ הוסף מוצר</span></div>`;
- h+=`<div class="hscroll">${MKTCATS.map(c=>`<div class="catpill ${_mktCat===c[0]?'on':''}" onclick="marketCat('${c[0]}')"><span>${c[2]}</span>${c[1]}</div>`).join('')}</div>`;
- h+=products.length?`<div class="mkt-grid">${products.slice(0,8).map(mktCardHTML).join('')}</div>`:`<div class="empty" style="padding:22px"><div class="e">${ic('grid')}</div><p>אין מוצרים${_mktCat?' בקטגוריה זו':''} — היה/י הראשון/ה לפרסם</p></div>`;
- if(jobs.length)h+=`<div class="sh-h">💼 דרושים</div>${jobs.map(p=>{const j=p.job||{};return `<div class="card" onclick="searchOpen(${POSTS.indexOf(p)})"><b style="color:var(--text);font-size:13.5px">${esc(j.title||'משרה')}</b><div style="color:var(--sub);font-size:12px;margin-top:3px">${esc(j.company||'')}${j.location?' · '+esc(j.location):''}${j.sal?' · 💰 '+esc(j.sal):''}</div></div>`;}).join('')}`;
+ let h=`<div class="sh-h" style="margin-top:0">🔥 חם עכשיו</div>${trend.map(p=>{const t=tp(p.topicId);return `<div class="card" onclick="searchOpen(${POSTS.indexOf(p)})"><div style="display:flex;align-items:center;gap:9px"><span class="av" style="width:34px;height:34px;font-size:15px">${avH(p)}</span><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${esc(p.nm)}</b><div style="color:var(--sub);font-size:11.5px">${t?t[2]+' '+t[1]:''} · ❤ ${((p.likes||0)/1000).toFixed(1)}K</div></div></div><div style="color:var(--text);font-size:12.5px;margin-top:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc((p.text||'').slice(0,90))}</div></div>`;}).join('')}`;
  h+=`<div class="sh-h">קטגוריות</div><div class="catgrid">${cats.map(t=>`<div class="catchip" onclick="searchCat('${t[0]}')"><span>${t[2]}</span>${t[1]}</div>`).join('')}</div>`;
- h+=`<div class="sh-h">🔥 חם עכשיו</div>${trend.map(p=>{const t=tp(p.topicId);return `<div class="card" onclick="searchOpen(${POSTS.indexOf(p)})"><div style="display:flex;align-items:center;gap:9px"><span class="av" style="width:34px;height:34px;font-size:15px">${avH(p)}</span><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${esc(p.nm)}</b><div style="color:var(--sub);font-size:11.5px">${t?t[2]+' '+t[1]:''} · ❤ ${((p.likes||0)/1000).toFixed(1)}K</div></div></div><div style="color:var(--text);font-size:12.5px;margin-top:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc((p.text||'').slice(0,90))}</div></div>`;}).join('')}`;
  return h;}
 function searchCat(id){S.fT=[id];sv();chips();buildFeed();if(typeof renderFav==='function')renderFav();go('feed');toast('⚡',(tp(id)||['','',''])[1]+' — סינון הוחל');}
 function searchOpen(i){go('feed');setTimeout(()=>{const el=document.querySelector(`#feed .fb[data-i="${i}"]`);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},350);}
@@ -1597,18 +1605,36 @@ function addCom(i){const v=document.getElementById('ci');if(!v.value.trim())retu
 function openShare(){openSheet(`<div class="sh-hd"><h3>↗️ שתף</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">${[['🔗','העתק'],['💬','צ׳אט'],['🟢','WhatsApp'],['📸','סטורי'],['✈️','Telegram'],['🐦','X'],['📧','מייל'],['🔖','שמור']].map(s=>`<div style="text-align:center;cursor:pointer" onclick="toast('${s[0]}','${s[1]}')"><div style="width:48px;height:48px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:21px;margin:0 auto">${s[0]}</div><div style="color:var(--text);font-size:11px;margin-top:6px">${s[1]}</div></div>`).join('')}</div></div>`);}
 let tT;function toast(e,t){const x=document.getElementById('toast'),te=document.getElementById('te');const nm=TOAST_IC[e];if(nm){te.innerHTML=ic(nm);}else{te.textContent=e;}document.getElementById('tt').innerHTML=t;x.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>x.classList.remove('on'),3200);}
 function filterApply(){}
-function openFilter(){window._T={fL:[...S.fL],fC:[...S.fC],fT:[...S.fT],fP:[...S.fP],fG:S.fG||'all'};const T=window._T;
- openSheet(`<div class="sh-hd"><h3>פילטרים</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">
-  <div class="sh-h" style="margin-top:0">סנן לפי השפה, המדינה והקטגוריה שלך</div>
-  <div class="seg" id="fgSeg"><b class="${T.fG==='all'?'on':''}" onclick="setFG('all',this)">👥 הכל</b><b class="${T.fG==='male'?'on':''}" onclick="setFG('male',this)">👨 גברים</b><b class="${T.fG==='female'?'on':''}" onclick="setFG('female',this)">👩 נשים</b></div>
-  ${acc('שפה','fL',LANGS,true)}${acc('מדינה','fC',COUNTRIES,true)}${acc('קטגוריה','fT',TOPICS,true)}${acc('סוג פוסט','fP',PTYPES,false)}</div>
-  <div class="sh-foot"><button class="bt g" onclick="fRst()">אפס</button><button class="bt" onclick="fApp()">✓ החל</button></div>`);}
+function openFilter(){window._T={fL:[...S.fL],fC:[...S.fC],fT:[...S.fT],fP:[...S.fP],fG:S.fG||'all',mkt:!!S.mktMode,mktCats:[...(S.mktCats||[])],mktQ:S.mktQ||''};renderFilter();}
+function setFMode(m){window._T.mkt=m;renderFilter();}
+function mTg(id,el){const T=window._T,i=T.mktCats.indexOf(id);if(i>=0){T.mktCats.splice(i,1);el.classList.remove('on');}else{T.mktCats.push(id);el.classList.add('on');}}
+function renderFilter(){const T=window._T;
+ const modeSeg=`<div class="seg" style="margin-top:0"><b class="${!T.mkt?'on':''}" onclick="setFMode(false)">פיד רגיל</b><b class="${T.mkt?'on':''}" onclick="setFMode(true)">🛍️ מרקטפלייס</b></div>`;
+ let body;
+ if(T.mkt){const sv2=(S.savedSearches||[]);
+  body=`<div class="srch"><span data-ic="search" class="srch-ic"></span><input id="mktQin" placeholder="חיפוש מוצר, יצרן, עיר..." value="${esc(T.mktQ)}" oninput="window._T.mktQ=this.value"></div>
+   <div class="sh-h">קטגוריות</div><div class="catgrid">${MKTCATS.map(c=>`<div class="catchip ${T.mktCats.includes(c[0])?'on':''}" onclick="mTg('${c[0]}',this)"><span>${c[2]}</span>${c[1]}</div>`).join('')}</div>
+   ${acc('מדינה (קרוב אליי)','fC',COUNTRIES,true)}
+   <div class="mi" onclick="saveSearch()"><span class="mc">${ic('bell')}</span>שמור חיפוש + קבל התראה<span class="mv">›</span></div>
+   ${sv2.length?`<div class="sh-h">חיפושים שמורים</div>${sv2.map((s,k)=>`<div class="mi" onclick="runSaved(${k})"><span class="mc">${ic('search')}</span>${esc(s.label)}<span class="mv" onclick="event.stopPropagation();delSaved(${k})">✕</span></div>`).join('')}`:''}`;
+ } else {
+  body=`<div class="sh-h" style="margin-top:0">סנן לפי השפה, המדינה והקטגוריה שלך</div>
+   <div class="seg" id="fgSeg"><b class="${T.fG==='all'?'on':''}" onclick="setFG('all',this)">👥 הכל</b><b class="${T.fG==='male'?'on':''}" onclick="setFG('male',this)">👨 גברים</b><b class="${T.fG==='female'?'on':''}" onclick="setFG('female',this)">👩 נשים</b></div>
+   ${acc('שפה','fL',LANGS,true)}${acc('מדינה','fC',COUNTRIES,true)}${acc('קטגוריה','fT',TOPICS,true)}${acc('סוג פוסט','fP',PTYPES,false)}`;
+ }
+ openSheet(`<div class="sh-hd"><h3>${T.mkt?'🛍️ מרקטפלייס':'פילטרים'}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">${modeSeg}${body}</div><div class="sh-foot"><button class="bt g" onclick="fRst()">אפס</button><button class="bt" onclick="fApp()">✓ החל</button></div>`);}
+function saveSearch(){const T=window._T;const cats=(T.mktCats||[]).map(c=>mkt(c)[1]).join(', ');const label=(T.mktQ||'')+(cats?(T.mktQ?' · ':'')+cats:'')||'כל המוצרים';S.savedSearches=S.savedSearches||[];S.savedSearches.unshift({label,q:T.mktQ||'',cats:[...(T.mktCats||[])],fc:[...(T.fC||[])]});sv();toast('🔔','החיפוש נשמר — נעדכן כשיתפרסמו מוצרים מתאימים');renderFilter();}
+function delSaved(k){S.savedSearches.splice(k,1);sv();renderFilter();}
+function runSaved(k){const s=S.savedSearches[k];if(!s)return;window._T.mkt=true;window._T.mktQ=s.q;window._T.mktCats=[...s.cats];window._T.fC=[...(s.fc||[])];fApp();}
 function setFG(g,el){window._T.fG=g;document.querySelectorAll('#fgSeg b').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');}
 function acc(t,k,src,withAll){const T=window._T;return `<div class="card" style="padding:0;overflow:hidden"><div style="padding:13px 14px;font-weight:700;color:var(--text);cursor:pointer;display:flex;justify-content:space-between" onclick="const n=this.nextElementSibling;n.style.display=n.style.display==='block'?'none':'block'"><span>${t}${T[k].length?' ('+T[k].length+')':''}</span><span>▾</span></div><div style="display:none;padding:0 12px 12px">${withAll?`<div class="seg" style="margin:8px 0 4px"><b data-allbtn="${k}" class="${T[k].length===0?'on':''}" onclick="selAllF('${k}')">🌐 כלול הכל (ברירת מחדל)</b></div>`:''}<div class="fl" data-k="${k}">${src.map(it=>`<div class="fi ${T[k].includes(it[0])?'on':''}" onclick="fTg('${k}','${it[0]}',this)"><span>${it[2]||'•'}</span><span class="l">${it[1]}</span><span class="k">${T[k].includes(it[0])?'✓':''}</span></div>`).join('')}</div></div></div>`;}
 function selAllF(k){window._T[k]=[];const c=document.querySelector('.fl[data-k="'+k+'"]');if(c)c.querySelectorAll('.fi').forEach(el=>{el.classList.remove('on');el.querySelector('.k').textContent='';});const ab=document.querySelector('[data-allbtn="'+k+'"]');if(ab)ab.classList.add('on');toast('🌐','כל הפריטים כלולים');}
 function fTg(k,id,el){const T=window._T,i=T[k].indexOf(id);if(i>=0){T[k].splice(i,1);el.classList.remove('on');el.querySelector('.k').textContent='';}else{T[k].push(id);el.classList.add('on');el.querySelector('.k').textContent='✓';}const ab=document.querySelector('[data-allbtn="'+k+'"]');if(ab)ab.classList.toggle('on',T[k].length===0);}
-function fRst(){window._T={fL:[],fC:[],fT:[],fP:[],fG:'all'};openFilter();toast('♻️','אופס — לחץ החל');}
-function fApp(){const T=window._T;S.fL=[...T.fL];S.fC=[...T.fC];S.fT=[...T.fT];S.fP=[...T.fP];S.fG=T.fG||'all';sv();closeSheet();chips();buildFeed();toast('✅','הסינון הוחל');}
+function fRst(){const mkt=window._T&&window._T.mkt;window._T={fL:[],fC:[],fT:[],fP:[],fG:'all',mkt:mkt,mktCats:[],mktQ:''};renderFilter();toast('♻️','אופס — לחץ החל');}
+function fApp(){const T=window._T;S.mktMode=!!T.mkt;
+ if(T.mkt){S.mktCats=[...(T.mktCats||[])];S.mktQ=(T.mktQ||'').trim();S.fC=[...T.fC];S.fP=[];S.fL=[];S.fT=[];S.fG='all';}
+ else{S.fL=[...T.fL];S.fC=[...T.fC];S.fT=[...T.fT];S.fP=[...T.fP];S.fG=T.fG||'all';}
+ sv();closeSheet();chips();buildFeed();toast('✅',S.mktMode?'מרקטפלייס מוצג בפיד':'הסינון הוחל');}
 
 /* ===== In-app browser ===== */
 function openInApp(url){if(!url)return;if(!/^https?:\/\//.test(url))url='https://'+url;
