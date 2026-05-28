@@ -59,7 +59,7 @@ const storage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, UPLOAD_DIR),
   filename: (_, file, cb) => cb(null, Date.now() + '-' + Math.random().toString(36).slice(2) + path.extname(file.originalname || ''))
 });
-const upload = multer({ storage, limits: { fileSize: 100 * 1024 * 1024 } });
+const upload = multer({ storage, limits: { fileSize: 300 * 1024 * 1024 } });
 
 // ─── Auth helpers ────────────────────────────────
 function sign(u){return jwt.sign({id:u.id,username:u.username,is_admin:u.is_admin},JWT_SECRET,{expiresIn:'30d'});}
