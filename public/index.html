@@ -869,10 +869,10 @@ function i18nObserve(){if(_i18nObs||!window.MutationObserver)return;_i18nObs=new
 function rerenderCurrent(){try{const s=cur;if(s==='feed')buildFeed();else if(s==='rooms')renderRooms();else if(s==='profile')renderProfile();else if(s==='settings')renderSettings();else if(s==='pedit')renderPEdit();else if(s==='myposts')renderMine();else if(s==='bm')renderBm();else if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());else if(s==='notif')renderNt();else if(s==='search')doSearch();}catch(e){}}
 function i18nRevert(){_i18nOrig.forEach((orig,n)=>{try{if(n.isConnected)n.nodeValue=orig;}catch(e){}});_i18nOrig.clear();
  _i18nAttrEls.forEach(el=>{['placeholder','title','aria-label'].forEach(a=>{const k='_o_'+a;if(el[k]!=null){try{if(el.isConnected)el.setAttribute(a,el[k]);}catch(e){}el[k]=null;}});});_i18nAttrEls.clear();}
-function applyLang(){const RTL=['he','ar','fa','ur','yi','ps','ckb'];const dir=RTL.includes(S.lang)?'rtl':'ltr';document.documentElement.setAttribute('dir',dir);document.documentElement.lang=S.lang;
- try{nav();}catch(e){}try{rerenderCurrent();}catch(e){}
- if(S.lang==='he'){i18nRevert();}else{i18nObserve();setTimeout(()=>i18nApply(document.body),50);}}
-setTimeout(applyLang,0);
+function applyLang(boot){const RTL=['he','ar','fa','ur','yi','ps','ckb'];const dir=RTL.includes(S.lang)?'rtl':'ltr';document.documentElement.setAttribute('dir',dir);document.documentElement.lang=S.lang;
+ try{nav();}catch(e){}if(!boot){try{rerenderCurrent();}catch(e){}}
+ if(S.lang==='he'){if(!boot)i18nRevert();}else{i18nObserve();setTimeout(()=>i18nApply(document.body),boot?400:50);}}
+setTimeout(()=>applyLang(true),0);
 /* ===== הארכה אוטומטית בתשלום מדורג — קוד מוכן, מוסתר מהממשק (לא מוצג בבטא) =====
    כרגע: הארכה חופשית של עד יום אחד נוסף (autoExt). הלוגיקה למטה מוכנה לחשיפה עתידית:
    המחיר עולה מדורג ככל שמאריכים יותר ימים — כמו תקציב קמפיין ממומן בפייסבוק. */
