@@ -193,8 +193,12 @@
   .msg .b.typing span{width:7px;height:7px;border-radius:50%;background:var(--mut);display:inline-block;animation:typd 1.2s infinite ease-in-out}
   .msg .b.typing span:nth-child(2){animation-delay:.18s}.msg .b.typing span:nth-child(3){animation-delay:.36s}
   @keyframes typd{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
-  .trb{font-size:10.5px;color:var(--acc);font-weight:700;cursor:pointer;padding:3px 4px 0;display:inline-block}
+  .trb{font-size:10.5px;color:var(--acc);font-weight:700;cursor:pointer;padding:3px 4px 0;display:inline-block;background:none;border:none}
+  button.trb{padding:4px 9px;border-radius:8px;background:var(--surface2);margin-top:5px}
   .tro{margin-top:5px;padding-top:5px;border-top:1px dashed var(--line);font-size:13px;color:var(--acc);display:none}
+  .vtool2{margin-top:6px}
+  .vout{margin-top:6px;font-size:12.5px;line-height:1.5;color:var(--text);background:var(--surface2);border-radius:10px;padding:8px 10px}
+  .msg.me .vout{background:rgba(255,255,255,.16);color:#fff}
   .tro.show{display:block}
   .composer{flex:0 0 auto;display:flex;align-items:center;gap:5px;padding:9px 8px calc(9px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--line)}
   .composer .snd{width:40px;height:40px;border-radius:50%;border:none;background:var(--acc);color:#fff;font-size:16px;cursor:pointer;flex:0 0 auto;box-shadow:0 4px 12px var(--ring)}
@@ -830,9 +834,31 @@ const I18N={he:{subt:'קבוצה עולמית · אין אלגוריתם · כו
  de:{subt:'Globale Gemeinschaft · kein Algorithmus · alles verschwindet in 48h',reg:'Registriert',onl:'Online',p48:'Posts 48h',filtHint:'Filter · Marktplatz · nach Sprache, Land & Kategorie',brand:'PLAZA',nHome:'Start',nSearch:'Suche',nRooms:'Räume',nProfile:'Profil',scGlobal:'🌍 Global',scCountry:'Mein Land',scLang:'Meine Sprache',searchPh:'PLAZA durchsuchen...'}};
 function i18n(k){const t=I18N[S.lang]||I18N.en;return t[k]!==undefined?t[k]:(I18N.en[k]||k);}
 (function(){const M={he:'הודעות',en:'Messages',ar:'الرسائل',es:'Mensajes',fr:'Messages',ru:'Сообщения',de:'Nachrichten'};Object.keys(I18N).forEach(k=>{if(!I18N[k].nMsgs)I18N[k].nMsgs=M[k]||'Messages';});})();
+/* ===== i18n: שכבת תרגום-ריצה אוטומטית של כל הממשק (כל שפה, עם cache) ===== */
+let _i18nCache={};try{_i18nCache=JSON.parse(localStorage.getItem('plaza_i18n')||'{}');}catch(e){}
+let _i18nSaveT;function _i18nSave(){clearTimeout(_i18nSaveT);_i18nSaveT=setTimeout(()=>{try{localStorage.setItem('plaza_i18n',JSON.stringify(_i18nCache));}catch(e){}},1200);}
+const _i18nOrig=new WeakMap();let _i18nObs=null,_i18nTimer=null;
+const _i18nSkip=new Set(['PLAZA','plaza']);
+function _hasLetters(s){return /[A-Za-z֐-׿؀-ۿЀ-ӿ一-鿿぀-ヿ가-힯]/.test(s);}
+async function _i18nOne(src,lang){const c=_i18nCache[lang]||(_i18nCache[lang]={});if(c[src]!=null)return c[src];let tr;try{tr=await translateText(src,lang,'he');}catch(e){tr=src;}c[src]=tr;_i18nSave();return tr;}
+async function i18nApply(root){if(!root||S.lang==='he'||root.nodeType!==1)return;const lang=S.lang;
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){const p=n.parentNode;if(!p)return NodeFilter.FILTER_REJECT;const tag=p.nodeName;if(tag==='SCRIPT'||tag==='STYLE'||tag==='TEXTAREA'||tag==='OPTION')return NodeFilter.FILTER_REJECT;if(p.closest&&p.closest('[data-noi18n]'))return NodeFilter.FILTER_REJECT;const tx=n.nodeValue;if(!tx||!tx.trim()||!_hasLetters(tx)||_i18nSkip.has(tx.trim()))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT;}});
+ const nodes=[];let w;while(w=walker.nextNode())nodes.push(w);
+ const attrEls=[].slice.call(root.querySelectorAll('[placeholder],[title],[aria-label]')).filter(el=>!(el.closest&&el.closest('[data-noi18n]')));
+ const jobs=[];
+ nodes.forEach(n=>{if(!_i18nOrig.has(n))_i18nOrig.set(n,n.nodeValue);const orig=_i18nOrig.get(n);const src=(orig||'').trim();if(_hasLetters(src))jobs.push({src,apply:t=>{const lead=(orig.match(/^\s*/)||[''])[0],trail=(orig.match(/\s*$/)||[''])[0];n.nodeValue=lead+t+trail;}});});
+ ['placeholder','title','aria-label'].forEach(attr=>{const key='_o_'+attr;attrEls.forEach(el=>{const v=el.getAttribute(attr);if(v&&_hasLetters(v)){if(el[key]==null)el[key]=v;const src=el[key];jobs.push({src,apply:t=>el.setAttribute(attr,t)});}});});
+ if(!jobs.length)return;
+ const uniq=Array.from(new Set(jobs.map(j=>j.src)));const map={};let idx=0;const pool=Math.min(8,uniq.length);
+ await Promise.all(Array.from({length:pool},()=>(async()=>{while(idx<uniq.length){const s=uniq[idx++];map[s]=await _i18nOne(s,lang);}})()));
+ if(S.lang!==lang)return;jobs.forEach(j=>{const t=map[j.src];if(t!=null)j.apply(t);});}
+function i18nObserve(){if(_i18nObs||!window.MutationObserver)return;_i18nObs=new MutationObserver(muts=>{if(S.lang==='he')return;const adds=[];muts.forEach(m=>{if(m.addedNodes)m.addedNodes.forEach(n=>{if(n.nodeType===1)adds.push(n);});});if(!adds.length)return;clearTimeout(_i18nTimer);_i18nTimer=setTimeout(()=>{adds.forEach(n=>{if(n.isConnected)i18nApply(n);});},160);});_i18nObs.observe(document.body,{childList:true,subtree:true});}
+function rerenderCurrent(){try{const s=cur;if(s==='feed')buildFeed();else if(s==='rooms')renderRooms();else if(s==='profile')renderProfile();else if(s==='settings')renderSettings();else if(s==='pedit')renderPEdit();else if(s==='myposts')renderMine();else if(s==='bm')renderBm();else if(s==='msgs')(IS_SERVER()?loadPrivateChats():renderMsgs());else if(s==='notif')renderNt();else if(s==='search')doSearch();}catch(e){}}
 function applyLang(){const RTL=['he','ar','fa','ur','yi','ps','ckb'];const dir=RTL.includes(S.lang)?'rtl':'ltr';document.documentElement.setAttribute('dir',dir);document.documentElement.lang=S.lang;
  const t=I18N[S.lang]||I18N.en,set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
- set('subt',t.subt);set('lblReg',t.reg);set('lblOnl',t.onl);set('lblP48',t.p48);set('filtHint',t.filtHint);set('brandTxt',t.brand);try{nav();}catch(e){}}
+ set('subt',t.subt);set('lblReg',t.reg);set('lblOnl',t.onl);set('lblP48',t.p48);set('filtHint',t.filtHint);set('brandTxt',t.brand);try{nav();}catch(e){}
+ try{rerenderCurrent();}catch(e){}
+ if(S.lang!=='he'){i18nObserve();setTimeout(()=>i18nApply(document.body),60);}}
 setTimeout(applyLang,0);
 /* ===== הארכה אוטומטית בתשלום מדורג — קוד מוכן, מוסתר מהממשק (לא מוצג בבטא) =====
    כרגע: הארכה חופשית של עד יום אחד נוסף (autoExt). הלוגיקה למטה מוכנה לחשיפה עתידית:
@@ -876,7 +902,7 @@ function mediaBlock(p,i){
   return `<div style="padding:0 13px 11px">`+p.poll.map((o,oi)=>{const pct=tot?Math.round((o.v||0)/tot*100):0;return `<div class="poll-o${voted&&S.pollVotes[k]===oi?' my':''}" onclick="votePoll(${i},${oi})"><div class="f" style="width:${voted?pct:0}%"></div><div class="l"><span>${voted&&S.pollVotes[k]===oi?'✓ ':''}${o.t}</span><span class="pc">${voted?pct+'%':''}</span></div></div>`;}).join('')+`<div style="color:var(--mut);font-size:11px;margin-top:6px">${tot.toLocaleString('en-US')} הצבעות${voted?'':' · הקש להצביע'}</div></div>`;}
  if(p.type==='product'){const g=p.imgs&&p.imgs.length?`<div class="media"><div class="fbg n${Math.min(p.imgs.length,4)}">`+p.imgs.slice(0,4).map((m,k)=>`<div onclick="galView(${i},${k})">${cell(m)}${(k===3&&p.imgs.length>4)?`<span class="more">+${p.imgs.length-4}</span>`:''}</div>`).join('')+`</div></div>`:'';
   const sp=prodSpec(p.prod);
-  return g+`<div class="ibx"><div class="t" style="font-size:15px">${esc(p.prod.title||'')}</div>${sp?`<div class="spec">${sp}</div>`:''}${p.prod.desc?`<div class="d">${linkify(p.prod.desc)}</div>`:''}<div class="pr">${esc(p.prod.price||'')}</div>${p.prod.ship?`<div class="sh">🚚 ${esc(p.prod.ship)}</div>`:''}<button onclick="contactSeller('${(p.nm||'').replace(/'/g,'')}',${p.uid||'null'},${JSON.stringify('שלום! מעוניין/ת ב: '+(p.prod.title||'')).replace(/"/g,'&quot;')})">💬 צור קשר על המודעה</button><div class="safety">🛡️ אל תשלם מראש · פגישה במקום ציבורי · <span onclick="reportPost(${i})" style="color:var(--acc);cursor:pointer">דווח</span></div></div>`;}
+  return g+`<div class="ibx"><div class="t" style="font-size:15px" data-noi18n>${esc(p.prod.title||'')}</div>${sp?`<div class="spec">${sp}</div>`:''}${p.prod.desc?`<div class="d" data-noi18n>${linkify(p.prod.desc)}</div>`:''}<div class="pr" data-noi18n>${esc(p.prod.price||'')}</div>${p.prod.ship?`<div class="sh">🚚 ${esc(p.prod.ship)}</div>`:''}<button onclick="contactSeller('${(p.nm||'').replace(/'/g,'')}',${p.uid||'null'},${JSON.stringify('שלום! מעוניין/ת ב: '+(p.prod.title||'')).replace(/"/g,'&quot;')})">💬 צור קשר על המודעה</button><div class="safety">🛡️ אל תשלם מראש · פגישה במקום ציבורי · <span onclick="reportPost(${i})" style="color:var(--acc);cursor:pointer">דווח</span></div></div>`;}
  if(p.type==='job'){const j=p.job||{};const applyWa=j.apply==='wa'&&j.wa;
   return `<div class="ibx" style="border-color:#1D9BF0"><div class="t">${j.title||'משרה'}</div><div class="d">${j.company||''}${j.location?' · 📍 '+j.location:''}</div>${j.sal?`<div class="sl">💰 ${j.sal}</div>`:''}<button onclick="${applyWa?`window.open('https://wa.me/${j.wa}?text='+encodeURIComponent('שלום, מעוניין/ת במשרה: '+${JSON.stringify(j.title||'')}),'_blank')`:`applyJob(${i})`}">${applyWa?'🟢 שלח מועמדות בוואטסאפ':'📥 הגש מועמדות'}</button></div>`;}
  if(p.type==='file'&&p.files&&p.files.length)return '<div style="padding:0 13px 11px">'+p.files.map(fl=>`<div style="display:flex;align-items:center;gap:11px;background:var(--surface2);border:1px solid var(--line);border-radius:11px;padding:11px;margin-bottom:7px">${fl.type&&fl.type.startsWith('image')?`<img src="${fl.url}" style="width:48px;height:48px;border-radius:8px;object-fit:cover">`:`<div style="width:48px;height:48px;border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:24px">${fileIcon(fl.type)}</div>`}<div style="flex:1;min-width:0"><div style="color:var(--text);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${fl.name}</div><div style="color:var(--mut);font-size:11px">${fmtSize(fl.size)} · ${((fl.type||'').split('/')[1]||'').toUpperCase()}</div></div><a href="${fl.url}" download="${fl.name}" style="color:var(--acc);font-size:20px;text-decoration:none">⬇️</a></div>`).join('')+'</div>';
@@ -890,7 +916,7 @@ function postCard(p,i){if(p.type==='video')return videoCard(p,i);
  return `<div class="fb${txtonly?' txtonly':''}" data-i="${i}" data-sid="${p._sid||''}">
   ${txtonly?'<div class="tint"></div>':''}
   <div class="fbh"><div class="cdring"><div class="av" onclick="openProf('${p.nm}',${p.uid||'null'})">${avH(p)}</div></div>
-   <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}</div></div>
+   <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})"><div class="nm-row"><span class="nm" data-noi18n>${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}</div></div>
    <div class="pcd"><span class="cdt">--</span>${ic('clock')}</div><span class="pmenu" onclick="postMenu(${i})">${ic('more')}</span></div>
   ${postText(p,i)}
   ${mediaBlock(p,i)}
@@ -914,9 +940,9 @@ function videoCard(p,i){const t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&p
   ${p.vidUrl?`<video src="${p.vidUrl}" playsinline loop muted preload="metadata" data-v onclick="vTap(this)"></video><div class="vbigplay show" data-pp>${ic('play')}</div><button class="vmute" onclick="vMute(event,this)">🔇</button><div class="vprog"><i></i></div>`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:80px;background:linear-gradient(160deg,#1b2030,#0b0e14)" onclick="toast('🎬','וידאו לדוגמה')">${p.e}</div>`}
   ${p.snd?`<audio data-vsnd src="${p.snd}" loop></audio>`:''}
   <div class="vhd"><div class="cdring"><div class="av" onclick="openProf('${p.nm}',${p.uid||'null'})">${avH(p)}</div></div>
-   <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})" style="flex:1"><div class="nm-row"><span class="nm">${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}</div></div>
+   <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})" style="flex:1"><div class="nm-row"><span class="nm" data-noi18n>${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}</div></div>
    <div class="pcd"><span class="cdt">--</span>${ic('clock')}</div><span class="pmenu" style="color:#fff" onclick="postMenu(${i})">${ic('more')}</span></div>
-  <div class="vfoot"><div class="ptx" style="padding:0">${linkify(p.text||'')}</div>${p.link?`<div class="lk-card" style="margin:8px 0 0;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.2)" onclick="openInApp('${p.link}')"><span class="lic">${ic('link')}</span><div><div class="lt" style="color:#fff">קישור</div><div class="lu" style="color:#ddd">${p.link}</div></div></div>`:''}</div>
+  <div class="vfoot"><div class="ptx" data-noi18n style="padding:0">${linkify(p.text||'')}</div>${p.link?`<div class="lk-card" style="margin:8px 0 0;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.2)" onclick="openInApp('${p.link}')"><span class="lic">${ic('link')}</span><div><div class="lt" style="color:#fff">קישור</div><div class="lu" style="color:#ddd">${p.link}</div></div></div>`:''}</div>
   <div class="vacts">
    <div class="va lk" onclick="like(${i},this)">${ic('heart')}<small id="lk${i}">${(p.likes/1000).toFixed(1)}K</small></div>
    <div class="va" onclick="openCom(${i})">${ic('comment')}<small id="cm${i}">${p.com}</small></div>
@@ -1082,10 +1108,10 @@ function svcTile(s,footer){const imgs=(s.imgs&&s.imgs.length)?s.imgs:(isImg(s.m)
 function pa(i,el){const w=document.getElementById('w'+i);if(el.textContent==='▶'){el.textContent='⏸';w.classList.add('pl');w.querySelectorAll('i').forEach((b,n)=>b.style.animationDelay=(n*.04)+'s');}else{el.textContent='▶';w.classList.remove('pl');}}
 async function vs(i,m,el){const o=document.getElementById('vo'+i),p=POSTS[i];const v=p.voice||{};el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
  if(o.classList.contains('show')&&o.dataset.m===m){o.classList.remove('show');return;}el.classList.add('on');o.dataset.m=m;o.classList.add('show');
- if(m==='tr'){o.textContent=v.tr?('📝 '+v.tr):'📝 לא זוהה דיבור — תמלול חי פועל בעת ההקלטה (בדפדפן תומך).';return;}
- const src=v.tr||v.tl;if(!src){o.textContent='🌐 אין טקסט לתרגום';return;}
- if(v.tl&&!v.tr){o.textContent='🌐 '+v.tl;return;}
- o.textContent='⏳ מתרגם...';try{const tr=await translateText(src,S.lang,p.lang||'en');o.textContent='🌐 '+tr;}catch(e){o.textContent='🌐 '+(v.tl||src);}}
+ if(m==='tr'){if(v.tr){o.textContent='📝 '+v.tr;return;}if(!p.audioUrl){o.textContent='📝 (אין הקלטה לתמלול)';return;}o.textContent='⏳ מתמלל… (טוען מנוע בפעם הראשונה)';try{const tr=await transcribeBlob(p.audioUrl);v.tr=tr;p.voice=v;o.textContent='📝 '+(tr||'(לא זוהה דיבור)');}catch(e){o.textContent='⚠️ התמלול נכשל — נסה שוב';}return;}
+ let src=v.tr;if(!src&&p.audioUrl){o.textContent='⏳ מתמלל לפני תרגום…';try{src=v.tr=await transcribeBlob(p.audioUrl);p.voice=v;}catch(e){}}
+ if(!src)src=v.tl;if(!src){o.textContent='🌐 אין טקסט לתרגום';return;}
+ o.textContent='⏳ מתרגם...';try{const tr=await translateText(src,S.lang,p.lang||'auto');o.textContent='🌐 '+tr;}catch(e){o.textContent='🌐 '+(v.tl||src);}}
 function fmt(m){const h=Math.floor(m/60),mm=Math.floor(m%60),s=Math.floor(m*60%60);return h>0?`${h}:${String(mm).padStart(2,'0')}ש׳`:`${mm}:${String(s).padStart(2,'0')}`;}
 function dissolveCard(el,cb){if(!el){cb&&cb();return;}if(_rm()){el.remove();cb&&cb();return;}el.classList.add('vanish');el.addEventListener('animationend',()=>{el.remove();cb&&cb();},{once:true});}
 setInterval(()=>{document.querySelectorAll('.fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];if(!p)return;p._totalMins=p._totalMins||(p.mins<60?60:48*60);p._m=(p._m??p.mins);p._m=Math.max(0,p._m-1/60);
@@ -1222,10 +1248,10 @@ function linkify(t){if(!t)return '';let s=esc(String(t)).replace(/\n/g,'<br>');r
 function addMsg(m,me){const chat=document.getElementById('chat');const id='x'+(Math.random()*1e9|0);
  const el=document.createElement('div');el.className='msg'+(me?' me':'');
  const isText=!m.img&&!m.audio&&!m.voiceSim&&m.t;
- const acap=m.audio&&m.tr?`<div class="vcap">📝 ${esc(m.tr)}</div><span class="trb" data-src="${encodeURIComponent(m.tr)}" onclick="trMsg(this)">🌐 תרגם</span><div class="tro"></div>`:'';
- const body=m.file?`<a href="${m.file.url}" download="${m.file.name}" style="display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none"><span style="font-size:24px">${fileIcon(m.file.type)}</span><span style="word-break:break-all">${m.file.name}</span></a>`:(m.img?`<img src="${m.img}">`:(m.audio?`<audio controls src="${m.audio}"></audio>${acap}`:(m.voiceSim?`🎙️ הודעה קולית · 0:${String(m.voiceSim).padStart(2,'0')}`:linkify(m.t||''))));
+ const acap=m.audio?`<div class="vtool2"><button class="trb" data-url="${m.audio}" onclick="transcribeMsg(this)">📝 תמלל</button><div class="vout" data-noi18n style="display:none"></div></div>`:'';
+ const body=m.file?`<a href="${m.file.url}" download="${m.file.name}" style="display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none"><span style="font-size:24px">${fileIcon(m.file.type)}</span><span style="word-break:break-all">${m.file.name}</span></a>`:(m.img?`<img src="${m.img}">`:(m.audio?`<audio controls src="${m.audio}"></audio>`:(m.voiceSim?`🎙️ הודעה קולית · 0:${String(m.voiceSim).padStart(2,'0')}`:linkify(m.t||''))));
  const trBtn=isText?`<span class="trb" data-src="${encodeURIComponent(m.t)}" data-lng="${m.lng||''}" onclick="trMsg(this)">🌐 תרגם</span><div class="tro" id="${id}"></div>`:'';
- el.innerHTML=`<div class="w" onclick="${me?'':`msgMenu('${(m.w||'').replace(/'/g,'')}')`}">${m.w||'אתה'}${me?'':' ⋯'}</div><div class="b">${body}</div>${trBtn}`;
+ el.innerHTML=`<div class="w" data-noi18n onclick="${me?'':`msgMenu('${(m.w||'').replace(/'/g,'')}')`}">${m.w||'אתה'}${me?'':' ⋯'}</div><div class="b"${m.audio?'':' data-noi18n'}>${body}</div>${acap}${trBtn}`;
  if(m.c)el.dataset.country=m.c;if(m.l)el.dataset.lang=m.l;
  if(!me&&!privCtx&&!msgInScope(m.c||'',m.l||''))el.style.display='none';
  chat.appendChild(el);if(trAll&&isText)trMsg(el.querySelector('.trb'),true);chat.scrollTop=chat.scrollHeight;}
@@ -1270,7 +1296,20 @@ function cancelAnyRec(){_recCancel=true;
  const cb=document.getElementById('cRec');if(cb&&cb._sim){cb._sim=null;cb.textContent='🎙️';}
  [mediaRec,cRec,pcRec].forEach(r=>{if(r&&r.state==='recording'){try{r.stop();}catch(e){}}});
  setTimeout(()=>{hideRecOv();},10);toast('🎙️','ההקלטה בוטלה');}
-/* ===== תמלול חי בזמן הקלטה (Web Speech API) ===== */
+/* ===== תמלול Whisper בדפדפן (Transformers.js) — ללא הגבלה, כל שפה, כל דפדפן ===== */
+let _whisper=null,_whisperLoading=null;
+async function loadWhisper(){if(_whisper)return _whisper;if(_whisperLoading)return _whisperLoading;
+ _whisperLoading=(async()=>{const mod=await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');const {pipeline,env}=mod;try{env.allowLocalModels=false;env.useBrowserCache=true;}catch(e){}const p=await pipeline('automatic-speech-recognition','Xenova/whisper-tiny',{quantized:true});_whisper=p;return p;})();
+ try{return await _whisperLoading;}catch(e){_whisperLoading=null;throw e;}}
+async function blobToAudio16k(srcUrl){const buf=await (await fetch(srcUrl)).arrayBuffer();const AC=window.AudioContext||window.webkitAudioContext;const ctx=new AC();const dec=await ctx.decodeAudioData(buf);let data;if(dec.numberOfChannels>1){const a=dec.getChannelData(0),b=dec.getChannelData(1);data=new Float32Array(a.length);for(let i=0;i<a.length;i++)data[i]=(a[i]+b[i])/2;}else data=dec.getChannelData(0);const ratio=dec.sampleRate/16000;if(ratio<=1){try{ctx.close();}catch(e){}return data;}const len=Math.floor(data.length/ratio),out=new Float32Array(len);for(let i=0;i<len;i++)out[i]=data[Math.floor(i*ratio)];try{ctx.close();}catch(e){}return out;}
+async function transcribeBlob(srcUrl){const p=await loadWhisper();const audio=await blobToAudio16k(srcUrl);const r=await p(audio,{chunk_length_s:30,stride_length_s:5});return ((r&&(r.text||(Array.isArray(r)&&r[0]&&r[0].text)))||'').trim();}
+/* כפתור "תמלל" אוניברסלי על הקלטה (צ'אט) */
+async function transcribeMsg(btn){const out=btn.parentNode.querySelector('.vout');if(!out)return;const url=btn.dataset.url;
+ if(out.dataset.done){out.style.display=out.style.display==='none'?'block':'none';return;}
+ out.style.display='block';out.textContent='⏳ מתמלל… (טוען מנוע בפעם הראשונה — מעט סבלנות)';
+ try{const tr=await transcribeBlob(url);out.dataset.done='1';if(tr){out.innerHTML='📝 '+esc(tr)+` <span class="trb" data-src="${encodeURIComponent(tr)}" onclick="trMsg(this)">🌐 תרגם</span><div class="tro"></div>`;}else out.textContent='📝 (לא זוהה דיבור בהקלטה)';}
+ catch(e){console.warn('whisper',e);out.textContent='⚠️ התמלול נכשל — בדוק חיבור ונסה שוב';}}
+/* ===== תמלול חי בזמן הקלטה (Web Speech API — כתובית מהירה) ===== */
 let _stt=null;
 const STT_LANG={he:'he-IL',en:'en-US',ar:'ar-SA',ru:'ru-RU',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-BR','pt-BR':'pt-BR',it:'it-IT',tr:'tr-TR',ja:'ja-JP',ko:'ko-KR',zh:'zh-CN','zh-CN':'zh-CN',hi:'hi-IN',nl:'nl-NL',pl:'pl-PL',uk:'uk-UA',sv:'sv-SE',th:'th-TH',vi:'vi-VN',id:'id-ID',ro:'ro-RO',fa:'fa-IR'};
 let _sttActive=false;
@@ -1702,7 +1741,8 @@ function addSvc(){S.me.svc.push({t:'שירות חדש',p:'₪—',m:'🛠️',d:
 function setTh(){S.th=S.th==='dark'?'light':'dark';sv();applyTh();refreshSettingsUI();toast(S.th==='dark'?'🌙':'☀️','מצב '+(S.th==='dark'?'כהה':'בהיר'));}
 function setMute(){S.muteAll=!S.muteAll;sv();refreshSettingsUI();toast(S.muteAll?'🔕':'🔔',S.muteAll?'הושתק':'הופעל');}
 function setNf(k){if(S.muteAll)return;S.nf[k]=!S.nf[k];sv();refreshSettingsUI();toast('🔔','נשמר');}
-function pickLang(){const full=Object.keys(I18N);openSheet(`<div class="sh-hd"><h3>🌐 שפת ממשק</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="note">✅ ממשק מתורגם במלואו: עברית, English, العربية, Español, Français, Русский, Deutsch.<br>🌍 בשאר השפות הממשק יוצג באנגלית — ותוכן המשתמשים מתורגם אוטומטית (תרגום מכונה) לשפה שתבחר/י.</div><div class="fl tall">${LANGS.map(l=>`<div class="fi ${S.lang===l[0]?'on':''}" onclick="S.lang='${l[0]}';sv();applyLang();closeSheet();refreshSettingsUI();buildFeed();toast('🌐','שפה עודכנה')"><span>${l[2]}</span><span class="l">${l[1]}${full.includes(l[0])?'':' · auto'}</span><span class="k">${S.lang===l[0]?'✓':''}</span></div>`).join('')}</div></div>`);}
+function setLang(code){S.lang=code;sv();closeSheet();applyLang();toast('🌐','שפה עודכנה');}
+function pickLang(){openSheet(`<div class="sh-hd"><h3>🌐 שפת ממשק</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="note">🌍 כל הממשק מתורגם אוטומטית לכל שפה בעולם. ההחלפה הראשונה לכל שפה לוקחת רגע — אחר כך מיידי.</div><div class="fl tall">${LANGS.map(l=>`<div class="fi ${S.lang===l[0]?'on':''}" onclick="setLang('${l[0]}')"><span>${l[2]}</span><span class="l">${l[1]}</span><span class="k">${S.lang===l[0]?'✓':''}</span></div>`).join('')}</div></div>`);}
 function pick(key,src,label){let sel=[...S[key]];openSheet(`<div class="sh-hd"><h3>בחר ${label}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="srch"><span data-ic="search" class="srch-ic"></span><input id="pq" placeholder="חיפוש..." oninput="document.getElementById('pl').innerHTML=pli(window._pkS,window._pkSel,this.value)"></div><div class="fl tall" id="pl">${pli(src,sel,'')}</div></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" id="psave">שמור (${sel.length})</button></div>`);
  window._pkS=src;window._pkSel=sel;document.getElementById('psave').onclick=()=>{S[key]=[...sel];const m={prefT:'fT',prefL:'fL',prefC:'fC'};if(m[key])S[m[key]]=[...sel];sv();closeSheet();refreshSettingsUI();chips();buildFeed();toast('✅','נשמר ויושם אוטומטית — האפליקציה למדה');};
  window.ptg=(id,el)=>{const i=sel.indexOf(id);if(i>=0){sel.splice(i,1);el.classList.remove('on');el.querySelector('.k').textContent='';}else{sel.push(id);el.classList.add('on');el.querySelector('.k').textContent='✓';}document.getElementById('psave').textContent=`שמור (${sel.length})`;};}
@@ -1882,7 +1922,11 @@ function voteTopic(k){const a=getTopicReqs();const t=a[k];if(!t)return;const mv=
  saveTopicReqs(a);openTopicReq();toast('🗳️','ההצבעה נקלטה ('+(used+1)+'/2)');}
 
 /* voice comment translate/transcript */
-function trVoiceCom(id){const el=document.getElementById(id);if(!el)return;if(el.dataset.shown){el.style.display='none';el.dataset.shown='';return;}el.style.display='block';el.dataset.shown='1';if(!el.dataset.loaded){el.dataset.loaded='1';const txt=_vcTr[id]||'';if(!txt){el.textContent='📝 לא זוהה דיבור — תמלול חי פועל בעת ההקלטה (בדפדפן תומך).';return;}el.textContent='⏳ מתרגם...';(async()=>{const tr=await translateText(txt,S.lang);el.innerHTML='📝 '+esc(txt)+'<br>🌐 '+esc(tr);})();}}
+function trVoiceCom(id){const el=document.getElementById(id);if(!el)return;if(el.dataset.shown){el.style.display='none';el.dataset.shown='';return;}el.style.display='block';el.dataset.shown='1';if(el.dataset.loaded)return;el.dataset.loaded='1';const rec=_vcTr[id]||{};
+ (async()=>{let txt=rec.tr;
+  if(!txt&&rec.url){el.textContent='⏳ מתמלל… (טוען מנוע בפעם הראשונה)';try{txt=await transcribeBlob(rec.url);rec.tr=txt;}catch(e){}}
+  if(!txt){el.textContent='📝 (לא זוהה דיבור)';return;}
+  el.textContent='⏳ מתרגם...';try{const tr=await translateText(txt,S.lang);el.innerHTML='📝 '+esc(txt)+'<br>🌐 '+esc(tr);}catch(e){el.innerHTML='📝 '+esc(txt);}})();}
 function printQR(u,nm){const w=window.open('','_blank');w.document.write('<html><head><title>QR '+nm+'</title></head><body style="text-align:center;font-family:sans-serif;padding:40px"><h1>'+nm+'</h1><img src="'+u+'" style="max-width:400px"><p>plaza-concept-demo-2026.netlify.app</p><scr'+'ipt>setTimeout(function(){window.print()},500)</scr'+'ipt></body></html>');}
 
 /* ===== Schedule publish ===== */
@@ -1896,12 +1940,12 @@ function appendVcRow(i){const cb=document.getElementById('cb');const c=COM[i]&&C
 /* ===== Voice comment on post ===== */
 let pcRec=null,pcChunks=[],pcIdx=-1,_vcTr={};
 async function recPostComment(i){if(pcRec&&pcRec.state==='recording'){pcRec.stop();return;}pcIdx=i;
- const addVc=(audioHTML,tr)=>{const tid='tv'+Date.now();if(tr)_vcTr[tid]=tr;COM[i]=COM[i]||[];COM[i].push({a:'🦊',n:'אתה',t:audioHTML+'<br><span class="trb" onclick="trVoiceCom(\''+tid+'\')">📝 תמלול + 🌐 תרגום לשפה שלך</span><div id="'+tid+'" class="tro" style="display:none"></div>',m:'עכשיו'});};
+ const addVc=(audioHTML,tr,url)=>{const tid='tv'+Date.now();_vcTr[tid]={tr:tr||'',url:url||''};COM[i]=COM[i]||[];COM[i].push({a:'🦊',n:'אתה',t:audioHTML+'<br><span class="trb" onclick="trVoiceCom(\''+tid+'\')">📝 תמלול + 🌐 תרגום לשפה שלך</span><div id="'+tid+'" class="tro" style="display:none" data-noi18n></div>',m:'עכשיו'});};
  if(!(navigator.mediaDevices&&window.MediaRecorder)){showRecOv();setTimeout(()=>{hideRecOv();addVc('🎙️ הודעה קולית 0:0'+Math.floor(Math.random()*8+2));toast('🎙️','תגובה קולית נשלחה (דמו)');appendVcRow(i);},2500);return;}
  try{const st=await navigator.mediaDevices.getUserMedia({audio:true});pcRec=new MediaRecorder(st);pcChunks=[];
   pcRec.ondataavailable=e=>{if(e.data&&e.data.size)pcChunks.push(e.data);};
   sttStart(live=>{const c=document.getElementById('recCap');if(c)c.textContent=live;});
-  pcRec.onstop=()=>{const tr=sttStop();st.getTracks().forEach(t=>t.stop());pcRec=null;if(_recCancel){_recCancel=false;hideRecOv();return;}hideRecOv();const u=URL.createObjectURL(new Blob(pcChunks,{type:'audio/webm'}));addVc('🎙️ <audio controls src="'+u+'" style="max-width:200px"></audio>',tr);appendVcRow(i);toast('🎙️',tr?'תגובה קולית + תמלול נשלחה':'תגובה קולית נשלחה');};
+  pcRec.onstop=()=>{const tr=sttStop();st.getTracks().forEach(t=>t.stop());pcRec=null;if(_recCancel){_recCancel=false;hideRecOv();return;}hideRecOv();const u=URL.createObjectURL(new Blob(pcChunks,{type:'audio/webm'}));addVc('🎙️ <audio controls src="'+u+'" style="max-width:200px"></audio>',tr,u);appendVcRow(i);toast('🎙️','תגובה קולית נשלחה');};
   pcRec.start();showRecOv(st);toast('🎙️',sttSupported()?'מקליט + מתמלל תגובה... הקש שוב לעצור':'מקליט תגובה... הקש שוב לעצור');}catch(e){toast('🎙️','אין הרשאת מיקרופון');}}
 
 /* ===== Post auto-translate + viewers ===== */
@@ -1937,7 +1981,7 @@ function rateBiz(nm){openSheet(`<div class="sh-hd"><h3>⭐ דירוג ${nm}</h3>
 
 /* ===== Post text (linkify + show more) + viewers ===== */
 function postText(p,i){if(!p.text)return '';const raw=linkify(p.text);const long=String(p.text).length>240;
- return `<div class="ptx"><div class="ptxt ${long?'clamp':''}" id="ptx${i}">${raw}</div>${long?`<span class="moreb" onclick="toggleMore(${i},this)">הצג עוד ▾</span>`:''}<div style="margin-top:6px;font-size:11px"><span style="color:var(--acc);font-weight:700;cursor:pointer" onclick="translatePost(${i},this)">🌐 תרגם את הפוסט</span><div style="display:none;margin-top:6px;padding:8px 10px;background:var(--surface2);border-radius:8px;color:var(--text);font-size:13px"></div></div></div>`;}
+ return `<div class="ptx"><div class="ptxt ${long?'clamp':''}" id="ptx${i}" data-noi18n>${raw}</div>${long?`<span class="moreb" onclick="toggleMore(${i},this)">הצג עוד ▾</span>`:''}<div style="margin-top:6px;font-size:11px"><span style="color:var(--acc);font-weight:700;cursor:pointer" onclick="translatePost(${i},this)">🌐 תרגם את הפוסט</span><div style="display:none;margin-top:6px;padding:8px 10px;background:var(--surface2);border-radius:8px;color:var(--text);font-size:13px"></div></div></div>`;}
 function toggleMore(i,el){const t=document.getElementById('ptx'+i);if(!t)return;t.classList.toggle('clamp');el.textContent=t.classList.contains('clamp')?'הצג עוד ▾':'הצג פחות ▴';}
 function eyeHtml(i){return `<span class="eyev" style="background:var(--surface2);padding:3px 8px;border-radius:7px;font-weight:700"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="vw${i}" class="vwn">${postViewers(i)}</span> צופים</span>`;}
 setInterval(()=>{document.querySelectorAll('.feed .fb[data-i]').forEach(po=>{const e=document.getElementById('vw'+po.dataset.i);if(!e)return;const c=parseInt(e.textContent)||1;e.textContent=Math.max(1,c+Math.floor(Math.random()*7-3));});},3500);
