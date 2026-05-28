@@ -186,6 +186,9 @@
   .msg .b audio{max-width:200px;height:34px}
   .msg.me{align-self:flex-start}
   .msg.me .b{background:var(--acc);border:none;color:#fff;border-top-right-radius:13px;border-top-left-radius:4px;box-shadow:0 3px 10px var(--ring)}
+  .vcap{font-size:12px;line-height:1.4;color:var(--sub);margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
+  .msg.me .vcap{color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.25)}
+  .msg.me .trb{color:#fff;opacity:.9}
   .trb{font-size:10.5px;color:var(--acc);font-weight:700;cursor:pointer;padding:3px 4px 0;display:inline-block}
   .tro{margin-top:5px;padding-top:5px;border-top:1px dashed var(--line);font-size:13px;color:var(--acc);display:none}
   .tro.show{display:block}
@@ -336,6 +339,8 @@
   @keyframes eqr{from{height:8px}to{height:42px}}
   .recOv .tm{color:#fff;font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
   .recOv .ht{color:rgba(255,255,255,.7);font-size:13px;text-align:center}
+  .recOv .reccap{color:#fff;font-size:14px;line-height:1.5;text-align:center;max-width:300px;min-height:0;background:rgba(255,255,255,.1);border-radius:12px;padding:0 14px;max-height:120px;overflow-y:auto;transition:padding .2s}
+  .recOv .reccap:not(:empty){padding:10px 14px}
   /* full-screen video card (TikTok-style mixed with FB feed) */
   .fb.fbvideo{position:relative;height:100%;min-height:78vh;border-radius:0;border:none;background:#000;margin:0 -12px 12px;overflow:hidden;scroll-snap-align:start;scroll-snap-stop:always}
   .fb.fbvideo video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
@@ -637,7 +642,7 @@
   <div class="iv" id="iv"><span class="x" data-ic="close" onclick="document.getElementById('iv').classList.remove('on')"></span><div class="c" id="ivc">🖼️</div><div class="nav2" id="ivnav" style="display:none"><span onclick="galStep(1)">‹</span><span onclick="galStep(-1)">›</span></div></div>
   <div class="toast" id="toast"><span class="e" id="te">⏳</span><div id="tt"></div></div>
   <input type="file" id="fileIn" style="display:none">
-  <div class="recOv" id="recOv" onclick="stopAnyRec()"><div class="mic">🎙️</div><div class="bars">${'<i></i>'.repeat(0)}</div><div class="tm" id="recTm">0:00</div><div class="ht">🔴 מקליט... הקש בכל מקום כדי לעצור ולשמוע</div><button style="margin-top:6px;background:var(--bad);color:#fff;border:none;border-radius:10px;padding:11px 26px;font-weight:800;font-size:14px;cursor:pointer">⏹ עצור הקלטה</button></div>
+  <div class="recOv" id="recOv" onclick="stopAnyRec()"><div class="mic">🎙️</div><div class="bars">${'<i></i>'.repeat(0)}</div><div class="tm" id="recTm">0:00</div><div class="reccap" id="recCap"></div><div class="ht">🔴 מקליט... הקש בכל מקום כדי לעצור ולשמוע</div><button style="margin-top:6px;background:var(--bad);color:#fff;border:none;border-radius:10px;padding:11px 26px;font-weight:800;font-size:14px;cursor:pointer">⏹ עצור הקלטה</button></div>
   <div class="inapp" id="inapp"><div class="inapp-bar"><button onclick="closeInApp()">← חזור לאפליקציה</button><span id="inappUrl"></span></div><iframe id="inappFrame" src="about:blank" sandbox="allow-scripts allow-forms allow-same-origin allow-popups"></iframe></div>
 </div>
 <script src="/socket.io/socket.io.js" onerror="window._noSock=1"></script>
@@ -1000,7 +1005,12 @@ function svcTile(s,footer){const isVid=isImg(s.m)&&String(s.m).includes('video')
  const tap=(s.imgs&&s.imgs.length)?`onclick='openAlbumImgs(${JSON.stringify(s.imgs).replace(/'/g,"&#39;")})'`:(isImg(s.m)?`onclick="zoomOne('${s.m}')"`:'');
  return `<div class="tile"><div class="tm" ${tap}>${media}${album}</div><div class="tb"><div class="tt">${esc(s.t||'')}</div>${s.p?`<div class="tp">${esc(s.p)}</div>`:''}${s.d?`<div class="td">${esc(s.d)}</div>`:''}${footer||''}</div></div>`;}
 function pa(i,el){const w=document.getElementById('w'+i);if(el.textContent==='▶'){el.textContent='⏸';w.classList.add('pl');w.querySelectorAll('i').forEach((b,n)=>b.style.animationDelay=(n*.04)+'s');}else{el.textContent='▶';w.classList.remove('pl');}}
-function vs(i,m,el){const o=document.getElementById('vo'+i),p=POSTS[i];const txt=m==='tr'?'📝 '+p.voice.tr:'🌐 '+p.voice.tl;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));if(o.classList.contains('show')&&o.dataset.m===m){o.classList.remove('show');return;}el.classList.add('on');o.textContent=txt;o.dataset.m=m;o.classList.add('show');}
+async function vs(i,m,el){const o=document.getElementById('vo'+i),p=POSTS[i];const v=p.voice||{};el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+ if(o.classList.contains('show')&&o.dataset.m===m){o.classList.remove('show');return;}el.classList.add('on');o.dataset.m=m;o.classList.add('show');
+ if(m==='tr'){o.textContent=v.tr?('📝 '+v.tr):'📝 לא זוהה דיבור — תמלול חי פועל בעת ההקלטה (בדפדפן תומך).';return;}
+ const src=v.tr||v.tl;if(!src){o.textContent='🌐 אין טקסט לתרגום';return;}
+ if(v.tl&&!v.tr){o.textContent='🌐 '+v.tl;return;}
+ o.textContent='⏳ מתרגם...';try{const tr=await translateText(src,S.lang,p.lang||'en');o.textContent='🌐 '+tr;}catch(e){o.textContent='🌐 '+(v.tl||src);}}
 function fmt(m){const h=Math.floor(m/60),mm=Math.floor(m%60),s=Math.floor(m*60%60);return h>0?`${h}:${String(mm).padStart(2,'0')}ש׳`:`${mm}:${String(s).padStart(2,'0')}`;}
 function dissolveCard(el,cb){if(!el){cb&&cb();return;}if(_rm()){el.remove();cb&&cb();return;}el.classList.add('vanish');el.addEventListener('animationend',()=>{el.remove();cb&&cb();},{once:true});}
 setInterval(()=>{document.querySelectorAll('.fb[data-i]').forEach(po=>{const p=POSTS[+po.dataset.i];if(!p)return;p._totalMins=p._totalMins||(p.mins<60?60:48*60);p._m=(p._m??p.mins);p._m=Math.max(0,p._m-1/60);
@@ -1130,7 +1140,8 @@ function linkify(t){if(!t)return '';let s=esc(String(t)).replace(/\n/g,'<br>');r
 function addMsg(m,me){const chat=document.getElementById('chat');const id='x'+(Math.random()*1e9|0);
  const el=document.createElement('div');el.className='msg'+(me?' me':'');
  const isText=!m.img&&!m.audio&&!m.voiceSim&&m.t;
- const body=m.file?`<a href="${m.file.url}" download="${m.file.name}" style="display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none"><span style="font-size:24px">${fileIcon(m.file.type)}</span><span style="word-break:break-all">${m.file.name}</span></a>`:(m.img?`<img src="${m.img}">`:(m.audio?`<audio controls src="${m.audio}"></audio>`:(m.voiceSim?`🎙️ הודעה קולית · 0:${String(m.voiceSim).padStart(2,'0')}`:linkify(m.t||''))));
+ const acap=m.audio&&m.tr?`<div class="vcap">📝 ${esc(m.tr)}</div><span class="trb" data-src="${encodeURIComponent(m.tr)}" onclick="trMsg(this)">🌐 תרגם</span><div class="tro"></div>`:'';
+ const body=m.file?`<a href="${m.file.url}" download="${m.file.name}" style="display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none"><span style="font-size:24px">${fileIcon(m.file.type)}</span><span style="word-break:break-all">${m.file.name}</span></a>`:(m.img?`<img src="${m.img}">`:(m.audio?`<audio controls src="${m.audio}"></audio>${acap}`:(m.voiceSim?`🎙️ הודעה קולית · 0:${String(m.voiceSim).padStart(2,'0')}`:linkify(m.t||''))));
  const trBtn=isText?`<span class="trb" data-src="${encodeURIComponent(m.t)}" data-lng="${m.lng||''}" onclick="trMsg(this)">🌐 תרגם</span><div class="tro" id="${id}"></div>`:'';
  el.innerHTML=`<div class="w" onclick="${me?'':`msgMenu('${(m.w||'').replace(/'/g,'')}')`}">${m.w||'אתה'}${me?'':' ⋯'}</div><div class="b">${body}</div>${trBtn}`;
  if(m.c)el.dataset.country=m.c;if(m.l)el.dataset.lang=m.l;
@@ -1158,8 +1169,17 @@ function pickChatImg(){fileInput('image/*',false,f=>{addMsg({w:'אתה',img:URL.
 function pickChatFile(){fileInput('*/*',false,f=>{const fl=f[0];addMsg({w:'אתה',file:{name:fl.name,url:URL.createObjectURL(fl),type:fl.type}},true);toast('📎','הקובץ נשלח');});}
 function chatEmoji(){let bar=document.getElementById('chatEmojiBar');if(bar){bar.remove();return;}const set='😀 😂 🤣 ❤️ 🔥 👍 🙏 🎉 😍 🤔 👏 😢 🙌 💯 ✨ 😎 🥳 😮 😅 🤝 💪 👀 ✅ 🤯 🙈 😴 🤩 😭 🥰 😡 🥳 🫶'.split(' ');bar=document.createElement('div');bar.id='chatEmojiBar';bar.style.cssText='display:flex;flex-wrap:wrap;gap:4px;padding:8px 12px;background:var(--surface);border-top:1px solid var(--line);max-height:120px;overflow-y:auto';bar.innerHTML=set.map(e=>`<span style="font-size:23px;cursor:pointer;padding:2px" onclick="var c=document.getElementById('cin');c.value+='${e}';c.focus()">${e}</span>`).join('');const comp=document.querySelector('#s-room .composer');if(comp)comp.parentElement.insertBefore(bar,comp);}
 let mediaRec=null,recChunks=[],recTimer=null,recSecs=0;
-function showRecOv(){const o=document.getElementById('recOv');o.classList.add('on');o.querySelector('.bars').innerHTML='<i></i>'.repeat(28);let s=0;clearInterval(o._t);document.getElementById('recTm').textContent='0:00';o._t=setInterval(()=>{s++;document.getElementById('recTm').textContent='0:'+String(s).padStart(2,'0');},1000);}
-function hideRecOv(){const o=document.getElementById('recOv');o.classList.remove('on');clearInterval(o._t);}
+function showRecOv(){const o=document.getElementById('recOv');o.classList.add('on');o.querySelector('.bars').innerHTML='<i></i>'.repeat(28);const cap=document.getElementById('recCap');if(cap)cap.textContent='';let s=0;clearInterval(o._t);document.getElementById('recTm').textContent='0:00';o._t=setInterval(()=>{s++;document.getElementById('recTm').textContent='0:'+String(s).padStart(2,'0');},1000);}
+function hideRecOv(){const o=document.getElementById('recOv');o.classList.remove('on');clearInterval(o._t);const cap=document.getElementById('recCap');if(cap)cap.textContent='';}
+/* ===== תמלול חי בזמן הקלטה (Web Speech API) ===== */
+let _stt=null;
+const STT_LANG={he:'he-IL',en:'en-US',ar:'ar-SA',ru:'ru-RU',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-BR','pt-BR':'pt-BR',it:'it-IT',tr:'tr-TR',ja:'ja-JP',ko:'ko-KR',zh:'zh-CN','zh-CN':'zh-CN',hi:'hi-IN',nl:'nl-NL',pl:'pl-PL',uk:'uk-UA',sv:'sv-SE',th:'th-TH',vi:'vi-VN',id:'id-ID',ro:'ro-RO',fa:'fa-IR'};
+function sttSupported(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition);}
+function sttStart(onLive){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;
+ try{const r=new SR();r.lang=STT_LANG[S.lang]||S.lang||'en-US';r.continuous=true;r.interimResults=true;r._final='';
+  r.onresult=e=>{let f='',iv='';for(let k=e.resultIndex;k<e.results.length;k++){const t=e.results[k][0].transcript;if(e.results[k].isFinal)f+=t+' ';else iv+=t;}if(f)r._final+=f;if(onLive)onLive((r._final+iv).trim());};
+  r.onerror=()=>{};r.start();_stt=r;return r;}catch(e){return null;}}
+function sttStop(){const r=_stt;_stt=null;if(!r)return '';try{r.stop();}catch(e){}return (r._final||'').trim();}
 /* עצירת כל הקלטה פעילה (שכבת ההקלטה מכסה את כפתור העצירה — לחיצה עליה עוצרת) */
 function stopAnyRec(){
  if(typeof mediaRec!=='undefined'&&mediaRec&&mediaRec.state==='recording'){try{mediaRec.stop();}catch(e){}return;}
@@ -1183,9 +1203,10 @@ function recVoice(){const btn=document.getElementById('recBtn');
   try{mediaRec=mt?new MediaRecorder(st,{mimeType:mt}):new MediaRecorder(st);}catch(e){mediaRec=new MediaRecorder(st);}
   recChunks=[];recSecs=0;
   mediaRec.ondataavailable=e=>{if(e.data&&e.data.size)recChunks.push(e.data);};
-  mediaRec.onstop=()=>{clearInterval(recTimer);hideRecOv();const blob=new Blob(recChunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'});const u=URL.createObjectURL(blob);addMsg({w:'אתה',audio:u},true);btn.classList.remove('rec');btn.textContent='🎙️';st.getTracks().forEach(t=>t.stop());mediaRec=null;toast('🎙️','ההקלטה נשלחה ✓');};
+  sttStart(live=>{const c=document.getElementById('recCap');if(c)c.textContent=live;});
+  mediaRec.onstop=()=>{clearInterval(recTimer);const tr=sttStop();hideRecOv();const blob=new Blob(recChunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'});const u=URL.createObjectURL(blob);addMsg({w:'אתה',audio:u,tr},true);btn.classList.remove('rec');btn.textContent='🎙️';st.getTracks().forEach(t=>t.stop());mediaRec=null;toast('🎙️',tr?'ההקלטה נשלחה + תומללה ✓':'ההקלטה נשלחה ✓');};
   mediaRec.start();btn.classList.add('rec');btn.textContent='■';recSecs=0;recTimer=setInterval(()=>recSecs++,1000);showRecOv();
-  toast('🎙️','מקליט... 🔴 הקש שוב לעצור');
+  toast('🎙️',sttSupported()?'מקליט + מתמלל... 🔴 הקש שוב לעצור':'מקליט... 🔴 הקש שוב לעצור');
  }).catch(e=>{toast('🎙️','אין הרשאת מיקרופון — אשר גישה בהגדרות הדפדפן ונסה שוב');});}
 function msgMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">
  <div class="mi" onclick="sendReq('${nm}')"><span class="mc">${ic('mail')}</span>שלח הודעה פרטית<span class="mv">›</span></div>
@@ -1297,7 +1318,7 @@ function makeNP(){const me=S.me,np={e:em0(),av:me.av,avImg:me.avImg,nm:me.nm,met
   else if(C.pCat==='electronics')np.prod.electronics={brand:C.pBrand,warranty:C.pWarr};}
  if(C.type==='job')np.job={title:C.jT||'משרה',company:C.jC||'',location:C.jLoc||'',sal:C.jSal||'',apply:C.jApply||'profile',wa:(C.jWa||'').replace(/\D/g,'')};
  if(C.type==='location')np.loc={place:(C.loc&&C.loc.addr)||'המיקום שלי',dist:C.loc?(C.loc.lat+', '+C.loc.lng):'—',lat:C.loc&&C.loc.lat,lng:C.loc&&C.loc.lng};
- if(C.type==='audio')np.voice={dur:C.audioDur||'0:0'+(C.audioSecs||5),tr:'(תמלול בזמן אמת)',tl:'(תרגום)'};if(C.type==='audio'&&C.audio&&C.audio!=='sim')np.audioUrl=C.audio;
+ if(C.type==='audio')np.voice={dur:C.audioDur||'0:0'+(C.audioSecs||5),tr:C.audioTr||'',tl:''};if(C.type==='audio'&&C.audio&&C.audio!=='sim')np.audioUrl=C.audio;
  if(C.type==='file'&&C.files&&C.files.length)np.files=C.files;
  if(C.snd)np.snd=C.snd;if(C.sched)np.sched=C.sched;if(C.autoExt)np.autoExt=1;
  return np;}
@@ -1353,7 +1374,8 @@ function recCreate(){const b=document.getElementById('cRec'),s=document.getEleme
   let mt='';['audio/webm;codecs=opus','audio/webm','audio/mp4'].forEach(m=>{try{if(!mt&&MediaRecorder.isTypeSupported(m))mt=m;}catch(e){}});
   try{cRec=mt?new MediaRecorder(st,{mimeType:mt}):new MediaRecorder(st);}catch(e){cRec=new MediaRecorder(st);}
   cChunks=[];C.audioSecs=0;cRec.ondataavailable=e=>{if(e.data&&e.data.size)cChunks.push(e.data);};
-  cRec.onstop=()=>{clearInterval(cT);hideRecOv();C.audio=URL.createObjectURL(new Blob(cChunks,{type:(cRec&&cRec.mimeType)||'audio/webm'}));C.audioDur='0:'+String(C.audioSecs||3).padStart(2,'0');st.getTracks().forEach(t=>t.stop());cRec=null;compose();toast('🎙️','ההקלטה נשמרה לפוסט ✓');};
+  sttStart(live=>{const c=document.getElementById('recCap');if(c)c.textContent=live;});
+  cRec.onstop=()=>{clearInterval(cT);C.audioTr=sttStop();hideRecOv();C.audio=URL.createObjectURL(new Blob(cChunks,{type:(cRec&&cRec.mimeType)||'audio/webm'}));C.audioDur='0:'+String(C.audioSecs||3).padStart(2,'0');st.getTracks().forEach(t=>t.stop());cRec=null;compose();toast('🎙️',C.audioTr?'ההקלטה נשמרה + תומללה ✓':'ההקלטה נשמרה לפוסט ✓');};
   cRec.start();b.textContent='■';C.audioSecs=0;cT=setInterval(()=>{C.audioSecs++;s.textContent='🔴 מקליט... 0:'+String(C.audioSecs).padStart(2,'0')+' — הקש לעצור';},1000);showRecOv();
  }).catch(e=>{toast('🎙️','אין הרשאת מיקרופון — אשר בדפדפן');});}
 
@@ -1744,7 +1766,7 @@ function voteTopic(k){const a=getTopicReqs();const t=a[k];if(!t)return;const mv=
  saveTopicReqs(a);openTopicReq();toast('🗳️','ההצבעה נקלטה ('+(used+1)+'/2)');}
 
 /* voice comment translate/transcript */
-function trVoiceCom(id){const el=document.getElementById(id);if(!el)return;if(el.dataset.shown){el.style.display='none';el.dataset.shown='';return;}el.style.display='block';el.dataset.shown='1';if(!el.dataset.loaded){el.dataset.loaded='1';el.textContent='⏳ מתמלל ומתרגם...';setTimeout(async()=>{const txt='[תמלול] הקלטה קולית קצרה';const tr=await translateText(txt,S.lang);el.innerHTML='📝 '+txt+'<br>🌐 '+tr;},800);}}
+function trVoiceCom(id){const el=document.getElementById(id);if(!el)return;if(el.dataset.shown){el.style.display='none';el.dataset.shown='';return;}el.style.display='block';el.dataset.shown='1';if(!el.dataset.loaded){el.dataset.loaded='1';const txt=_vcTr[id]||'';if(!txt){el.textContent='📝 לא זוהה דיבור — תמלול חי פועל בעת ההקלטה (בדפדפן תומך).';return;}el.textContent='⏳ מתרגם...';(async()=>{const tr=await translateText(txt,S.lang);el.innerHTML='📝 '+esc(txt)+'<br>🌐 '+esc(tr);})();}}
 function printQR(u,nm){const w=window.open('','_blank');w.document.write('<html><head><title>QR '+nm+'</title></head><body style="text-align:center;font-family:sans-serif;padding:40px"><h1>'+nm+'</h1><img src="'+u+'" style="max-width:400px"><p>plaza-concept-demo-2026.netlify.app</p><scr'+'ipt>setTimeout(function(){window.print()},500)</scr'+'ipt></body></html>');}
 
 /* ===== Schedule publish ===== */
@@ -1756,14 +1778,15 @@ function pickSched(){const now=new Date(),pad=n=>String(n).padStart(2,'0');const
 
 function appendVcRow(i){const cb=document.getElementById('cb');const c=COM[i]&&COM[i][COM[i].length-1];if(cb&&c){const e=cb.querySelector('.empty');if(e)cb.innerHTML='';cb.insertAdjacentHTML('beforeend',comRow(i,c,COM[i].length-1));cb.scrollTop=9e9;}else if(c){openCom(i);}const cc=document.getElementById('cm'+i);if(cc)cc.textContent=parseInt(cc.textContent||0)+1;}
 /* ===== Voice comment on post ===== */
-let pcRec=null,pcChunks=[],pcIdx=-1;
+let pcRec=null,pcChunks=[],pcIdx=-1,_vcTr={};
 async function recPostComment(i){if(pcRec&&pcRec.state==='recording'){pcRec.stop();return;}pcIdx=i;
- const addVc=(audioHTML)=>{const tid='tv'+Date.now();COM[i]=COM[i]||[];COM[i].push({a:'🦊',n:'אתה',t:audioHTML+'<br><span class="trb" onclick="trVoiceCom(\''+tid+'\')">📝 תמלל + 🌐 תרגם לשפה שלך</span><div id="'+tid+'" class="tro" style="display:none"></div>',m:'עכשיו'});};
+ const addVc=(audioHTML,tr)=>{const tid='tv'+Date.now();if(tr)_vcTr[tid]=tr;COM[i]=COM[i]||[];COM[i].push({a:'🦊',n:'אתה',t:audioHTML+'<br><span class="trb" onclick="trVoiceCom(\''+tid+'\')">📝 תמלול + 🌐 תרגום לשפה שלך</span><div id="'+tid+'" class="tro" style="display:none"></div>',m:'עכשיו'});};
  if(!(navigator.mediaDevices&&window.MediaRecorder)){showRecOv();setTimeout(()=>{hideRecOv();addVc('🎙️ הודעה קולית 0:0'+Math.floor(Math.random()*8+2));toast('🎙️','תגובה קולית נשלחה (דמו)');appendVcRow(i);},2500);return;}
  try{const st=await navigator.mediaDevices.getUserMedia({audio:true});pcRec=new MediaRecorder(st);pcChunks=[];
   pcRec.ondataavailable=e=>{if(e.data&&e.data.size)pcChunks.push(e.data);};
-  pcRec.onstop=()=>{hideRecOv();const u=URL.createObjectURL(new Blob(pcChunks,{type:pcRec.mimeType||'audio/webm'}));addVc('🎙️ <audio controls src="'+u+'" style="max-width:200px"></audio>');st.getTracks().forEach(t=>t.stop());pcRec=null;appendVcRow(i);toast('🎙️','תגובה קולית נשלחה');};
-  pcRec.start();showRecOv();toast('🎙️','מקליט תגובה... הקש שוב לעצור');}catch(e){toast('🎙️','אין הרשאת מיקרופון');}}
+  sttStart(live=>{const c=document.getElementById('recCap');if(c)c.textContent=live;});
+  pcRec.onstop=()=>{const tr=sttStop();hideRecOv();const u=URL.createObjectURL(new Blob(pcChunks,{type:pcRec.mimeType||'audio/webm'}));addVc('🎙️ <audio controls src="'+u+'" style="max-width:200px"></audio>',tr);st.getTracks().forEach(t=>t.stop());pcRec=null;appendVcRow(i);toast('🎙️',tr?'תגובה קולית + תמלול נשלחה':'תגובה קולית נשלחה');};
+  pcRec.start();showRecOv();toast('🎙️',sttSupported()?'מקליט + מתמלל תגובה... הקש שוב לעצור':'מקליט תגובה... הקש שוב לעצור');}catch(e){toast('🎙️','אין הרשאת מיקרופון');}}
 
 /* ===== Post auto-translate + viewers ===== */
 async function translateText(text,target,source){target=(target||S.lang||'he').split('-')[0];source=(source||'en').split('-')[0];if(source===target)return text;try{const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0,500))}&langpair=${source}|${target}`);const j=await r.json();if(j&&j.responseData&&j.responseData.translatedText){const t=j.responseData.translatedText;if(t&&t.toLowerCase().indexOf('mymemory warning')<0&&t!==text)return t;}}catch(e){console.warn('translate err',e);}return '['+target+'] '+text;}
