@@ -123,6 +123,7 @@
   .ibx .sl{color:var(--acc);font-weight:700;font-size:13px}
   .ibx .sh{color:var(--sub);font-size:11.5px;margin-top:5px}
   .ibx button{margin-top:9px;width:100%;border:none;border-radius:9px;padding:10px;font-weight:700;font-size:13px;color:#fff;background:var(--acc);cursor:pointer}
+  .ibx .safety{color:var(--mut);font-size:10.5px;margin-top:8px;text-align:center;line-height:1.5;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
   .poll-o{background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin-top:7px;color:var(--text);font-size:13px;font-weight:600;position:relative;overflow:hidden;cursor:pointer}
   .poll-o .f{position:absolute;inset:0 auto 0 0;background:var(--acc-soft);width:0;transition:width .6s}
   .poll-o .l{position:relative;display:flex;justify-content:space-between}
@@ -783,7 +784,7 @@ function mediaBlock(p,i){
   return `<div style="padding:0 13px 11px">`+p.poll.map((o,oi)=>{const pct=tot?Math.round((o.v||0)/tot*100):0;return `<div class="poll-o${voted&&S.pollVotes[k]===oi?' my':''}" onclick="votePoll(${i},${oi})"><div class="f" style="width:${voted?pct:0}%"></div><div class="l"><span>${voted&&S.pollVotes[k]===oi?'✓ ':''}${o.t}</span><span class="pc">${voted?pct+'%':''}</span></div></div>`;}).join('')+`<div style="color:var(--mut);font-size:11px;margin-top:6px">${tot.toLocaleString('en-US')} הצבעות${voted?'':' · הקש להצביע'}</div></div>`;}
  if(p.type==='product'){const g=p.imgs&&p.imgs.length?`<div class="media"><div class="fbg n${Math.min(p.imgs.length,4)}">`+p.imgs.slice(0,4).map((m,k)=>`<div onclick="galView(${i},${k})">${cell(m)}${(k===3&&p.imgs.length>4)?`<span class="more">+${p.imgs.length-4}</span>`:''}</div>`).join('')+`</div></div>`:'';
   const sp=prodSpec(p.prod);
-  return g+`<div class="ibx"><div class="t" style="font-size:15px">${esc(p.prod.title||'')}</div>${sp?`<div class="spec">${sp}</div>`:''}${p.prod.desc?`<div class="d">${linkify(p.prod.desc)}</div>`:''}<div class="pr">${esc(p.prod.price||'')}</div>${p.prod.ship?`<div class="sh">🚚 ${esc(p.prod.ship)}</div>`:''}<button onclick="contactSeller('${(p.nm||'').replace(/'/g,'')}',${p.uid||'null'})">💬 צור קשר עם המוכר/ת</button></div>`;}
+  return g+`<div class="ibx"><div class="t" style="font-size:15px">${esc(p.prod.title||'')}</div>${sp?`<div class="spec">${sp}</div>`:''}${p.prod.desc?`<div class="d">${linkify(p.prod.desc)}</div>`:''}<div class="pr">${esc(p.prod.price||'')}</div>${p.prod.ship?`<div class="sh">🚚 ${esc(p.prod.ship)}</div>`:''}<button onclick="contactSeller('${(p.nm||'').replace(/'/g,'')}',${p.uid||'null'},${JSON.stringify(p.prod.title||'').replace(/"/g,'&quot;')})">💬 צור קשר על המודעה</button><div class="safety">🛡️ אל תשלם מראש · פגישה במקום ציבורי · <span onclick="reportPost(${i})" style="color:var(--acc);cursor:pointer">דווח</span></div></div>`;}
  if(p.type==='job'){const j=p.job||{};const applyWa=j.apply==='wa'&&j.wa;
   return `<div class="ibx" style="border-color:#1D9BF0"><div class="t">${j.title||'משרה'}</div><div class="d">${j.company||''}${j.location?' · 📍 '+j.location:''}</div>${j.sal?`<div class="sl">💰 ${j.sal}</div>`:''}<button onclick="${applyWa?`window.open('https://wa.me/${j.wa}?text='+encodeURIComponent('שלום, מעוניין/ת במשרה: '+${JSON.stringify(j.title||'')}),'_blank')`:`applyJob(${i})`}">${applyWa?'🟢 שלח מועמדות בוואטסאפ':'📥 הגש מועמדות'}</button></div>`;}
  if(p.type==='file'&&p.files&&p.files.length)return '<div style="padding:0 13px 11px">'+p.files.map(fl=>`<div style="display:flex;align-items:center;gap:11px;background:var(--surface2);border:1px solid var(--line);border-radius:11px;padding:11px;margin-bottom:7px">${fl.type&&fl.type.startsWith('image')?`<img src="${fl.url}" style="width:48px;height:48px;border-radius:8px;object-fit:cover">`:`<div style="width:48px;height:48px;border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:24px">${fileIcon(fl.type)}</div>`}<div style="flex:1;min-width:0"><div style="color:var(--text);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${fl.name}</div><div style="color:var(--mut);font-size:11px">${fmtSize(fl.size)} · ${((fl.type||'').split('/')[1]||'').toUpperCase()}</div></div><a href="${fl.url}" download="${fl.name}" style="color:var(--acc);font-size:20px;text-decoration:none">⬇️</a></div>`).join('')+'</div>';
@@ -1400,16 +1401,17 @@ function chatMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x
 function showArchive(){const L=document.getElementById('msgBody');const a=S.archived||[];L.innerHTML=`<div class="sh-h" style="margin-top:0"><span onclick="renderMsgs()" style="color:var(--acc);cursor:pointer">← חזרה לצ׳אטים</span></div>`+(a.length?a.map(nm=>`<div class="card"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">🗂️</span><b style="flex:1;color:var(--text);font-size:13px">${nm}</b><button class="bt dim" style="flex:0 0 auto;padding:7px 12px;font-size:12px" onclick="restoreChat('${nm}')">↩️ שחזר</button><button class="bt" style="flex:0 0 auto;padding:7px 12px;font-size:12px;background:var(--bad)" onclick="deleteChats(['${nm}'])">🗑️</button></div></div>`).join(''):`<div class="empty"><div class="e">${ic('archive')}</div><p>הארכיון ריק</p></div>`);}
 function reqAcc(nm){if(S.reqN>0)S.reqN--;S.pchats.unshift({nm,last:'הבקשה אושרה — התחילו לשוחח 👋',nw:1});sv();mbadge();toast('✅','אושר! הצ׳אט קפץ לכפתור ההודעות העגול למעלה (תג אדום)');mTab='c';msgTab('c');}
 function reqDec(b){if(S.reqN>0)S.reqN--;sv();renderMsgs();mbadge();toast(b?'🚫':'✖️',b?'נחסם ודווח':'נדחה');}
-function contactSeller(nm,uid){
+function contactSeller(nm,uid,title){
+ const note=title?('שלום! מעוניין/ת ב: '+title):'שלום! מעוניין/ת במוצר שפרסמת';
  if(IS_SERVER()&&uid&&uid!=='null'&&uid!=(API.user&&API.user.id)){
-  API.req('/private/request',{method:'POST',body:{to_id:uid,note:'מעוניין/ת במוצר שפרסמת'}}).then(r=>{
-   if(r&&r.existing&&r.status==='accepted')toast('💬','כבר יש לך צ׳אט פעיל עם '+nm+' — היכנס/י להודעות');
-   else toast('✉️','בקשת הודעה נשלחה ל-'+nm+' — תופיע אצלו לאישור');
+  API.req('/private/request',{method:'POST',body:{to_id:uid,note}}).then(r=>{
+   toast('💬','נפתח צ׳אט עסקה עם '+nm+' — היכנס/י להודעות');
    loadPrivateChats();
   }).catch(()=>toast('⚠️','שליחה נכשלה'));
   return;
  }
- if(!S.pchats.find(c=>c.nm===nm)){S.pchats.unshift({nm,last:'שיחה עם המוכר/ת נפתחה',nw:1});sv();}mbadge();toast('💬','נפתחה שיחה — מופיעה למעלה בכפתור ההודעות');}
+ const last=title?('עסקה: '+title):'שיחה עם המוכר/ת נפתחה';
+ if(!S.pchats.find(c=>c.nm===nm)){S.pchats.unshift({nm,last,nw:1});sv();}mbadge();toast('💬','נפתח צ׳אט עסקה — מופיע למעלה בכפתור ההודעות');}
 
 /* ===== NOTIF ===== */
 function ntIcon(t){return ({like:'heart',comment:'comment',message_request:'mail',topic_request_sent:'lightbulb',topic_request:'lightbulb',milestone:'star'})[t]||'bell';}
