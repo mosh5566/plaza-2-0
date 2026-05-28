@@ -319,11 +319,13 @@ app.post('/api/rooms/:topic/messages',auth,(req,res)=>{const r=db.prepare('SELEC
 // ─── Private chats / message requests ─────────────
 app.post('/api/private/request',auth,(req,res)=>{const {to_id,note}=req.body;if(!to_id)return res.status(400).json({error:'no target'});const exp=now()+24*3600;
   const ex=db.prepare("SELECT * FROM private_chats WHERE ((a_id=? AND b_id=?) OR (a_id=? AND b_id=?)) AND expires_at>?").get(req.user.id,to_id,to_id,req.user.id,now());
-  if(ex)return res.json({id:ex.id,existing:1,status:ex.status});
-  const r=db.prepare("INSERT INTO private_chats(a_id,b_id,status,expires_at) VALUES(?,?,'pending',?)").run(req.user.id,to_id,exp);
+  // הודעה ישירה: הצ'אט נפתח מיד כ-accepted (ללא בקשת אישור)
+  if(ex){if(ex.status!=='accepted')db.prepare("UPDATE private_chats SET status='accepted' WHERE id=?").run(ex.id);return res.json({id:ex.id,existing:1,status:'accepted'});}
+  const r=db.prepare("INSERT INTO private_chats(a_id,b_id,status,expires_at) VALUES(?,?,'accepted',?)").run(req.user.id,to_id,exp);
   const me=db.prepare('SELECT display_name,username FROM users WHERE id=?').get(req.user.id)||{};
+  if(note)db.prepare('INSERT INTO private_messages(chat_id,user_id,text) VALUES(?,?,?)').run(r.lastInsertRowid,req.user.id,note);
   notify(to_id,req.user.id,'message_request',{chat_id:r.lastInsertRowid,from:req.user.id,from_name:me.display_name||me.username,note:note||''});
-  res.json({id:r.lastInsertRowid});});
+  res.json({id:r.lastInsertRowid,status:'accepted'});});
 app.post('/api/private/:id/respond',auth,(req,res)=>{const {action}=req.body;const c=db.prepare('SELECT * FROM private_chats WHERE id=?').get(req.params.id);if(!c||c.b_id!==req.user.id)return res.status(403).json({error:'forbidden'});const st=action==='accept'?'accepted':action==='decline'?'declined':'blocked';db.prepare('UPDATE private_chats SET status=? WHERE id=?').run(st,req.params.id);res.json({status:st});});
 app.get('/api/private',auth,(req,res)=>{
   const uid=req.user.id;

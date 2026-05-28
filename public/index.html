@@ -592,8 +592,7 @@
     </section>
 
     <section class="screen" id="s-msgs">
-      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה</div><h2 data-ic="mail">הודעות פרטיות</h2><p>בקשות עם אישור · חסימה ודיווח</p></div>
-      <div class="tabs"><div class="tab on" id="tbC" onclick="msgTab('c')">צ'אטים</div><div class="tab" id="tbR" onclick="msgTab('r')">בקשות <span id="reqN"></span></div></div>
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה</div><h2 data-ic="mail">הודעות פרטיות</h2><p>הודעות ישירות · נעלמות תוך 24ש׳ · חסימה ודיווח</p></div>
       <div class="body"><div class="list" id="msgBody"></div></div>
     </section>
 
@@ -711,7 +710,7 @@ const COM=POSTS.map(()=>[{a:'🌟',n:'מירב',t:'וואו תודה ששיתפ�
 const SK='plaza_demo_v5';
 function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,trAllGlobal:false,lastDigest:'',mktMode:false,mktCats:[],mktQ:'',savedSearches:[],roomScope:'global',
  me:{nm:'משה',handle:'',creator:false,verified:false,loc:'ישראל 🇮🇱',av:'🦊',avImg:'',coverImg:'',lng:'עברית',hobby:'',bnm:'הסטודיו שלי',bpr:'🎨 שירות מאומת',bbio:'',waD:'972',waN:'',bem:'',bph:'',bweb:'',port:['🖼️','🎨','📷'],svc:[{t:'שירות לדוגמה',p:'מ-₪100',m:'🛠️',d:'תיאור השירות',l:''}]},
- prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},cols:['הכל'],bkCol:{},bkView:'הכל',mine:[],pchats:[],reqN:2};
+ prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},cols:['הכל'],bkCol:{},bkView:'הכל',mine:[],pchats:[]};
  try{const s=Object.assign(d,JSON.parse(localStorage.getItem(SK)||'{}'));s.nf=Object.assign({comments:true,chats:true},s.nf);s.me=Object.assign(d.me,s.me);return s;}catch(e){return d;}}
 let S=ld();let _meT;
 const sv=()=>{localStorage.setItem(SK,JSON.stringify(S));if(typeof IS_SERVER==='function'&&IS_SERVER()){clearTimeout(_meT);_meT=setTimeout(pushMe,800);}};
@@ -902,8 +901,8 @@ function renderFav(){const def=['tech','cars','real_estate','sports','food','mus
 function favPick(id){S.fT=id?[id]:[];sv();chips();buildFeed();renderFav();
  if(id){const t=tp(id);toast('⚡',(t?t[2]+' '+t[1]:'')+' — סינון מהיר הוחל');}}
 function mbadge(){const b=document.getElementById('mbadge');let n;
- if(IS_SERVER()&&window._srvLoaded){n=(window._srvRequests||[]).length+(window._srvAccepted||[]).filter(c=>c.nw).length;}
- else n=S.reqN+S.pchats.filter(c=>c.nw).length;
+ if(IS_SERVER()&&window._srvLoaded){n=(window._srvAccepted||[]).filter(c=>c.nw).length;}
+ else n=S.pchats.filter(c=>c.nw).length;
  if(n>0&&!S.hideBadge){b.style.display='flex';b.textContent=n;}else b.style.display='none';}
 /* === Boot: init API → load server data if connected, else demo === */
 async function bootApp(){
@@ -1168,11 +1167,11 @@ function recVoice(){const btn=document.getElementById('recBtn');
   toast('🎙️','מקליט... 🔴 הקש שוב לעצור');
  }).catch(e=>{toast('🎙️','אין הרשאת מיקרופון — אשר גישה בהגדרות הדפדפן ונסה שוב');});}
 function msgMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">
- <div class="mi" onclick="sendReq('${nm}')"><span class="mc">${ic('mail')}</span>שלח בקשת הודעה פרטית<span class="mv">›</span></div>
+ <div class="mi" onclick="sendReq('${nm}')"><span class="mc">${ic('mail')}</span>שלח הודעה פרטית<span class="mv">›</span></div>
  <div class="mi" onclick="openProf('${nm.split(' ')[0]}')"><span class="mc">${ic('user')}</span>הצג פרופיל<span class="mv">›</span></div>
  <div class="mi" onclick="closeSheet();toast('🚫','${nm} נחסם')"><span class="mc">${ic('block')}</span>חסום<span class="mv">›</span></div>
  <div class="mi" onclick="closeSheet();toast('⚠️','הדיווח נשלח')"><span class="mc">${ic('report')}</span>דווח<span class="mv">›</span></div></div>`);}
-function sendReq(nm){closeSheet();toast('✉️','בקשת הודעה נשלחה ל-'+nm+' — ממתינה לאישור');}
+function sendReq(nm,uid){closeSheet();contactSeller(nm,uid);}
 
 /* ===== SEARCH ===== */
 let _mktCat='';
@@ -1370,27 +1369,18 @@ function renderBm(){const L=document.getElementById('bmList');S.bkCol=S.bkCol||{
    return `<div class="card" onclick="searchOpen(${id})"><div class="row"><span class="av" style="width:32px;height:32px;font-size:15px">${avH(p)}</span><b style="color:var(--text);font-size:13px">${esc(p.nm||'פוסט')}</b><span style="margin-right:auto" onclick="event.stopPropagation()">${colSel(key)}</span></div>${sp?`<div class="spec">${sp}</div>`:''}<div style="color:var(--text);font-size:13px;margin:9px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(p.text||'')||'(מדיה)'}</div><div style="display:flex;justify-content:space-between"><span style="color:var(--mut);font-size:11px">📸 snapshot${t?' · '+t[1]:''}</span>${live?'<span style="color:var(--ok);font-size:11px;font-weight:700">✓ חי</span>':'<span style="background:var(--surface2);color:var(--mut);font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px">נעלם מהכיכר</span>'}</div></div>`;
   }).join(''):`<div class="empty"><div class="e">${ic('bookmark')}</div><p>אין סימניות${view!=='הכל'?' באוסף הזה':' עדיין'}<br>שמור פוסט מהפיד 🔖</p></div>`);}
 
-/* ===== MESSAGES ===== */
-let mTab='c';
-function msgTab(t){mTab=t;document.getElementById('tbC').classList.toggle('on',t==='c');document.getElementById('tbR').classList.toggle('on',t==='r');renderMsgs();}
+/* ===== MESSAGES (הודעות ישירות — ללא בקשות אישור) ===== */
 async function loadPrivateChats(){if(!IS_SERVER()){renderMsgs();return;}
  {const mb=document.getElementById('msgBody');if(mb&&!window._srvLoaded)mb.innerHTML=skeletonList(4);}
  try{const rows=await API.req('/private');if(Array.isArray(rows)){
-  window._srvAccepted=rows.filter(c=>c.status==='accepted').map(c=>({id:c.id,nm:c.other_name,other_id:c.other_id,last:c.last_text||'',nw:c.unread>0}));
-  window._srvRequests=rows.filter(c=>c.status==='pending'&&c.b_id===(API.user&&API.user.id)).map(c=>({id:c.id,nm:c.other_name,other_id:c.other_id}));
-  window._srvSent=rows.filter(c=>c.status==='pending'&&c.a_id===(API.user&&API.user.id)).map(c=>({id:c.id,nm:c.other_name}));
+  // הכל צ'אטים ישירים — pending ישן מוצג כצ'אט פעיל (מיגרציה); declined/blocked מוסתרים
+  window._srvAccepted=rows.filter(c=>c.status!=='declined'&&c.status!=='blocked').map(c=>({id:c.id,nm:c.other_name,other_id:c.other_id,last:c.last_text||'',nw:c.unread>0}));
   window._srvLoaded=true;
  }}catch(e){}
  renderMsgs();}
-function renderMsgsServer(){const L=document.getElementById('msgBody');const acc=window._srvAccepted||[],reqs=window._srvRequests||[],sent=window._srvSent||[];
- document.getElementById('reqN').textContent=reqs.length?`(${reqs.length})`:'';mbadge();
- if(mTab==='r'){
-  L.innerHTML=(reqs.length?reqs.map(r=>`<div class="req"><div class="ra">🧑</div><div class="rb"><b>${esc(r.nm)}</b><p>רוצה לשלוח לך הודעה פרטית</p><div class="ba"><button class="y" onclick="srvRespond(${r.id},'accept')">✓ אשר</button><button class="n" onclick="srvRespond(${r.id},'decline')">דחה</button><button class="bl" onclick="srvRespond(${r.id},'block')">חסום</button></div></div></div>`).join(''):`<div class="empty"><div class="e">${ic('mail')}</div><p>אין בקשות ממתינות</p></div>`)
-   +(sent.length?`<div class="sh-h">בקשות שאתה שלחת</div>`+sent.map(s=>`<div class="card"><div class="row"><span style="font-size:17px">✉️</span><b style="color:var(--text);font-size:13px">${esc(s.nm)}</b><span style="margin-right:auto;color:var(--warn);font-size:11px;font-weight:700">ממתינה</span></div></div>`).join(''):'');
-  return;}
- const list=acc.length?acc.map(c=>`<div class="card" style="cursor:pointer" onclick="openPChatSrv(${c.id},'${esc(c.nm).replace(/'/g,'')}')"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">💬</span><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${esc(c.nm)}</b><div style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.last)}</div></div>${c.nw?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad);flex:0 0 auto"></span>':''}</div></div>`).join(''):`<div class="empty"><div class="e">${ic('mail')}</div><p>אין צ'אטים פעילים עדיין<br>אשר בקשת הודעה או צור קשר עם מוכר</p></div>`;
- L.innerHTML=(reqs.length?`<div class="sh-h" style="margin-top:0">⏳ בקשות ממתינות (${reqs.length}) — אשר ב'בקשות'</div>`:'')+(acc.length?`<div class="sh-h">צ'אטים פעילים</div>`:'')+list;}
-async function srvRespond(id,action){try{await API.req('/private/'+id+'/respond',{method:'POST',body:{action}});}catch(e){}toast(action==='accept'?'✅':action==='block'?'🚫':'✖️',action==='accept'?'אושר! התחילו לשוחח':action==='block'?'נחסם':'נדחה');if(action==='accept'){mTab='c';msgTab('c');}loadPrivateChats();refreshNotifBadge();}
+function renderMsgsServer(){const L=document.getElementById('msgBody');const acc=window._srvAccepted||[];mbadge();
+ const list=acc.length?acc.map(c=>`<div class="card" style="cursor:pointer" onclick="openPChatSrv(${c.id},'${esc(c.nm).replace(/'/g,'')}')"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">💬</span><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${esc(c.nm)}</b><div style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.last)}</div></div>${c.nw?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad);flex:0 0 auto"></span>':''}</div></div>`).join(''):`<div class="empty"><div class="e">${ic('mail')}</div><p>אין צ'אטים עדיין<br>צור קשר עם מוכר או שלח הודעה למשתמש</p></div>`;
+ L.innerHTML=(acc.length?`<div class="sh-h" style="margin-top:0">צ'אטים פעילים</div>`:'')+list;}
 let _srvChatId=null;
 async function openPChatSrv(id,nm){_srvChatId=id;privCtx={nm,chatId:id};
  document.getElementById('rTitle').textContent='💬 '+nm;document.getElementById('rOnline').textContent='פרטי · נעלם תוך 24ש׳';
@@ -1400,19 +1390,12 @@ async function openPChatSrv(id,nm){_srvChatId=id;privCtx={nm,chatId:id};
  if(API.socket){try{API.socket.emit('chat:join',id);}catch(e){}}
  cur='room';document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-room').classList.add('on');nav();chat.scrollTop=chat.scrollHeight;}
 function renderMsgs(){if(IS_SERVER()&&window._srvLoaded)return renderMsgsServer();
- document.getElementById('reqN').textContent=S.reqN?`(${S.reqN})`:'';mbadge();const L=document.getElementById('msgBody');
- if(mTab==='r'){L.innerHTML=`<div class="req"><div class="ra">🧑</div><div class="rb"><b>Daniel 🇩🇪 · 💻 טכנולוגיה</b><p>רוצה לשלוח לך הודעה פרטית</p><div class="qt">"הפתרון שהצעת ל-React עבד, אפשר להתייעץ?"</div><div class="ba"><button class="y" onclick="reqAcc('Daniel')">אשר</button><button class="n" onclick="reqDec()">דחה</button><button class="bl" onclick="reqDec(1)">חסום/דווח</button></div></div></div>
-  <div class="req"><div class="ra">👩</div><div class="rb"><b>Lucia 🇮🇹 · 🎨 אמנות</b><p>רוצה לשלוח לך הודעה פרטית</p><div class="qt">"היצירה שלך מהממת — הזמנת עבודה?"</div><div class="ba"><button class="y" onclick="reqAcc('Lucia')">אשר</button><button class="n" onclick="reqDec()">דחה</button><button class="bl" onclick="reqDec(1)">חסום/דווח</button></div></div></div>
-  <div class="sh-h">בקשות שאתה שלחת</div><div class="card"><div class="row"><span style="font-size:17px">✉️</span><b style="color:var(--text);font-size:13px">Raj 🇮🇳</b><span style="margin-right:auto;color:var(--warn);font-size:11px;font-weight:700">ממתינה</span></div></div>`;return;}
- let pend='';if(S.reqN>0){pend=`<div class="sh-h" style="margin-top:0">⏳ בקשות ממתינות (${S.reqN}) — אשר כאן ישירות</div>`;
-  if(S.reqN>=1)pend+=`<div class="req"><div class="ra">🧑</div><div class="rb"><b>Daniel 🇩🇪 · 💻 טכנולוגיה</b><p>"הפתרון שהצעת ל-React עבד, אפשר להתייעץ?"</p><div class="ba"><button class="y" onclick="reqAcc('Daniel')">✓ אשר</button><button class="n" onclick="reqDec()">דחה</button><button class="bl" onclick="reqDec(1)">חסום</button></div></div></div>`;
-  if(S.reqN>=2)pend+=`<div class="req"><div class="ra">👩</div><div class="rb"><b>Lucia 🇮🇹 · 🎨 אמנות</b><p>"היצירה שלך מהממת — הזמנת עבודה?"</p><div class="ba"><button class="y" onclick="reqAcc('Lucia')">✓ אשר</button><button class="n" onclick="reqDec()">דחה</button><button class="bl" onclick="reqDec(1)">חסום</button></div></div></div>`;
- }
+ mbadge();const L=document.getElementById('msgBody');
  const arch=(S.archived||[]).length;
  const toolbar=S.pchats.length?`<div style="display:flex;gap:8px;margin:0 0 10px"><button class="bt dim" style="padding:8px;font-size:12px" onclick="toggleChatSel()">${chatSelMode?'✕ בטל בחירה':'☑️ בחר'}</button><button class="bt dim" style="padding:8px;font-size:12px" onclick="showArchive()">🗂️ ארכיון${arch?' ('+arch+')':''}</button></div>`:(arch?`<div style="margin-bottom:10px"><button class="bt dim" style="padding:8px;font-size:12px" onclick="showArchive()">🗂️ ארכיון (${arch})</button></div>`:'');
- const list=S.pchats.length?S.pchats.map(c=>{const nm=(c.nm||'').replace(/'/g,'');const sel=chatSel.includes(nm);return `<div class="card" style="cursor:pointer" onclick="${chatSelMode?`selChat('${nm}')`:`openPChat('${nm}')`}"><div class="row">${chatSelMode?`<span style="width:22px;height:22px;border-radius:6px;border:2px solid ${sel?'var(--acc)':'var(--mut)'};background:${sel?'var(--acc)':'transparent'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex:0 0 auto">${sel?'✓':''}</span>`:`<span class="av" style="width:38px;height:38px;font-size:16px">💬</span>`}<div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${nm}</b><div style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.last||''}</div></div>${c.nw&&!chatSelMode?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad);flex:0 0 auto"></span>':''}${!chatSelMode?`<span onclick="event.stopPropagation();chatMenu('${nm}')" style="color:var(--mut);font-size:20px;padding:0 6px;cursor:pointer;flex:0 0 auto">⋯</span>`:''}</div></div>`;}).join(''):(pend?'':`<div class="empty"><div class="e">${ic('mail')}</div><p>אין צ'אטים פרטיים עדיין<br>אשר בקשת הודעה או צור קשר עם מוכר</p></div>`);
+ const list=S.pchats.length?S.pchats.map(c=>{const nm=(c.nm||'').replace(/'/g,'');const sel=chatSel.includes(nm);return `<div class="card" style="cursor:pointer" onclick="${chatSelMode?`selChat('${nm}')`:`openPChat('${nm}')`}"><div class="row">${chatSelMode?`<span style="width:22px;height:22px;border-radius:6px;border:2px solid ${sel?'var(--acc)':'var(--mut)'};background:${sel?'var(--acc)':'transparent'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex:0 0 auto">${sel?'✓':''}</span>`:`<span class="av" style="width:38px;height:38px;font-size:16px">💬</span>`}<div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${nm}</b><div style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.last||''}</div></div>${c.nw&&!chatSelMode?'<span style="width:9px;height:9px;border-radius:50%;background:var(--bad);flex:0 0 auto"></span>':''}${!chatSelMode?`<span onclick="event.stopPropagation();chatMenu('${nm}')" style="color:var(--mut);font-size:20px;padding:0 6px;cursor:pointer;flex:0 0 auto">⋯</span>`:''}</div></div>`;}).join(''):`<div class="empty"><div class="e">${ic('mail')}</div><p>אין צ'אטים עדיין<br>צור קשר עם מוכר או שלח הודעה למשתמש</p></div>`;
  const bulk=(chatSelMode&&chatSel.length)?`<div style="position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:var(--bg)"><button class="bt dim" style="flex:1" onclick="archiveChats(chatSel.slice())">🗂️ לארכיון (${chatSel.length})</button><button class="bt" style="flex:1;background:var(--bad)" onclick="deleteChats(chatSel.slice())">🗑️ מחק (${chatSel.length})</button></div>`:'';
- L.innerHTML=pend+(S.pchats.length?`<div class="sh-h">צ'אטים פעילים</div>`:'')+toolbar+list+bulk;}
+ L.innerHTML=(S.pchats.length?`<div class="sh-h" style="margin-top:0">צ'אטים פעילים</div>`:'')+toolbar+list+bulk;}
 let chatSelMode=false,chatSel=[];
 function toggleChatSel(){chatSelMode=!chatSelMode;chatSel=[];renderMsgs();}
 function selChat(nm){const i=chatSel.indexOf(nm);if(i>=0)chatSel.splice(i,1);else chatSel.push(nm);renderMsgs();}
@@ -1421,14 +1404,13 @@ function deleteChats(names){S.pchats=S.pchats.filter(c=>!names.includes(c.nm));S
 function restoreChat(nm){S.archived=(S.archived||[]).filter(a=>a!==nm);if(!S.pchats.find(c=>c.nm===nm))S.pchats.unshift({nm,last:'שוחזר מהארכיון',nw:0});sv();showArchive();toast('↩️','שוחזר');}
 function chatMenu(nm){openSheet(`<div class="sh-hd"><h3>${nm}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="mi" onclick="closeSheet();openPChat('${nm}')"><span class="mc">${ic('chat')}</span>פתח צ׳אט<span class="mv">›</span></div><div class="mi" onclick="closeSheet();archiveChats(['${nm}'])"><span class="mc">${ic('archive')}</span>העבר לארכיון<span class="mv">›</span></div><div class="mi" onclick="closeSheet();deleteChats(['${nm}'])"><span class="mc" style="color:var(--bad)">${ic('trash')}</span><span style="color:var(--bad)">מחק צ׳אט</span><span class="mv">›</span></div></div>`);}
 function showArchive(){const L=document.getElementById('msgBody');const a=S.archived||[];L.innerHTML=`<div class="sh-h" style="margin-top:0"><span onclick="renderMsgs()" style="color:var(--acc);cursor:pointer">← חזרה לצ׳אטים</span></div>`+(a.length?a.map(nm=>`<div class="card"><div class="row"><span class="av" style="width:38px;height:38px;font-size:16px">🗂️</span><b style="flex:1;color:var(--text);font-size:13px">${nm}</b><button class="bt dim" style="flex:0 0 auto;padding:7px 12px;font-size:12px" onclick="restoreChat('${nm}')">↩️ שחזר</button><button class="bt" style="flex:0 0 auto;padding:7px 12px;font-size:12px;background:var(--bad)" onclick="deleteChats(['${nm}'])">🗑️</button></div></div>`).join(''):`<div class="empty"><div class="e">${ic('archive')}</div><p>הארכיון ריק</p></div>`);}
-function reqAcc(nm){if(S.reqN>0)S.reqN--;S.pchats.unshift({nm,last:'הבקשה אושרה — התחילו לשוחח 👋',nw:1});sv();mbadge();toast('✅','אושר! הצ׳אט קפץ לכפתור ההודעות העגול למעלה (תג אדום)');mTab='c';msgTab('c');}
-function reqDec(b){if(S.reqN>0)S.reqN--;sv();renderMsgs();mbadge();toast(b?'🚫':'✖️',b?'נחסם ודווח':'נדחה');}
 function contactSeller(nm,uid,title){
  const note=title?('שלום! מעוניין/ת ב: '+title):'שלום! מעוניין/ת במוצר שפרסמת';
  if(IS_SERVER()&&uid&&uid!=='null'&&uid!=(API.user&&API.user.id)){
   API.req('/private/request',{method:'POST',body:{to_id:uid,note}}).then(r=>{
-   toast('💬','נפתח צ׳אט עסקה עם '+nm+' — היכנס/י להודעות');
-   loadPrivateChats();
+   toast('💬','נפתח צ׳אט עם '+nm);
+   window._srvLoaded=false;loadPrivateChats();
+   if(r&&r.id)setTimeout(()=>openPChatSrv(r.id,nm),120);
   }).catch(()=>toast('⚠️','שליחה נכשלה'));
   return;
  }
@@ -1440,10 +1422,10 @@ function ntIcon(t){return ({like:'heart',comment:'comment',message_request:'mail
 function ntTitle(t,p){const f=p.from_name||p.from||'מישהו';
  if(t==='like')return f+' אהב/ה את הפוסט שלך';
  if(t==='comment')return f+' הגיב/ה לך';
- if(t==='message_request')return f+' שלח/ה בקשת הודעה';
+ if(t==='message_request')return f+' התחיל/ה איתך צ׳אט';
  if(t==='topic_request_sent'||t==='topic_request')return 'בקשת נושא חדשה: '+(p.name||'');
  return 'התראה';}
-function ntSub(t){return ({message_request:'ממתין לאישור — היכנס/י להודעות',like:'',comment:''})[t]||'';}
+function ntSub(t){return ({message_request:'היכנס/י להודעות כדי להשיב',like:'',comment:''})[t]||'';}
 function timeAgo(sec){const d=Math.floor(Date.now()/1000)-sec;if(d<60)return 'עכשיו';if(d<3600)return Math.floor(d/60)+' דק׳';if(d<86400)return Math.floor(d/3600)+'ש׳';return Math.floor(d/86400)+'י׳';}
 async function renderNt(){const L=document.getElementById('ntList');
  if(IS_SERVER()){
@@ -1481,7 +1463,7 @@ function renderProfile(){const me=S.me,wal=waLink(me.waD,me.waN),handle=me.handl
  const content=`<div class="sh-h">התוכן שלי</div>
   <div class="mi" onclick="go('myposts')"><span class="mc">${ic('edit')}</span>הפוסטים שלי<span class="mv">${S.mine.length} ›</span></div>
   <div class="mi" onclick="go('bm')"><span class="mc">${ic('bookmark')}</span>האוספים שלי<span class="mv">${Object.values(S.bk).filter(Boolean).length} ›</span></div>
-  <div class="mi" onclick="go('msgs')"><span class="mc">${ic('mail')}</span>הודעות פרטיות<span class="mv">${S.reqN} ›</span></div>
+  <div class="mi" onclick="go('msgs')"><span class="mc">${ic('mail')}</span>הודעות פרטיות<span class="mv">${(IS_SERVER()&&window._srvLoaded?(window._srvAccepted||[]):S.pchats).length} ›</span></div>
   <div class="mi" onclick="go('settings')"><span class="mc">${ic('settings')}</span>הגדרות<span class="mv">›</span></div>`;
  const gallery=me.creator?(portfolioBlock()+galleryBlock()):'';
  const about=`<div class="sh-h">אודות</div><div class="card" style="display:flex;flex-direction:column;gap:9px">
@@ -1578,7 +1560,7 @@ async function openProf(nm,uid){
     <div class="pf-handle">@${esc(u.username||'')}${u.location?' · '+esc(u.location):''}</div>
     ${u.bio?`<div class="pf-bio">${linkify(u.bio)}</div>`:''}
     <div class="pf-st"><div><b>${u.posts||0}</b><small>פוסטים</small></div><div><b style="font-size:13px">${u.is_business?'עסק':'פרטי'}</b><small>${u.is_business?'פרופיל עסק':'פרופיל פרטי'}</small></div></div>
-    <div class="pf-act"><button onclick="closeSheet();contactSeller('${dn.replace(/'/g,'')}',${u.id})">${ic('mail')} בקשת הודעה</button>${wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:''}${u.biz_phone?`<button class="g" onclick="window.open('tel:${u.biz_phone}')">${ic('phone')} חייג</button>`:''}${u.biz_web?`<button class="g" onclick="openInApp('${u.biz_web}')">${ic('link')} אתר</button>`:''}</div>
+    <div class="pf-act"><button onclick="closeSheet();contactSeller('${dn.replace(/'/g,'')}',${u.id})">${ic('mail')} שלח הודעה</button>${wal?`<button class="wa" onclick="window.open('${wal}','_blank')">🟢 WhatsApp</button>`:''}${u.biz_phone?`<button class="g" onclick="window.open('tel:${u.biz_phone}')">${ic('phone')} חייג</button>`:''}${u.biz_web?`<button class="g" onclick="openInApp('${u.biz_web}')">${ic('link')} אתר</button>`:''}</div>
     ${u.profession?`<div class="sh-h">תחום</div><div class="card" style="color:var(--text)">${esc(u.profession)}</div>`:''}</div>`);
    return;}
   }catch(e){}
@@ -1595,7 +1577,7 @@ function openProfDemo(nm){const p=PROF[nm]||PROF[Object.keys(PROF).find(k=>k.sta
  else{openSheet(`<div class="sh-hd"><h3>פרופיל</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div class="pf-cov" style="margin:-14px -16px 0"><div class="pf-av">${avH(p)}</div></div>
   <div class="pf-nm">${p.nm}</div><div class="pf-s">${p.loc} · ${p.j}</div>
   <div class="note" style="margin-top:10px">🔒 פרופיל מינימלי — בלי גרף חברתי, אין עוקבים. רק שיחה כאן ועכשיו.</div>
-  <div class="pf-act"><button onclick="closeSheet();sendReq('${p.nm}')">✉️ בקשת הודעה</button></div></div>`);}
+  <div class="pf-act"><button onclick="closeSheet();sendReq('${p.nm}',${p.uid||'null'})">💬 שלח הודעה</button></div></div>`);}
 }
 
 /* ===== SHEET / SHARED ===== */
