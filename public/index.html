@@ -173,6 +173,10 @@
   .catbar::-webkit-scrollbar{height:0}.catbar.hide{display:none}
   .ct{flex:0 0 auto;background:var(--surface2);border:1px solid var(--line);color:var(--sub);font-size:11px;font-weight:700;padding:6px 11px;border-radius:8px;cursor:pointer;display:flex;gap:5px}
   .ct.on{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 4px 12px var(--ring)}
+  .scopebar{display:flex;gap:6px;margin-top:8px;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .scopebar.hide{display:none}
+  .scp{flex:1;text-align:center;font-size:11.5px;font-weight:700;color:var(--sub);padding:7px 4px;border-radius:8px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .15s,color .15s}
+  .scp.on{background:var(--acc);color:#fff;box-shadow:0 3px 10px var(--ring)}
   .chat{flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:10px}
   .chat::-webkit-scrollbar{width:0}
   .msg{max-width:84%;display:flex;flex-direction:column;gap:3px}
@@ -384,7 +388,7 @@
   .grip{width:42px;height:5px;background:var(--mut);opacity:.4;border-radius:9999px}
   /* לשוניות/קטגוריות/סגמנט */
   .tab,.ct,.seg b{border:none}
-  .tab.on,.ct.on{background:var(--grad);color:#fff;box-shadow:var(--glow)}
+  .tab.on,.ct.on,.scp.on{background:var(--grad);color:#fff;box-shadow:var(--glow)}
   .seg b{background:var(--surface2)}
   .seg b.on{background:var(--acc-soft);color:var(--acc)}
   /* בועות צ'אט */
@@ -550,12 +554,12 @@
     </section>
 
     <section class="screen" id="s-rooms">
-      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה לכיכר</div><h2 data-ic="chat">חדרי צאט</h2><p>חדר לכל קטגוריה · ההודעות נעלמות תוך 48 שעות</p></div>
+      <div class="sc-title"><div class="bk" data-ic="back" onclick="go('feed')">חזרה לכיכר</div><h2 data-ic="chat">חדרי צאט</h2><p>חדרי דיון לכל תחום · 🌍 גלובלי או לפי מדינה/שפה · נעלם תוך 48ש׳</p></div>
       <div class="body"><div class="srch" style="margin:14px 14px 4px"><span data-ic="search" class="srch-ic"></span><input id="roomSearch" placeholder="חפש חדר/קטגוריה..." oninput="renderRooms()"></div><div class="list"><div class="gridc" id="roomsGrid"></div></div></div>
     </section>
 
     <section class="screen" id="s-room">
-      <div class="rhead"><div class="top"><span class="bk" id="rBack" data-ic="back" onclick="go('rooms')"></span><div class="ti"><b id="rTitle">💻 טכנולוגיה</b><small><span class="live"></span><span id="rOnline">412</span> מחוברים · ⏳ ההודעות נעלמות תוך 48 שעות</small></div><button class="tr" id="rTrAll" onclick="trAllToggle()">🌐 תרגם הכל</button></div><div class="catbar" id="catbar"></div><input id="rmSearch" placeholder="🔍 חפש מילת מפתח בחדר זה..." oninput="roomFilter(this.value)" style="margin-top:8px;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px;outline:none;color:var(--text)"></div>
+      <div class="rhead"><div class="top"><span class="bk" id="rBack" data-ic="back" onclick="go('rooms')"></span><div class="ti"><b id="rTitle">💻 טכנולוגיה</b><small><span class="live"></span><span id="rOnline">412</span> מחוברים · ⏳ ההודעות נעלמות תוך 48 שעות</small></div><button class="tr" id="rTrAll" onclick="trAllToggle()">🌐 תרגם הכל</button></div><div class="catbar" id="catbar"></div><div class="scopebar" id="scopebar"></div><input id="rmSearch" placeholder="🔍 חפש מילת מפתח בחדר זה..." oninput="roomFilter(this.value)" style="margin-top:8px;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px;outline:none;color:var(--text)"></div>
       <div class="chat" id="chat"></div>
       <div class="composer">
         <button class="snd" data-ic="send" onclick="sendMsg()"></button>
@@ -665,7 +669,7 @@ const IS_SERVER = ()=>API.ok;
 
 const LANGS=[['he','עברית','🇮🇱'],['en','English','🇺🇸'],['ar','العربية','🇸🇦'],['ru','Русский','🇷🇺'],['fr','Français','🇫🇷'],['es','Español','🇪🇸'],['de','Deutsch','🇩🇪'],['pt-BR','Português','🇧🇷'],['zh-CN','中文','🇨🇳'],['ja','日本語','🇯🇵'],['ko','한국어','🇰🇷'],['hi','हिन्दी','🇮🇳'],['tr','Türkçe','🇹🇷'],['it','Italiano','🇮🇹'],['pl','Polski','🇵🇱'],['uk','Українська','🇺🇦'],['nl','Nederlands','🇳🇱'],['sv','Svenska','🇸🇪'],['th','ไทย','🇹🇭'],['vi','Tiếng Việt','🇻🇳'],['id','Bahasa','🇮🇩'],['ro','Română','🇷🇴'],['am','አማርኛ','🇪🇹'],['fa','فارسی','🇮🇷'],['sw','Kiswahili','🇰🇪']];
 const COUNTRIES=[['IL','ישראל','🇮🇱'],['AR','ארגנטינה','🇦🇷'],['AU','אוסטרליה','🇦🇺'],['BR','ברזיל','🇧🇷'],['CA','קנדה','🇨🇦'],['CN','סין','🇨🇳'],['EG','מצרים','🇪🇬'],['FR','צרפת','🇫🇷'],['DE','גרמניה','🇩🇪'],['IN','הודו','🇮🇳'],['IT','איטליה','🇮🇹'],['JP','יפן','🇯🇵'],['MX','מקסיקו','🇲🇽'],['NL','הולנד','🇳🇱'],['PL','פולין','🇵🇱'],['RU','רוסיה','🇷🇺'],['SA','ערב הסעודית','🇸🇦'],['ES','ספרד','🇪🇸'],['SE','שוודיה','🇸🇪'],['TR','טורקיה','🇹🇷'],['AE','איחוד האמירויות','🇦🇪'],['GB','בריטניה','🇬🇧'],['US','ארה"ב','🇺🇸']];
-const TOPICS=[['tech','טכנולוגיה','💻'],['cars','רכב','🚗'],['real_estate','נדל"ן','🏢'],['art','אמנות','🎨'],['music','מוזיקה','🎵'],['film','סרטים','🎬'],['books','ספרים','📚'],['fitness','כושר','💪'],['food','אוכל','🍕'],['travel','טיולים','✈️'],['photography','צילום','📸'],['gaming','גיימינג','🎮'],['sports','ספורט','⚽'],['wellness','בריאות','🧘'],['business','עסקים','💼'],['finance','פיננסים','💰'],['science','מדע','🔬'],['environment','סביבה','🌍'],['politics','פוליטיקה','🏛️'],['news','חדשות','📰'],['education','חינוך','🎓'],['parenting','הורות','👶'],['relationships','יחסים','💑'],['home','בית וגינה','🏠'],['fashion','אופנה','👗'],['beauty','יופי','💄'],['pets','חיות מחמד','🐶'],['spirituality','רוחניות','🙏'],['humor','הומור','😂'],['entertainment','בידור','🎭'],['community','קהילה','🤝'],['jobs','דרושים','💼'],['ai','בינה מלאכותית','🤖'],['crypto','קריפטו','💎'],['startups','סטארטאפים','🚀'],['diy','עשה זאת בעצמך','🔨'],['cooking','בישול','👨‍🍳'],['mental_health','בריאות נפשית','🧠'],['history','היסטוריה','📜'],['marketing','שיווק','📣'],['design','עיצוב','✏️'],['languages','שפות','🗣️'],['volunteering','התנדבות','🤲'],['law','משפט','⚖️'],['psychology','פסיכולוגיה','🧠'],['military','ביטחון','🎖️'],['agriculture','חקלאות','🌾'],['medicine','רפואה','⚕️'],['astronomy','אסטרונומיה','🔭'],['philosophy','פילוסופיה','💭'],['dance','ריקוד','💃'],['theater','תיאטרון','🎭'],['podcast','פודקאסטים','🎧'],['investing','השקעות','📈'],['architecture','אדריכלות','🏛️']];
+const TOPICS=[['tech','טכנולוגיה','💻'],['cars','רכב','🚗'],['real_estate','נדל"ן','🏢'],['art','אמנות','🎨'],['music','מוזיקה','🎵'],['film','סרטים','🎬'],['books','ספרים','📚'],['fitness','כושר','💪'],['food','אוכל','🍕'],['travel','טיולים','✈️'],['photography','צילום','📸'],['gaming','גיימינג','🎮'],['sports','ספורט','⚽'],['wellness','בריאות','🧘'],['business','עסקים','💼'],['finance','פיננסים','💰'],['science','מדע','🔬'],['environment','סביבה','🌍'],['politics','פוליטיקה','🏛️'],['news','חדשות','📰'],['education','חינוך','🎓'],['parenting','הורות','👶'],['relationships','יחסים','💑'],['home','בית וגינה','🏠'],['fashion','אופנה','👗'],['beauty','יופי','💄'],['pets','חיות מחמד','🐶'],['spirituality','רוחניות','🙏'],['humor','הומור','😂'],['entertainment','בידור','🎭'],['community','קהילה','🤝'],['jobs','דרושים','💼'],['ai','בינה מלאכותית','🤖'],['crypto','קריפטו','💎'],['startups','סטארטאפים','🚀'],['diy','עשה זאת בעצמך','🔨'],['cooking','בישול','👨‍🍳'],['mental_health','בריאות נפשית','🧠'],['history','היסטוריה','📜'],['marketing','שיווק','📣'],['design','עיצוב','✏️'],['languages','שפות','🗣️'],['volunteering','התנדבות','🤲'],['law','משפט','⚖️'],['psychology','פסיכולוגיה','🧠'],['military','ביטחון','🎖️'],['agriculture','חקלאות','🌾'],['medicine','רפואה','⚕️'],['astronomy','אסטרונומיה','🔭'],['philosophy','פילוסופיה','💭'],['dance','ריקוד','💃'],['theater','תיאטרון','🎭'],['podcast','פודקאסטים','🎧'],['investing','השקעות','📈'],['architecture','אדריכלות','🏛️'],['deals','דילים וחיסכון','🏷️'],['recommend','המלצות','🌟'],['expats','מהגרים ואקספטים','🧳'],['nostalgia','נוסטלגיה','📼'],['secondopinion','שאלות ותשובות','❓'],['support','תמיכה וקהילה','🫂']];
 const PTYPES=[['text','טקסט','📝'],['image','תמונה','📷'],['video','וידאו','🎥'],['audio','אודיו','🎙️'],['location','מיקום','📍'],['file','קובץ','📎'],['poll','סקר','📊'],['job','דרושים','💼'],['product','מוצר','🏷️']];
 const SHIP=['איסוף עצמי','משלוח עד הבית','משלוח עולמי 🌍','שליח עד שעה'];
 /* קטגוריות מרקטפלייס (כמו פייסבוק) — שלוש הראשונות + electronics עם שדות ייעודיים */
@@ -700,12 +704,12 @@ const PROF={
  'אוטו דיל':{k:'b',bd:'blue',av:'🔑',nm:'אוטו דיל',loc:'תל אביב 🇮🇱',pr:'🚗 מגרש רכב מאומת',bio:'רכבים יד ראשונה בדוקים, אחריות והעברת בעלות.',wa:'972541234567',ph:'03-9998877',em:'sales@autodeal.co.il',st:[['540','מכירות'],['4.7★','דירוג'],['90','רכבים']],port:['🚗','🚙','🏎️','🛻','🚕','🔧'],svc:[{t:'רכב משפחתי',p:'מ-₪70K',m:'🚗',d:'מגוון דגמים בדוקים',l:'autodeal.co.il'},{t:'בדיקה לפני קנייה',p:'₪450',m:'🔧',d:'בדיקת מכון מוסמך',l:''}],web:'autodeal.co.il'},
  'Nina Records':{k:'b',bd:'gold',av:'🎼',nm:'Nina Records',loc:'Stockholm 🇸🇪',pr:'🎵 סטודיו הקלטות · יוצרת זהב',bio:'מפיקה מוזיקלית. סטודיו מקצועי.',wa:'46701234567',st:[['90','הפקות'],['4.9★','דירוג'],['21K','מאזינים']],port:['🎵','🎹','🎚️','🥁','🎸','🎤'],svc:[{t:'הפקת שיר',p:'מ-$400',m:'🎵',d:'הפקה מלאה מקצה לקצה',l:'ninarecords.se'}],web:'ninarecords.se'}
 };
-const ROOM_SEED={tech:[{w:'Raj 🇮🇳',t:'anyone tried the new AI chip?',tl:'מישהו ניסה את שבב ה-AI?'},{w:'דנה 🇮🇱',t:'עברתי ל-Linux סופית 😎'}],cars:[{w:'יוסי 🇮🇱',t:'איפה הכי כדאי למכור רכב?'},{w:'Marco 🇮🇹',t:'EV o ibrida?',tl:'חשמלי או היברידי?'}],real_estate:[{w:'רותם 🇮🇱',t:'מחירי השכירות מטורפים'}],music:[{w:'Nina 🇸🇪',t:'new track tonight 🎚️',tl:'טראק חדש הלילה 🎚️'}]};
-const GENERIC=[{w:'Alex 🇺🇸',t:'love this room',tl:'אוהב את החדר'},{w:'מאיה 🇮🇱',t:'סוף סוף מקום לנושא הזה'},{w:'Sofia 🇪🇸',t:'¿alguien aquí?',tl:'מישהו כאן?'}];
+const ROOM_SEED={tech:[{w:'Raj 🇮🇳',t:'anyone tried the new AI chip?',tl:'מישהו ניסה את שבב ה-AI?',c:'IN',l:'en'},{w:'דנה 🇮🇱',t:'עברתי ל-Linux סופית 😎',c:'IL',l:'he'}],music:[{w:'Nina 🇸🇪',t:'new track tonight 🎚️',tl:'טראק חדש הלילה 🎚️',c:'SE',l:'sv'},{w:'עידן 🇮🇱',t:'מישהו מקליט בבית? איזה מיקרופון?',c:'IL',l:'he'}],parenting:[{w:'Lucia 🇪🇸',t:'¿consejos para dormir al bebé?',tl:'טיפים להרדמת תינוק?',c:'ES',l:'es'},{w:'שירה 🇮🇱',t:'הגן נסגר מוקדם, מה עושים?',c:'IL',l:'he'}],deals:[{w:'נועם 🇮🇱',t:'מבצע מטורף על אוזניות היום בלבד 🏷️',c:'IL',l:'he'},{w:'Mike 🇺🇸',t:'best Black Friday tips?',tl:'טיפים לבלאק פריידי?',c:'US',l:'en'}]};
+const GENERIC=[{w:'Alex 🇺🇸',t:'love this room',tl:'אוהב את החדר',c:'US',l:'en'},{w:'מאיה 🇮🇱',t:'סוף סוף מקום לנושא הזה',c:'IL',l:'he'},{w:'Sofia 🇪🇸',t:'¿alguien aquí?',tl:'מישהו כאן?',c:'ES',l:'es'},{w:'Yuki 🇯🇵',t:'こんにちは!',tl:'שלום!',c:'JP',l:'ja'},{w:'דני 🇮🇱',t:'מצטרף לדיון 👋',c:'IL',l:'he'}];
 const COM=POSTS.map(()=>[{a:'🌟',n:'מירב',t:'וואו תודה ששיתפת! 🔥',m:'לפני 2 דק׳'},{a:'🌍',n:'Alex',t:'this is why I stay all day',m:'5 min'}]);
 
 const SK='plaza_demo_v5';
-function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,trAllGlobal:false,lastDigest:'',mktMode:false,mktCats:[],mktQ:'',savedSearches:[],
+function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,trAllGlobal:false,lastDigest:'',mktMode:false,mktCats:[],mktQ:'',savedSearches:[],roomScope:'global',
  me:{nm:'משה',handle:'',creator:false,verified:false,loc:'ישראל 🇮🇱',av:'🦊',avImg:'',coverImg:'',lng:'עברית',hobby:'',bnm:'הסטודיו שלי',bpr:'🎨 שירות מאומת',bbio:'',waD:'972',waN:'',bem:'',bph:'',bweb:'',port:['🖼️','🎨','📷'],svc:[{t:'שירות לדוגמה',p:'מ-₪100',m:'🛠️',d:'תיאור השירות',l:''}]},
  prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},cols:['הכל'],bkCol:{},bkView:'הכל',mine:[],pchats:[],reqN:2};
  try{const s=Object.assign(d,JSON.parse(localStorage.getItem(SK)||'{}'));s.nf=Object.assign({comments:true,chats:true},s.nf);s.me=Object.assign(d.me,s.me);return s;}catch(e){return d;}}
@@ -759,6 +763,13 @@ const AUTO_EXTEND_PRICING={
 }; // חשיפה עתידית: AUTO_EXTEND_PRICING.quote(n) → להציג למשתמש לפני חיוב.
 let curRoom='tech',trAll=false,privCtx=null;
 function tp(id){return TOPICS.find(x=>x[0]===id);}
+/* חדרי צ'אט = נושאים דיוניים בלבד. נושאים עסקאתיים (רכב/נדל"ן/דרושים) שייכים למרקטפלייס */
+const ROOM_EXCLUDE=['cars','real_estate','jobs'];
+function roomTopics(){return TOPICS.filter(t=>!ROOM_EXCLUDE.includes(t[0]));}
+/* קוד המדינה של המשתמש (מתוך loc) — לעדשת "המדינה שלי" */
+function myCC(){const loc=(S.me&&S.me.loc)||'';const c=COUNTRIES.find(x=>loc.includes(x[1])||loc.includes(x[2]));return c?c[0]:'IL';}
+/* האם הודעה (country,lang) נכנסת לעדשת ה-scope הנוכחית */
+function msgInScope(c,l){const sc=S.roomScope||'global';if(sc==='country')return !c||c===myCC();if(sc==='lang')return !l||l===(S.lang||'he');return true;}
 function isImg(s){return typeof s==='string'&&(s.startsWith('blob:')||s.startsWith('data:')||s.startsWith('http'));}
 function imgBlur(src){return `<div class="imgw"><img class="imgblur" src="${src}" loading="lazy" decoding="async" onload="this.parentNode.classList.add('rdy')" onerror="this.parentNode.classList.add('rdy')"></div>`;}
 function cell(m){return isImg(m)?imgBlur(m):m;}
@@ -1060,27 +1071,36 @@ nav();initStaticIcons();
 
 /* ===== ROOMS / CHAT ===== */
 function roomMembers(id){let h=0;for(let i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))%900;return 80+h;}
-function renderRooms(){const q=(document.getElementById('roomSearch').value||'').trim();const list=TOPICS.filter(t=>!q||t[1].includes(q)||t[0].includes(q));
+function renderRooms(){const q=(document.getElementById('roomSearch').value||'').trim();const list=roomTopics().filter(t=>!q||t[1].includes(q)||t[0].includes(q));
  const tiles=list.map(t=>`<div class="rm" onclick="enterRoom('${t[0]}')"><div class="ic">${t[2]}</div><div class="nm2">${t[1]}</div><div class="mt"><span class="live"></span>${roomMembers(t[0]).toLocaleString('en-US')} מחוברים</div></div>`).join('');
  const req=`<div class="rm" style="border-style:dashed;border-color:var(--acc)" onclick="openTopicReq()"><div class="ic">💡</div><div class="nm2" style="color:var(--acc)">בקש נושא חדש</div><div class="mt">${getTopicReqs().length} בקשות פתוחות</div></div>`;
  document.getElementById('roomsGrid').innerHTML=tiles+req;}
 async function enterRoom(id){privCtx=null;curRoom=id;const t=tp(id)||['','כללי','💬'];
  document.getElementById('rTitle').textContent=`${t[2]} ${t[1]}`;document.getElementById('rOnline').textContent=roomMembers(id).toLocaleString('en-US');
  document.getElementById('rBack').setAttribute('onclick',"go('rooms')");document.getElementById('rTrAll').style.display='';
- const cb=document.getElementById('catbar');cb.classList.remove('hide');cb.innerHTML=TOPICS.map(x=>`<div class="ct ${x[0]===id?'on':''}" onclick="enterRoom('${x[0]}')">${x[2]} ${x[1]}</div>`).join('');
+ const cb=document.getElementById('catbar');cb.classList.remove('hide');cb.innerHTML=roomTopics().map(x=>`<div class="ct ${x[0]===id?'on':''}" onclick="enterRoom('${x[0]}')">${x[2]} ${x[1]}</div>`).join('');
+ renderScopeLens();
  const chat=document.getElementById('chat');chat.innerHTML='';
  // הודעות אמיתיות מהשרת אם מחובר
  let loaded=false;
  if(IS_SERVER()){
-  try{const msgs=await API.req('/rooms/'+id+'/messages');if(Array.isArray(msgs)){msgs.forEach(m=>addMsg({w:m.display_name||'משתמש',t:m.text,img:m.image_url,audio:m.audio_url}));loaded=true;}}catch(e){}
+  try{const msgs=await API.req('/rooms/'+id+'/messages');if(Array.isArray(msgs)){msgs.forEach(m=>addMsg({w:m.display_name||'משתמש',t:m.text,img:m.image_url,audio:m.audio_url,c:m.country,l:m.lang}));loaded=true;}}catch(e){}
   // הירשם לחדר ב-Socket.io
-  if(API.socket){try{API.socket.emit('room:leave',window._curTopic||'');API.socket.emit('room:join',id);window._curTopic=id;API.socket.off('room:msg');API.socket.on('room:msg',m=>{if(m.topic===id&&m.user_id!==(API.user&&API.user.id))addMsg({w:'משתמש',t:m.text,img:m.image_url,audio:m.audio_url});});}catch(e){}}
+  if(API.socket){try{API.socket.emit('room:leave',window._curTopic||'');API.socket.emit('room:join',id);window._curTopic=id;API.socket.off('room:msg');API.socket.on('room:msg',m=>{if(m.topic===id&&m.user_id!==(API.user&&API.user.id))addMsg({w:m.display_name||'משתמש',t:m.text,img:m.image_url,audio:m.audio_url,c:m.country,l:m.lang});});API.socket.off('room:presence');API.socket.on('room:presence',p=>{if(p&&p.topic===curRoom&&typeof p.count==='number'){const el=document.getElementById('rOnline');if(el)el.textContent=p.count.toLocaleString('en-US');}});}catch(e){}}
  }
  if(!loaded){(ROOM_SEED[id]||GENERIC).concat(GENERIC.slice(0,2)).forEach(m=>addMsg(m));}
  cur='room';document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-room').classList.add('on');nav();
  setTimeout(()=>{const c=document.querySelector('#catbar .ct.on');c&&c.scrollIntoView({inline:'center',block:'nearest'});},30);chat.scrollTop=chat.scrollHeight;}
+function renderScopeLens(){const sb=document.getElementById('scopebar');if(!sb)return;sb.classList.remove('hide');const cc=COUNTRIES.find(x=>x[0]===myCC()),lg=LANGS.find(x=>x[0]===(S.lang||'he'));
+ const opts=[['global','🌍 גלובלי'],['country',(cc?cc[2]:'🇮🇱')+' '+(cc?cc[1]:'המדינה שלי')],['lang',(lg?lg[2]:'🗣️')+' '+(lg?lg[1]:'השפה שלי')]];
+ sb.innerHTML=opts.map(o=>`<div class="scp ${S.roomScope===o[0]?'on':''}" onclick="setRoomScope('${o[0]}')">${o[1]}</div>`).join('');}
+function setRoomScope(s){S.roomScope=s;sv();renderScopeLens();applyScope();
+ const lbl={global:'כל העולם',country:'המדינה שלך',lang:'השפה שלך'}[s]||'';toast('🔭','מציג הודעות מ'+lbl);}
+function applyScope(){let shown=0;document.querySelectorAll('#chat .msg').forEach(el=>{if(el.classList.contains('me')||el.id==='typingI'){el.style.display='';return;}const c=el.dataset.country||'',l=el.dataset.lang||'';const ok=msgInScope(c,l);el.style.display=ok?'':'none';if(ok)shown++;});
+ const old=document.getElementById('scopeEmpty');if(old)old.remove();
+ if(!shown&&S.roomScope!=='global'){const chat=document.getElementById('chat');const e=document.createElement('div');e.id='scopeEmpty';e.style.cssText='text-align:center;color:var(--mut);font-size:12.5px;padding:24px 16px;line-height:1.6';e.innerHTML='🔭 אין עדיין הודעות בעדשה הזו.<br>היה/י הראשון/ה לכתוב — או חזור/חזרי ל-🌍 גלובלי.';chat.appendChild(e);}}
 function openPChat(nm){privCtx={nm};document.getElementById('rTitle').textContent='💬 '+nm;document.getElementById('rOnline').textContent='פרטי · נעלם תוך 24ש׳';
- document.getElementById('rBack').setAttribute('onclick',"go('msgs')");document.getElementById('rTrAll').style.display='none';document.getElementById('catbar').classList.add('hide');
+ document.getElementById('rBack').setAttribute('onclick',"go('msgs')");document.getElementById('rTrAll').style.display='none';document.getElementById('catbar').classList.add('hide');const sb=document.getElementById('scopebar');if(sb)sb.classList.add('hide');
  const c=S.pchats.find(x=>x.nm===nm);if(c)c.nw=0;sv();mbadge();
  const chat=document.getElementById('chat');chat.innerHTML='';addMsg({w:nm,t:'היי! קיבלתי את ההודעה 👋'});
  cur='room';document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));document.getElementById('s-room').classList.add('on');nav();chat.scrollTop=chat.scrollHeight;}
@@ -1093,6 +1113,8 @@ function addMsg(m,me){const chat=document.getElementById('chat');const id='x'+(M
  const body=m.file?`<a href="${m.file.url}" download="${m.file.name}" style="display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none"><span style="font-size:24px">${fileIcon(m.file.type)}</span><span style="word-break:break-all">${m.file.name}</span></a>`:(m.img?`<img src="${m.img}">`:(m.audio?`<audio controls src="${m.audio}"></audio>`:(m.voiceSim?`🎙️ הודעה קולית · 0:${String(m.voiceSim).padStart(2,'0')}`:linkify(m.t||''))));
  const trBtn=isText?`<span class="trb" data-src="${encodeURIComponent(m.t)}" data-lng="${m.lng||''}" onclick="trMsg(this)">🌐 תרגם</span><div class="tro" id="${id}"></div>`:'';
  el.innerHTML=`<div class="w" onclick="${me?'':`msgMenu('${(m.w||'').replace(/'/g,'')}')`}">${m.w||'אתה'}${me?'':' ⋯'}</div><div class="b">${body}</div>${trBtn}`;
+ if(m.c)el.dataset.country=m.c;if(m.l)el.dataset.lang=m.l;
+ if(!me&&!privCtx&&!msgInScope(m.c||'',m.l||''))el.style.display='none';
  chat.appendChild(el);if(trAll&&isText)trMsg(el.querySelector('.trb'),true);chat.scrollTop=chat.scrollHeight;}
 async function trMsg(b,auto){if(!b)return;const o=b.nextElementSibling;if(!o)return;
  if(!auto&&o.classList.contains('show')){o.classList.remove('show');b.textContent='🌐 תרגם';return;}

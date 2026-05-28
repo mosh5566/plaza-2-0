@@ -43,6 +43,8 @@ ensureCol('private_chats','a_archived',"INTEGER DEFAULT 0");
 ensureCol('private_chats','b_archived',"INTEGER DEFAULT 0");
 ensureCol('users','gender',"TEXT");
 ensureCol('users','is_business',"INTEGER DEFAULT 0");
+ensureCol('room_messages','country',"TEXT");
+ensureCol('room_messages','lang',"TEXT");
 
 const app = express();
 const server = http.createServer(app);
@@ -312,7 +314,7 @@ app.get('/api/bookmarks',auth,(req,res)=>{res.json(db.prepare('SELECT * FROM boo
 // ─── Rooms + chat ────────────────────────────────
 app.get('/api/rooms',(req,res)=>{res.json(db.prepare('SELECT * FROM rooms WHERE approved=1').all());});
 app.get('/api/rooms/:topic/messages',(req,res)=>{const r=db.prepare('SELECT * FROM rooms WHERE topic=?').get(req.params.topic);if(!r)return res.status(404).json({error:'no room'});res.json(db.prepare('SELECT m.*,u.display_name,u.avatar_url FROM room_messages m JOIN users u ON u.id=m.user_id WHERE m.room_id=? AND m.expires_at>? ORDER BY m.created_at DESC LIMIT 100').all(r.id,now()).reverse());});
-app.post('/api/rooms/:topic/messages',auth,(req,res)=>{const r=db.prepare('SELECT * FROM rooms WHERE topic=?').get(req.params.topic);if(!r)return res.status(404).json({error:'no room'});const {text,audio_url,image_url}=req.body;const exp=now()+48*3600;const ins=db.prepare('INSERT INTO room_messages(room_id,user_id,text,audio_url,image_url,expires_at) VALUES(?,?,?,?,?,?)').run(r.id,req.user.id,text||null,audio_url||null,image_url||null,exp);io.to('room:'+r.topic).emit('room:msg',{id:ins.lastInsertRowid,topic:r.topic,user_id:req.user.id,text,audio_url,image_url,created_at:now()});res.json({id:ins.lastInsertRowid});});
+app.post('/api/rooms/:topic/messages',auth,(req,res)=>{const r=db.prepare('SELECT * FROM rooms WHERE topic=?').get(req.params.topic);if(!r)return res.status(404).json({error:'no room'});const {text,audio_url,image_url}=req.body;const su=db.prepare('SELECT country,lang,display_name FROM users WHERE id=?').get(req.user.id)||{};const exp=now()+48*3600;const ins=db.prepare('INSERT INTO room_messages(room_id,user_id,text,audio_url,image_url,country,lang,expires_at) VALUES(?,?,?,?,?,?,?,?)').run(r.id,req.user.id,text||null,audio_url||null,image_url||null,su.country||null,su.lang||null,exp);io.to('room:'+r.topic).emit('room:msg',{id:ins.lastInsertRowid,topic:r.topic,user_id:req.user.id,display_name:su.display_name,text,audio_url,image_url,country:su.country||null,lang:su.lang||null,created_at:now()});res.json({id:ins.lastInsertRowid});});
 
 // ─── Private chats / message requests ─────────────
 app.post('/api/private/request',auth,(req,res)=>{const {to_id,note}=req.body;if(!to_id)return res.status(400).json({error:'no target'});const exp=now()+24*3600;
