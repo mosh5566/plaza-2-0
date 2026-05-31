@@ -1,0 +1,617 @@
+<!doctype html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8">
+<title>PLAZA — מצגת מנשר ומוצר</title>
+<meta name="viewport" content="width=1280">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;800;900&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F8FAFC; --surface:#FFFFFF; --line:#E2E8F0; --text:#0F172A; --sub:#475569; --mut:#94A3B8;
+    --acc:#2563EB; --acc2:#1D4ED8; --acc3:#38BDF8; --good:#22C55E; --bad:#EF4444; --warn:#F59E0B;
+    --grad:linear-gradient(135deg,#2563EB,#1D4ED8);
+    --shadow-sm:0 1px 2px rgba(15,23,42,.06),0 1px 1px rgba(15,23,42,.04);
+    --shadow:0 10px 30px rgba(15,23,42,.08),0 4px 12px rgba(15,23,42,.05);
+    --shadow-lg:0 30px 60px rgba(15,23,42,.12),0 12px 28px rgba(15,23,42,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{background:#E2E8F0;font-family:'Heebo',-apple-system,Segoe UI,system-ui,sans-serif;color:var(--text);line-height:1.4;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{display:flex;flex-direction:column;align-items:center;padding:40px 0;gap:24px}
+  .slide{
+    width:1280px;height:800px;background:var(--bg);position:relative;
+    border-radius:18px;box-shadow:var(--shadow-lg);overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .slide .inner{flex:1;display:flex;flex-direction:column;justify-content:center;padding:72px 88px;position:relative;z-index:2}
+  .slide .badge{position:absolute;bottom:24px;left:32px;color:var(--mut);font-size:13px;font-weight:700;letter-spacing:.5px;font-family:'Inter',sans-serif;direction:ltr}
+  .slide .brand-mini{position:absolute;top:28px;right:32px;display:flex;align-items:center;gap:9px;color:var(--mut);font-size:14px;font-weight:800;font-family:'Inter',sans-serif;letter-spacing:1.5px}
+  .slide .brand-mini b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  h1{font-size:130px;font-weight:900;letter-spacing:-3px;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  h2{font-size:64px;font-weight:900;letter-spacing:-1.4px;line-height:1.05;margin-bottom:24px;color:var(--text)}
+  h2 .em{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  h3{font-size:32px;font-weight:800;color:var(--acc);margin-bottom:14px;letter-spacing:-.4px}
+  .tag{display:inline-flex;align-items:center;gap:7px;background:#EFF6FF;color:var(--acc);font-weight:800;font-size:13px;padding:7px 14px;border-radius:999px;margin-bottom:22px;border:1px solid #DBEAFE;letter-spacing:.4px}
+  .lead{font-size:26px;line-height:1.45;color:var(--sub);max-width:1000px;font-weight:400}
+  .quote{font-size:27px;line-height:1.55;color:var(--text);font-weight:400;max-width:1080px;border-right:5px solid var(--acc);padding:8px 28px 8px 0}
+  .quote strong{color:var(--acc);font-weight:900}
+  .points{display:grid;gap:22px;margin-top:14px}
+  .point{display:flex;gap:18px;align-items:flex-start;background:var(--surface);border-radius:18px;padding:20px 24px;box-shadow:var(--shadow)}
+  .point .ico{font-size:38px;line-height:1;width:60px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:#EFF6FF;border-radius:14px;height:60px}
+  .point .body{flex:1}
+  .point .body b{display:block;font-size:22px;font-weight:900;color:var(--text);margin-bottom:4px;letter-spacing:-.2px}
+  .point .body p{font-size:16.5px;color:var(--sub);line-height:1.45}
+
+  /* Cover */
+  .slide.cover{background:radial-gradient(ellipse at top right,#DBEAFE 0%,transparent 50%),radial-gradient(ellipse at bottom left,#EFF6FF 0%,transparent 50%),var(--bg)}
+  .cover .inner{align-items:center;justify-content:center;text-align:center;gap:18px}
+  .cover h1{font-size:200px;letter-spacing:-8px}
+  .cover .tag-cover{font-size:30px;font-weight:300;color:var(--sub);letter-spacing:-.5px}
+  .cover .sub-cover{font-size:17px;color:var(--mut);font-weight:600;margin-top:14px;letter-spacing:.3px;max-width:840px;line-height:1.6}
+  .cover .manifesto{font-size:20.5px;line-height:1.6;color:var(--text);font-weight:500;max-width:920px;margin:18px auto 0;padding:22px 30px;background:rgba(255,255,255,.7);border-radius:16px;border:1px solid rgba(37,99,235,.2);box-shadow:var(--shadow-sm)}
+  .cover .manifesto strong{color:var(--acc);font-weight:900}
+  .cover .ring{position:absolute;border-radius:50%;border:1px solid rgba(37,99,235,.18)}
+  .cover .ring.r1{width:680px;height:680px;top:-120px;right:-120px}
+  .cover .ring.r2{width:480px;height:480px;bottom:-100px;left:-100px;border-color:rgba(37,99,235,.12)}
+
+  /* Feature grid */
+  .fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:18px}
+  .fcell{background:var(--surface);border-radius:18px;padding:24px 22px;box-shadow:var(--shadow);text-align:right;min-height:170px;display:flex;flex-direction:column;gap:10px;border:1px solid var(--line)}
+  .fcell .ico{font-size:38px;line-height:1}
+  .fcell b{font-size:18px;font-weight:900;color:var(--text)}
+  .fcell p{font-size:14.5px;color:var(--sub);line-height:1.45}
+
+  /* Phone frames */
+  .phones{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:24px;justify-items:center;align-items:start}
+  .phones.lg{grid-template-columns:repeat(2,1fr);gap:80px;justify-items:center;margin-top:18px}
+  .deepgrid{display:grid;grid-template-columns:1fr 1fr;gap:36px;margin-top:22px;align-items:center}
+  .deepcell{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow);display:flex;gap:22px;align-items:center}
+  .deepcell .phone-mini{width:165px;height:355px;background:#1E293B;border-radius:28px;padding:6px;flex:0 0 auto;position:relative;box-shadow:0 14px 32px rgba(15,23,42,.22)}
+  .deepcell .phone-mini::before{content:'';position:absolute;top:9px;left:50%;transform:translateX(-50%);width:50px;height:5px;background:#0F172A;border-radius:5px;z-index:2}
+  .deepcell .phone-mini .screen{width:100%;height:100%;border-radius:22px;overflow:hidden;background:#000}
+  .deepcell .phone-mini img{width:100%;height:100%;object-fit:cover;display:block}
+  .deepcell .info{flex:1;min-width:0}
+  .deepcell .info h3{font-size:24px;font-weight:900;color:var(--acc);margin-bottom:12px;letter-spacing:-.2px}
+  .deepcell .info ul{list-style:none;padding:0;margin:0}
+  .deepcell .info li{font-size:15.5px;line-height:1.55;color:var(--sub);padding:5px 18px 5px 0;position:relative}
+  .deepcell .info li::before{content:'✓';position:absolute;right:0;color:var(--good);font-weight:900}
+  .phone{width:140px;height:300px;background:#1E293B;border-radius:24px;padding:5px;box-shadow:0 14px 32px rgba(15,23,42,.22);position:relative}
+  .phone.lg{width:220px;height:475px;border-radius:36px;padding:8px}
+  .phone::before{content:'';position:absolute;top:9px;left:50%;transform:translateX(-50%);width:52px;height:5px;background:#0F172A;border-radius:5px;z-index:2}
+  .phone.lg::before{width:80px;height:8px;top:14px;border-radius:8px}
+  .phone .screen{width:100%;height:100%;border-radius:19px;overflow:hidden;background:#000}
+  .phone.lg .screen{border-radius:28px}
+  .phone .screen img{width:100%;height:100%;object-fit:cover;display:block}
+  .phone-cap{text-align:center;margin-top:10px;font-size:12.5px;font-weight:800;color:var(--sub);letter-spacing:.2px}
+
+  /* Comparison table */
+  .cmp{display:grid;grid-template-columns:1.6fr repeat(6,1fr);gap:4px;margin-top:12px;background:var(--surface);border-radius:16px;padding:12px;box-shadow:var(--shadow);border:1px solid var(--line)}
+  .cmp .h{font-weight:900;font-size:14px;padding:9px 6px;text-align:center;color:var(--mut);text-transform:uppercase;letter-spacing:1px;border-bottom:2px solid var(--line);font-family:'Inter',sans-serif}
+  .cmp .h.plaza{background:var(--grad);color:#fff;border-radius:8px;-webkit-text-fill-color:#fff;letter-spacing:2px;border-bottom:none}
+  .cmp .row-h{font-weight:800;font-size:14.5px;padding:9px 14px;color:var(--text);background:#F1F5F9;border-radius:7px;text-align:right}
+  .cmp .c{text-align:center;font-size:20px;padding:8px 4px;border-radius:7px;font-weight:800}
+  .cmp .c.y{color:var(--good)}
+  .cmp .c.n{color:var(--bad)}
+  .cmp .c.p{color:var(--warn)}
+  .cmp .c.plaza{background:#EFF6FF}
+  .cmp .row-h.alt{background:#F8FAFC}
+
+  /* vs slide */
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:18px}
+  .vs .col{background:var(--surface);border-radius:18px;padding:30px;box-shadow:var(--shadow);border:1px solid var(--line)}
+  .vs .col h4{font-size:24px;font-weight:900;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+  .vs .col.them h4{color:var(--bad)}
+  .vs .col.us h4{color:var(--acc)}
+  .vs .col ul{list-style:none;padding:0;margin:0}
+  .vs .col li{font-size:18px;line-height:1.55;color:var(--sub);padding:8px 0 8px 28px;position:relative;padding-right:22px}
+  .vs .col.them li::before{content:'✗';position:absolute;right:0;color:var(--bad);font-weight:900;font-size:18px}
+  .vs .col.us li::before{content:'✓';position:absolute;right:0;color:var(--good);font-weight:900;font-size:18px}
+  .keytake{margin-top:24px;background:#EFF6FF;border-radius:14px;padding:22px 28px;font-size:22px;font-weight:800;color:var(--acc2);border-right:5px solid var(--acc);display:flex;gap:14px;align-items:center}
+  .keytake .ico{font-size:30px}
+
+  /* Personas */
+  .personas{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:12px}
+  .persona{background:var(--surface);border-radius:18px;padding:24px;box-shadow:var(--shadow);border:1px solid var(--line)}
+  .persona .face{font-size:50px;line-height:1;margin-bottom:14px}
+  .persona b{display:block;font-size:19px;font-weight:900;color:var(--text);margin-bottom:6px}
+  .persona p{font-size:15px;color:var(--sub);line-height:1.5}
+
+  /* Checks list */
+  .checks{columns:2;column-gap:36px;margin-top:14px}
+  .check{break-inside:avoid;display:flex;gap:14px;align-items:center;background:var(--surface);border-radius:14px;padding:18px 22px;margin-bottom:14px;border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+  .check .ic{width:36px;height:36px;border-radius:50%;background:#DCFCE7;color:var(--good);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;flex:0 0 auto}
+  .check b{font-size:17px;font-weight:800;color:var(--text)}
+
+  /* Biz model cards */
+  .bizgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px}
+  .bizcard{background:var(--surface);border-radius:18px;padding:24px;box-shadow:var(--shadow);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+  .bizcard .ico{font-size:34px;line-height:1;margin-bottom:6px}
+  .bizcard b{font-size:18px;font-weight:900;color:var(--text)}
+  .bizcard p{font-size:14.5px;color:var(--sub);line-height:1.5}
+  .biz-principle{background:#EFF6FF;border-radius:14px;padding:18px 24px;font-size:20px;font-weight:800;color:var(--acc2);border-right:5px solid var(--acc);margin-bottom:8px}
+
+  /* Closing */
+  .slide.closing{background:radial-gradient(ellipse at center,#DBEAFE 0%,transparent 70%),var(--bg)}
+  .closing .inner{align-items:center;justify-content:center;text-align:center;gap:32px}
+  .closing .big-q{font-size:48px;font-weight:300;line-height:1.4;color:var(--text);max-width:1000px;letter-spacing:-.5px}
+  .closing .big-q strong{color:var(--acc);font-weight:900}
+  .closing .footer{font-size:18px;color:var(--mut);font-weight:700;margin-top:22px;letter-spacing:.5px;font-family:'Inter',sans-serif}
+
+  /* Print */
+  @media print{
+    html,body{background:#fff;padding:0;gap:0}
+    body{display:block}
+    .slide{
+      width:297mm;height:210mm;border-radius:0;box-shadow:none;margin:0;
+      page-break-after:always;break-after:page;
+      transform-origin:top right;
+    }
+    .slide:last-child{page-break-after:auto}
+    @page{size:297mm 210mm;margin:0}
+  }
+</style>
+</head>
+<body>
+
+<!-- 1 — שער -->
+<section class="slide cover">
+  <span class="ring r1"></span>
+  <span class="ring r2"></span>
+  <div class="inner">
+    <h1>PLAZA</h1>
+    <div class="tag-cover">הכיכר הדיגיטלית הגלובלית</div>
+    <div class="manifesto">
+      דמיין קבוצה שבה נמצאים <strong>מיליונים מכל העולם</strong> — וכל פוסט זוכה ל-<strong>חשיפה של 100%</strong> ולצפיות של מיליוני ומיליארדי אנשים.<br>
+      <strong>אף אחד לא קובע אם אתה טוב או לא.</strong> אין אלגוריתם שבודק אותך ואת איכות התוכן שלך.
+    </div>
+    <div class="sub-cover">רשת חברתית בלי אלגוריתם · בלי פרסומות · בלי עוקבים<br>שבה <b style="color:var(--acc)">כל פוסט מגיע לכל העולם</b></div>
+  </div>
+  <div class="badge">01 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 2 — הסיפור -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">📖 הסיפור</div>
+    <h2>למה <span class="em">פלאזה</span> נוצרה</h2>
+    <div class="quote">
+      שנים ניסיתי להעלות פוסט <strong>שייראה לכולם ויזכה לחשיפה אדירה</strong>. בכל רשת חברתית נתקלתי באותה תקלה — <strong>אם אין לך מיליון עוקבים, אתה לא קיים</strong>. <strong>לכן יצרתי את פלאזה.</strong><br><br>
+      כל פוסט נעצר בקבוצה הקטנה שלך. אלגוריתם זר מחליט מי יראה אותך. פרסומות מטמטמות מקיפות אותך מכל עבר.<br><br>
+      אז שאלתי שאלה פשוטה: <strong>מה אם הייתה רשת אחת — בלי עוקבים, בלי אלגוריתם, בלי פרסומות — שבה כל מי שמעלה תוכן מקבל חשיפה לכל העולם?</strong><br><br>
+      כך נולדה פלאזה.
+    </div>
+  </div>
+  <div class="badge">02 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 3 — הבעיה -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">⚠️ הבעיה</div>
+    <h2>מה <span class="em">לא עובד</span> היום ברשתות החברתיות</h2>
+    <div class="points">
+      <div class="point"><div class="ico">🧱</div><div class="body"><b>קיר העוקבים</b><p>אם הגרף החברתי שלך קטן — התוכן שלך לא קיים. ההזדמנות לחשיפה תלויה במספר.</p></div></div>
+      <div class="point"><div class="ico">🤖</div><div class="body"><b>האלגוריתם</b><p>מחליט עבורך מה לראות. ממכר. מפלג. דוחף פרסומות. אתה לא בוחר — הוא בוחר.</p></div></div>
+      <div class="point"><div class="ico">💸</div><div class="body"><b>אתה המוצר</b><p>הנתונים שלך נמכרים, הפרטיות שלך מופקעת, ההתמכרות שלך מתוכננת.</p></div></div>
+      <div class="point"><div class="ico">⏳</div><div class="body"><b>תוכן מהעבר</b><p>פוסטים מ-2017 צפים בפיד. אין רוח של "עכשיו". העולם נשאר תקוע.</p></div></div>
+    </div>
+  </div>
+  <div class="badge">03 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 4 — הפתרון -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">✨ הפתרון</div>
+    <h2>פלאזה: <span class="em">4 עקרונות</span> שמשנים את כל המשחק</h2>
+    <div class="points">
+      <div class="point"><div class="ico">🌍</div><div class="body"><b>אפס עוקבים</b><p>כל פוסט נחשף לכל מי שרשום — בסינון שהוא בחר. שוויון הזדמנויות מובנה.</p></div></div>
+      <div class="point"><div class="ico">🚫</div><div class="body"><b>אפס אלגוריתם</b><p>אתה בוחר נושא, מדינה, שפה. אנחנו לא בוחרים בשבילך. שקיפות מוחלטת.</p></div></div>
+      <div class="point"><div class="ico">🆓</div><div class="body"><b>אפס פרסומות</b><p>לא היום, לא מחר, לא לעולם. שום פיקסל לא נמכר. שום תשומת לב לא נסחרת.</p></div></div>
+      <div class="point"><div class="ico">⏱️</div><div class="body"><b>אפס "פעם"</b><p>הכל נעלם תוך 24–48 שעות. תמיד טרי. תמיד עכשיו. לא נשארים שלדים.</p></div></div>
+    </div>
+  </div>
+  <div class="badge">04 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 5 — במשפט אחד -->
+<section class="slide">
+  <div class="inner" style="justify-content:center">
+    <div class="tag">💎 במשפט אחד</div>
+    <div class="quote" style="font-size:48px;line-height:1.35;border-right:none;padding:0;font-weight:300;color:var(--text);max-width:1080px;letter-spacing:-.5px">
+      "כיכר עירונית גלובלית: <strong>אתה עומד במרכז, מדבר</strong> — וכל מי שבחר להאזין לנושא, למדינה, לשפה שלך — <strong>שומע אותך</strong>."
+    </div>
+    <div style="font-size:22px;color:var(--mut);margin-top:30px;font-weight:600;max-width:900px;line-height:1.6">
+      בלי אלגוריתם שמסנן. בלי פרסומאי שצועק. בלי "מי מכיר את מי".
+    </div>
+  </div>
+  <div class="badge">05 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 6 — מה יש בפלאזה -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">🧭 מה יש בפלאזה</div>
+    <h2>כל מה שצריך — <span class="em">במקום אחד</span></h2>
+    <div class="fgrid">
+      <div class="fcell"><div class="ico">📱</div><b>פיד גלובלי</b><p>סינון חכם לפי שפה, מדינה וקטגוריה — אתה בוחר.</p></div>
+      <div class="fcell"><div class="ico">🛍️</div><b>מרקטפלייס מובנה</b><p>כל מוצר נחשף לקהל גלובלי + צ'אט עסקה ייעודי.</p></div>
+      <div class="fcell"><div class="ico">💬</div><b>חדרי צ'אט לפי נושא</b><p>גלובלי או לפי המדינה שלי — בכל אחד מ-50+ הנושאים.</p></div>
+      <div class="fcell"><div class="ico">✉️</div><b>הודעות ישירות</b><p>בלי בקשת אישור — שולחים ומגיעים, כמו ווטסאפ.</p></div>
+      <div class="fcell"><div class="ico">🎥</div><b>וידאו במסך מלא</b><p>בסגנון טיקטוק — סרגל גרירה, autoplay, מצלמה מובנית.</p></div>
+      <div class="fcell"><div class="ico">🌐</div><b>תרגום אוטומטי</b><p>הממשק והתוכן מתורגמים לכל שפה בעולם — חינם.</p></div>
+      <div class="fcell"><div class="ico">🎙️</div><b>תמלול בכל שפה</b><p>Whisper בדפדפן. בלי הגבלה. בלי שליחה לשרת.</p></div>
+      <div class="fcell"><div class="ico">📷</div><b>מצלמה מובנית</b><p>צלם וידאו או תמונה — והעלה ישירות לפיד.</p></div>
+    </div>
+  </div>
+  <div class="badge">06 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 7 — סיור במוצר (1) -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">📸 סיור במוצר</div>
+    <h2>ככה זה <span class="em">נראה בפועל</span></h2>
+    <div class="phones" style="margin-top:30px">
+      <div><div class="phone"><div class="screen"><img src="shots/01-feed.png" alt="פיד"></div></div><div class="phone-cap">🌍 פיד גלובלי</div></div>
+      <div><div class="phone"><div class="screen"><img src="shots/03-marketplace.png" alt="מרקטפלייס"></div></div><div class="phone-cap">🛍️ סינון + מרקטפלייס</div></div>
+      <div><div class="phone"><div class="screen"><img src="shots/06-room.png" alt="חדר צ'אט"></div></div><div class="phone-cap">💬 חדר עם עדשת מדינה</div></div>
+      <div><div class="phone"><div class="screen"><img src="shots/07-video.png" alt="וידאו"></div></div><div class="phone-cap">🎥 וידאו מסך מלא</div></div>
+      <div><div class="phone"><div class="screen"><img src="shots/08-create.png" alt="יצירה"></div></div><div class="phone-cap">＋ יצירת פוסט</div></div>
+      <div><div class="phone"><div class="screen"><img src="shots/09-msgs.png" alt="הודעות"></div></div><div class="phone-cap">✉️ הודעות ישירות</div></div>
+    </div>
+  </div>
+  <div class="badge">07 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 8 — סיור במוצר (2) -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">🪄 מאחורי הקלעים</div>
+    <h2>פיצ'רים <span class="em">שאין באף רשת אחרת</span></h2>
+    <div class="deepgrid">
+      <div class="deepcell">
+        <div class="phone-mini"><div class="screen"><img src="shots/11-record.png" alt="הקלטה"></div></div>
+        <div class="info">
+          <h3>🎙️ הקלטה + תמלול בכל שפה</h3>
+          <ul>
+            <li>תמלול חי בזמן ההקלטה — כתובית מתחתיה</li>
+            <li>Whisper בדפדפן: כל שפה בעולם, חינם, ללא הגבלה</li>
+            <li>ההקלטה נשארת אצלך — לא נשלחת לשרת זר</li>
+            <li>תרגום אוטומטי של ההקלטה לשפה של הצופה</li>
+          </ul>
+        </div>
+      </div>
+      <div class="deepcell">
+        <div class="phone-mini"><div class="screen"><img src="shots/12-profile.png" alt="פרופיל עסק"></div></div>
+        <div class="info">
+          <h3>🏪 פרופיל עסקי חכם</h3>
+          <ul>
+            <li>טיילי מוצר/שירות עם תמונה, מחיר ותיאור</li>
+            <li>אלבום של עד 10 תמונות לכל מוצר</li>
+            <li>צ'אט עסקה ייעודי לכל מודעה — כמו WhatsApp Business</li>
+            <li>כפתורי קשר ישיר: WhatsApp · חיוג · אימייל · אתר</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="badge">08 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 9 — טבלת השוואה -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">⚖️ השוואה</div>
+    <h2>פלאזה <span class="em">נגד כל העולם</span></h2>
+    <div class="cmp">
+      <div class="h"></div>
+      <div class="h plaza">PLAZA</div>
+      <div class="h">Facebook</div>
+      <div class="h">Instagram</div>
+      <div class="h">TikTok</div>
+      <div class="h">X</div>
+      <div class="h">Telegram</div>
+
+      <div class="row-h">אפס אלגוריתם</div>
+      <div class="c y plaza">✓</div><div class="c n">✗</div><div class="c n">✗</div><div class="c n">✗</div><div class="c n">✗</div><div class="c p">~</div>
+
+      <div class="row-h alt">אפס פרסומות</div>
+      <div class="c y plaza">✓</div><div class="c n">✗</div><div class="c n">✗</div><div class="c n">✗</div><div class="c n">✗</div><div class="c y">✓</div>
+
+      <div class="row-h">חשיפה לכל הרשומים</div>
+      <div class="c y plaza">✓</div><div class="c n">✗</div><div class="c n">✗</div><div class="c p">~</div><div class="c n">✗</div><div class="c n">✗</div>
+
+      <div class="row-h alt">תוכן נעלם (24-48ש')</div>
+      <div class="c y plaza">✓</div><div class="c n">✗</div><div class="c p">~</div><div class="c n">✗</div><div class="c n">✗</div><div class="c n">✗</div>
+
+      <div class="row-h">מרקטפלייס נקי</div>
+      <div class="c y plaza">✓</div><div class="c p">~</div><div class="c n">✗</div><div class="c n">✗</div><div class="c n">✗</div><div class="c n">✗</div>
+
+      <div class="row-h alt">חדרי דיון לפי נושא</div>
+      <div class="c y plaza">✓</div><div class="c p">~</div><div class="c n">✗</div><div class="c n">✗</div><div class="c n">✗</div><div class="c y">✓</div>
+
+      <div class="row-h">תרגום אוטומטי</div>
+      <div class="c y plaza">✓</div><div class="c p">~</div><div class="c p">~</div><div class="c p">~</div><div class="c p">~</div><div class="c n">✗</div>
+
+      <div class="row-h alt">תמלול חינם, כל שפה</div>
+      <div class="c y plaza">✓</div><div class="c n">✗</div><div class="c n">✗</div><div class="c p">~</div><div class="c n">✗</div><div class="c n">✗</div>
+
+      <div class="row-h">אפס מעקב</div>
+      <div class="c y plaza">✓</div><div class="c n">✗</div><div class="c n">✗</div><div class="c n">✗</div><div class="c n">✗</div><div class="c p">~</div>
+
+      <div class="row-h alt">חינם תמיד</div>
+      <div class="c y plaza">✓</div><div class="c y">✓</div><div class="c y">✓</div><div class="c y">✓</div><div class="c p">~</div><div class="c y">✓</div>
+    </div>
+  </div>
+  <div class="badge">09 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 10 — vs Facebook -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">🆚 לעומת Facebook</div>
+    <h2>למה פלאזה <span class="em">> פייסבוק</span></h2>
+    <div class="vs">
+      <div class="col them">
+        <h4>📘 פייסבוק</h4>
+        <ul>
+          <li>אלגוריתם שמחליט מה תראה</li>
+          <li>פרסומות בכל גלילה</li>
+          <li>מרקטפלייס מלא ספאם והונאות</li>
+          <li>חברים מהעבר שעוקבים אחריך לנצח</li>
+          <li>פוסטים נשארים — מביכים מ-2015</li>
+        </ul>
+      </div>
+      <div class="col us">
+        <h4>🌍 פלאזה</h4>
+        <ul>
+          <li>חשיפה אוניברסלית, בלי גרף חברתי</li>
+          <li>אפס פרסומות — לא היום, לא מחר</li>
+          <li>מרקטפלייס נקי + צ'אט עסקה בטוח</li>
+          <li>כל הודעה ופוסט נעלם תוך 24-48 שעות</li>
+          <li>תמיד טרי — אין ארכיון מביך</li>
+        </ul>
+      </div>
+    </div>
+    <div class="keytake"><div class="ico">🎯</div>רענון אמיתי של הרגע — בלי הבלגן ההיסטורי.</div>
+  </div>
+  <div class="badge">10 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 11 — vs Instagram -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">🆚 לעומת Instagram</div>
+    <h2>למה פלאזה <span class="em">> אינסטגרם</span></h2>
+    <div class="vs">
+      <div class="col them">
+        <h4>📷 אינסטגרם</h4>
+        <ul>
+          <li>אלגוריתם שמכריע מי "ראוי" להיראות</li>
+          <li>מירוץ עוקבים בלתי-נגמר</li>
+          <li>פילטר אסתטי שמייצר חרדה ודיכאון</li>
+          <li>פרסומות בכל סלייד שני</li>
+          <li>השפעני-על שדוחקים את כל השאר</li>
+        </ul>
+      </div>
+      <div class="col us">
+        <h4>🌍 פלאזה</h4>
+        <ul>
+          <li>כולם שווים מההתחלה — אין VIP</li>
+          <li>אין מירוץ. אין צורך בעוקבים.</li>
+          <li>תוכן אנושי, לא אסתטיקה מזויפת</li>
+          <li>אפס פרסומות, אפס מכירה של תשומת לב</li>
+          <li>הזדמנות חשיפה זהה לקטן ולגדול</li>
+        </ul>
+      </div>
+    </div>
+    <div class="keytake"><div class="ico">⚖️</div>גם הקטן ביותר מקבל הזדמנות חשיפה זהה לגדול ביותר.</div>
+  </div>
+  <div class="badge">11 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 12 — vs TikTok -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">🆚 לעומת TikTok</div>
+    <h2>למה פלאזה <span class="em">> טיקטוק</span></h2>
+    <div class="vs">
+      <div class="col them">
+        <h4>🎵 טיקטוק</h4>
+        <ul>
+          <li>האלגוריתם הוא הקפטן — אתה הנוסע</li>
+          <li>הנתונים שלך נשלחים החוצה (סין)</li>
+          <li>התמכרות לפי תכנון פסיכולוגי</li>
+          <li>פרסומות מוסוות כתוכן</li>
+          <li>אין שום שליטה למשתמש על מה שיראה</li>
+        </ul>
+      </div>
+      <div class="col us">
+        <h4>🌍 פלאזה</h4>
+        <ul>
+          <li>אתה הקפטן — אתה בוחר מה לראות</li>
+          <li>שום מעקב, שום שליחת נתונים</li>
+          <li>חוויית וידאו דומה — בלי המס הסמוי</li>
+          <li>בלי פרסומות, בלי תוכן ממומן</li>
+          <li>שליטה מלאה: שפה, מדינה, נושא, סוג</li>
+        </ul>
+      </div>
+    </div>
+    <div class="keytake"><div class="ico">🛡️</div>טיקטוק — בלי המחיר הסמוי.</div>
+  </div>
+  <div class="badge">12 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 13 — vs X -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">🆚 לעומת X (Twitter)</div>
+    <h2>למה פלאזה <span class="em">> X</span></h2>
+    <div class="vs">
+      <div class="col them">
+        <h4>𝕏 (טוויטר)</h4>
+        <ul>
+          <li>אלגוריתם שמעצים בועות והקצנה</li>
+          <li>תג כחול בתשלום — קול קונה השפעה</li>
+          <li>פרסומות בלתי נסבלות</li>
+          <li>רעש פוליטי, רובוטים, סקאם</li>
+          <li>מירוץ עוקבים שמייצר חרדה</li>
+        </ul>
+      </div>
+      <div class="col us">
+        <h4>🌍 פלאזה</h4>
+        <ul>
+          <li>בלי פרסומות. בלי תגי VIP. בלי הטיה.</li>
+          <li>כל אחד נשמע באותה עוצמה</li>
+          <li>חדרי דיון לפי נושא — דיון ממוקד</li>
+          <li>תוכן נעלם — בלי "מצוטט לנצח"</li>
+          <li>שקיפות מלאה: ללא אלגוריתם בכלל</li>
+        </ul>
+      </div>
+    </div>
+    <div class="keytake"><div class="ico">🕊️</div>דיון בריא במקום בועות מקוטבות.</div>
+  </div>
+  <div class="badge">13 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 14 — vs Telegram -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">🆚 לעומת Telegram</div>
+    <h2>למה פלאזה <span class="em">> טלגרם</span></h2>
+    <div class="vs">
+      <div class="col them">
+        <h4>✈️ טלגרם</h4>
+        <ul>
+          <li>בעיקר צ'אטים סגורים — לא רשת חברתית</li>
+          <li>אין גילוי תוכן רחב מחוץ לקבוצות שלך</li>
+          <li>אין פיד גלובלי, אין מרקטפלייס</li>
+          <li>תוכן לא נעלם — ארכיון אינסופי</li>
+          <li>אין חוויית "כיכר" אמיתית</li>
+        </ul>
+      </div>
+      <div class="col us">
+        <h4>🌍 פלאזה</h4>
+        <ul>
+          <li>צ'אטים גלובליים פתוחים לפי נושא</li>
+          <li>פיד + סינון + גילוי תוכן רחב</li>
+          <li>מרקטפלייס מובנה — לא רק שיחות</li>
+          <li>הכל נעלם — תמיד עכשיו, תמיד טרי</li>
+          <li>תרגום אוטומטי לכל שפה בעולם</li>
+        </ul>
+      </div>
+    </div>
+    <div class="keytake"><div class="ico">🌐</div>לפגוש את העולם — לא רק את הקבוצה הסגורה שלך.</div>
+  </div>
+  <div class="badge">14 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 15 — Personas -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">👥 לכל אחד יש מקום</div>
+    <h2>פלאזה — <span class="em">לכל סוג של אדם</span></h2>
+    <div class="personas">
+      <div class="persona"><div class="face">👤</div><b>לאזרח/ית הקטנ/ה</b><p>הקול שלך נשמע. מההעלאה הראשונה. בלי "מי אתה" ו"כמה עוקבים".</p></div>
+      <div class="persona"><div class="face">🎨</div><b>ליצירתי/ת</b><p>חשיפה מיידית לקהל גלובלי — בלי לבנות גרף עוקבים שנתיים.</p></div>
+      <div class="persona"><div class="face">🏪</div><b>לעסק קטן</b><p>שיווק חינמי לקהל גלובלי ממוקד, עם צ'אט עסקה ייעודי לכל מודעה.</p></div>
+      <div class="persona"><div class="face">✊</div><b>לפעיל/ה חברתי/ת</b><p>לארגן, לזעוק, להשפיע — בלי מתווך אלגוריתמי שמנפנף את המסר.</p></div>
+      <div class="persona"><div class="face">🛒</div><b>למוכר/ת ביד-שנייה</b><p>מרקטפלייס גלובלי + צ'אט עסקה בטוח + אזהרות הגנה מובנות.</p></div>
+      <div class="persona"><div class="face">🌐</div><b>לעולה/מהגר/ת</b><p>חדרי קהילה ושפה במדינה החדשה — תרגום אוטומטי שובר חסמים.</p></div>
+    </div>
+  </div>
+  <div class="badge">15 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 16 — מוצר חי -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">✅ זה לא רעיון</div>
+    <h2>זה <span class="em">מוצר חי</span></h2>
+    <div class="checks" style="margin-top:24px">
+      <div class="check"><div class="ic">✓</div><b>פיד גלובלי + סינון מתקדם</b></div>
+      <div class="check"><div class="ic">✓</div><b>מרקטפלייס + צ'אט עסקה ייעודי</b></div>
+      <div class="check"><div class="ic">✓</div><b>50+ חדרי צ'אט לפי נושאים גלובליים</b></div>
+      <div class="check"><div class="ic">✓</div><b>הודעות ישירות (ללא בקשות אישור)</b></div>
+      <div class="check"><div class="ic">✓</div><b>וידאו במסך מלא + סרגל גרירה + מצלמה</b></div>
+      <div class="check"><div class="ic">✓</div><b>תמלול Whisper בדפדפן — כל שפה</b></div>
+      <div class="check"><div class="ic">✓</div><b>תרגום אוטומטי של הממשק לכל שפה</b></div>
+      <div class="check"><div class="ic">✓</div><b>פוסטים נעלמים תוך 24-48 שעות</b></div>
+    </div>
+    <div class="biz-principle" style="margin-top:20px;font-size:18px">📱 גלו עכשיו: <b style="font-family:'Inter'">plaza-0n30.onrender.com</b></div>
+  </div>
+  <div class="badge">16 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 17 — מודל עסקי -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">💼 מודל עסקי</div>
+    <h2>איך פלאזה <span class="em">תרוויח</span> — בלי לבגוד בערכים</h2>
+    <div class="biz-principle"><b>העיקרון:</b> הרשת חינמית תמיד. ההכנסה — מתכונות אופציונליות, לא מפרסומות.</div>
+    <div class="bizgrid">
+      <div class="bizcard"><div class="ico">💎</div><b>PLAZA Premium</b><p>למשתמש שרוצה יותר: הארכת חיי פוסט, סטטיסטיקות מתקדמות, עיצוב מורחב, סימנייה גדולה יותר. הכל לגמרי אופציונלי.</p></div>
+      <div class="bizcard"><div class="ico">🏢</div><b>PLAZA Business</b><p>חבילה שנתית לעסקים מאומתים: לוגו, אנליטיקה, ניהול מוצרים מתקדם, אוטומציות. נטועה בערכי הפלטפורמה.</p></div>
+      <div class="bizcard"><div class="ico">🎁</div><b>תרומות חופשיות</b><p>מי שאוהב את פלאזה ורוצה שתמשיך לפעול ללא פרסומות — תורם. שקיפות מלאה על כל שקל.</p></div>
+    </div>
+  </div>
+  <div class="badge">17 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 18 — למה זה יצליח גלובלית -->
+<section class="slide">
+  <div class="inner">
+    <div class="tag">🌍 בנלאומי</div>
+    <h2>למה זה <span class="em">יצליח בעולם</span></h2>
+    <div class="points">
+      <div class="point"><div class="ico">🌐</div><div class="body"><b>תרגום אוטומטי שובר חסמים</b><p>פוסט מהארץ נראה בברזיל, פוסט מיפן נראה במצרים — בשפת הצופה.</p></div></div>
+      <div class="point"><div class="ico">🤝</div><div class="body"><b>שוויון מובנה</b><p>כולם מתחילים מאפס. אין VIP, אין תג כחול, אין מירוץ עוקבים.</p></div></div>
+      <div class="point"><div class="ico">🆓</div><div class="body"><b>חינם תמיד</b><p>אין מחיר כניסה לשווקים מתפתחים. כל אחד בכל מקום יכול להצטרף.</p></div></div>
+      <div class="point"><div class="ico">🔒</div><div class="body"><b>פרטיות = ערך עליון</b><p>בעידן שבו אנשים נמאסים ממעקב — פלאזה מציעה חלופה אמיתית.</p></div></div>
+      <div class="point"><div class="ico">🏛️</div><div class="body"><b>חזרה לאנושיות</b><p>כיכר אמיתית: אנשים מדברים עם אנשים, בלי תיווך אלגוריתמי.</p></div></div>
+    </div>
+  </div>
+  <div class="badge">18 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+<!-- 19 — סיום -->
+<section class="slide closing">
+  <div class="inner">
+    <div class="tag">🌟 סיום</div>
+    <div class="big-q">
+      פלאזה <strong>אינה</strong> רשת חברתית.<br>
+      פלאזה היא <strong>חזרה לרגע</strong> שבו אנשים פשוט<br>
+      <strong>דיברו זה עם זה.</strong>
+    </div>
+    <div style="font-size:56px;margin-top:8px">🌍</div>
+    <div class="footer">
+      <b style="background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-size:28px;font-family:'Inter';font-weight:900">PLAZA</b><br>
+      plaza-0n30.onrender.com · קוד פתוח · תודה.
+    </div>
+  </div>
+  <div class="badge">19 / 19</div>
+  <div class="brand-mini">🌍 <b>PLAZA</b></div>
+</section>
+
+</body>
+</html>
