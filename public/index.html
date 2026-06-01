@@ -89,6 +89,8 @@
   .nm-row{display:flex;align-items:center;gap:5px}
   .nm{color:var(--text);font-weight:700;font-size:14px}
   .vmini{width:15px;height:15px;border-radius:50%;background:#1D9BF0;color:#fff;font-size:9px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+  .flair{display:inline-flex;align-items:center;background:var(--acc-soft);color:var(--acc);font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:8px;letter-spacing:.5px;margin-right:4px}
+  .pinbadge{display:inline-flex;align-items:center;font-size:12px;margin-right:5px;color:var(--acc)}
   .vmini.gold{background:var(--warn)}
   .meta{color:var(--mut);font-size:11.5px;margin-top:1px}
   .pcd{display:flex;align-items:center;gap:4px;background:var(--surface2);color:var(--sub);font-size:10.5px;font-weight:700;padding:4px 8px;border-radius:8px;flex:0 0 auto}
@@ -832,7 +834,8 @@ const COM=POSTS.map(()=>[{a:'🌟',n:'מירב',t:'וואו תודה ששיתפ�
 const SK='plaza_demo_v5';
 function ld(){const d={th:'light',lang:'he',muteAll:false,nf:{comments:true,chats:true},limit:0,pMode:'r',hideBadge:false,trAllGlobal:false,lastDigest:'',mktMode:false,mktCats:[],mktQ:'',savedSearches:[],roomScope:'global',
  me:{nm:'משה',handle:'',creator:false,verified:false,loc:'ישראל 🇮🇱',av:'🦊',avImg:'',coverImg:'',lng:'עברית',hobby:'',bnm:'הסטודיו שלי',bpr:'🎨 שירות מאומת',bbio:'',waD:'972',waN:'',bem:'',bph:'',bweb:'',port:['🖼️','🎨','📷'],svc:[{t:'שירות לדוגמה',p:'מ-₪100',m:'🛠️',d:'תיאור השירות',l:''}]},
- prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},cols:['הכל'],bkCol:{},bkView:'הכל',mine:[],pchats:[]};
+ prefC:[],prefL:[],prefT:[],fL:[],fC:[],fT:[],fP:[],likes:{},bk:{},cols:['הכל'],bkCol:{},bkView:'הכל',mine:[],pchats:[],watchLater:[],viewed:{}};
+ d.me.flair='';d.me.pinned=[];
  try{const s=Object.assign(d,JSON.parse(localStorage.getItem(SK)||'{}'));s.nf=Object.assign({comments:true,chats:true},s.nf);s.me=Object.assign(d.me,s.me);return s;}catch(e){return d;}}
 let S=ld();let _meT;
 const sv=()=>{localStorage.setItem(SK,JSON.stringify(S));if(typeof IS_SERVER==='function'&&IS_SERVER()){clearTimeout(_meT);_meT=setTimeout(pushMe,800);}};
@@ -920,6 +923,9 @@ function imgBlur(src){return `<div class="imgw"><img class="imgblur" src="${src}
 function cell(m){return isImg(m)?imgBlur(m):m;}
 function avH(o){return o.avImg?`<img src="${o.avImg}" loading="lazy" decoding="async">`:(o.av||'🙂');}
 function profBadge(nm){const p=PROF[nm];return p&&p.k==='b'?`<span class="vmini ${p.bd==='gold'?'gold':''}">✔</span>`:'';}
+function flairOf(p){if(!p)return '';if(p.flair)return `<span class="flair" data-noi18n>${esc(p.flair)}</span>`;if(isMine&&isMine(p)&&S.me.flair)return `<span class="flair" data-noi18n>${esc(S.me.flair)}</span>`;return '';}
+function isPinned(p,i){if(!S.me.pinned||!S.me.pinned.length)return false;const key=p&&p._sid?'s'+p._sid:'i'+i;return S.me.pinned.includes(key);}
+function isWatched(p,i){if(!S.watchLater||!S.watchLater.length)return false;const key=p&&p._sid?'s'+p._sid:'i'+i;return S.watchLater.includes(key);}
 function waLink(d,n){if(!n)return '';return 'https://wa.me/'+(d+''+n).replace(/\D/g,'');}
 
 /* ===== FEED (Facebook-style cards) ===== */
@@ -954,7 +960,7 @@ function postCard(p,i){if(p.type==='video')return videoCard(p,i);
  return `<div class="fb${txtonly?' txtonly':''}" data-i="${i}" data-sid="${p._sid||''}">
   ${txtonly?'<div class="tint"></div>':''}
   <div class="fbh"><div class="cdring"><div class="av" onclick="openProf('${p.nm}',${p.uid||'null'})">${avH(p)}</div></div>
-   <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})"><div class="nm-row"><span class="nm" data-noi18n>${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}</div></div>
+   <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})"><div class="nm-row"><span class="nm" data-noi18n>${p.nm}</span>${flairOf(p)}${profBadge(p.nm)}${isPinned(p,i)?'<span class="pinbadge" title="מוצמד">📌</span>':''}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}${p._editedAt?' · <span style="color:var(--mut);font-style:italic">(נערך)</span>':''}</div></div>
    <div class="pcd"><span class="cdt">--</span>${ic('clock')}</div><span class="pmenu" onclick="postMenu(${i})">${ic('more')}</span></div>
   ${postText(p,i)}
   ${mediaBlock(p,i)}
@@ -978,7 +984,7 @@ function videoCard(p,i){const t=tp(p.topicId),pr=PROF[p.nm],wa=pr&&pr.k==='b'&&p
   ${p.vidUrl?`<video src="${p.vidUrl}" playsinline loop muted preload="metadata" data-v onclick="vTap(this)"></video><div class="vbigplay show" data-pp>${ic('play')}</div><button class="vmute" onclick="vMute(event,this)">🔇</button><div class="vprog"><i></i><span class="vthumb"></span></div>`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:80px;background:linear-gradient(160deg,#1b2030,#0b0e14)" onclick="toast('🎬','וידאו לדוגמה')">${p.e}</div>`}
   ${p.snd?`<audio data-vsnd src="${p.snd}" loop></audio>`:''}
   <div class="vhd"><div class="cdring"><div class="av" onclick="openProf('${p.nm}',${p.uid||'null'})">${avH(p)}</div></div>
-   <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})" style="flex:1"><div class="nm-row"><span class="nm" data-noi18n>${p.nm}</span>${profBadge(p.nm)}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}</div></div>
+   <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})" style="flex:1"><div class="nm-row"><span class="nm" data-noi18n>${p.nm}</span>${flairOf(p)}${profBadge(p.nm)}${isPinned(p,i)?'<span class="pinbadge" title="מוצמד">📌</span>':''}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p._editedAt?' · <i>(נערך)</i>':''}</div></div>
    <div class="pcd"><span class="cdt">--</span>${ic('clock')}</div><span class="pmenu" style="color:#fff" onclick="postMenu(${i})">${ic('more')}</span></div>
   <div class="vfoot"><div class="ptx" data-noi18n style="padding:0">${linkify(p.text||'')}</div>${p.link?`<div class="lk-card" style="margin:8px 0 0;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.2)" onclick="openInApp('${p.link}')"><span class="lic">${ic('link')}</span><div><div class="lt" style="color:#fff">קישור</div><div class="lu" style="color:#ddd">${p.link}</div></div></div>`:''}</div>
   <div class="vacts">
@@ -1014,7 +1020,7 @@ function applyCardState(){let ni=0;
 function renderFeedChunk(){const slice=_feedList.slice(_feedCursor,_feedCursor+CHUNK);if(!slice.length)return false;
  const html=slice.map(p=>postCard(p,POSTS.indexOf(p))).join('');const sent=document.getElementById('feedSentinel');
  if(sent)sent.insertAdjacentHTML('beforebegin',html);else feed.insertAdjacentHTML('beforeend',html);
- _feedCursor+=slice.length;applyCardState();initVideos();
+ _feedCursor+=slice.length;applyCardState();initVideos();applyViewObserver();
  if(S.trAllGlobal&&typeof translateVisibleFeed==='function')translateVisibleFeed();
  return _feedCursor<_feedList.length;}
 /* ===== נגן וידאו בסגנון טיקטוק ===== */
@@ -1519,7 +1525,7 @@ function pickMeta(kind){const src=kind==='topic'?TOPICS:kind==='country'?COUNTRI
 function selSheet(title,arr,cv,cb){openSheet(`<div class="sh-hd"><h3>${title}</h3><span class="x" onclick="compose()">${ic('close')}</span></div><div class="sh-b"><div class="srch"><span data-ic="search" class="srch-ic"></span><input id="ssq" placeholder="חיפוש..." oninput="document.getElementById('ssl').innerHTML=selItems(window._ssA,'${cv}',this.value)"></div><div class="fl tall" id="ssl">${selItems(arr,cv,'')}</div></div>`);window._ssA=arr;window._ssCb=cb;}
 function selItems(arr,cv,q){q=(q||'').trim().toLowerCase();return arr.filter(it=>!q||(it[1]+'').toLowerCase().includes(q)).map(it=>`<div class="fi ${it[0]===cv?'on':''}" onclick="window._ssCb('${it[0]}')"><span>${it[2]||'•'}</span><span class="l">${it[1]}</span><span class="k">${it[0]===cv?'✓':''}</span></div>`).join('');}
 function em0(){return C.picks[0]&&!isImg(C.picks[0])?'📎':C.em;}
-function makeNP(){const me=S.me,np={e:em0(),av:me.av,avImg:me.avImg,nm:me.nm,meta:'🇮🇱 עכשיו',type:C.type,topicId:C.topic,lang:C.lang,country:C.country,text:C.text,mins:C.exp*60,likes:0,com:0,link:(C.link||'').trim(),gender:C.gender||'all'};
+function makeNP(){const me=S.me,np={e:em0(),av:me.av,avImg:me.avImg,nm:me.nm,meta:'🇮🇱 עכשיו',type:C.type,topicId:C.topic,lang:C.lang,country:C.country,text:C.text,mins:C.exp*60,likes:0,com:0,link:(C.link||'').trim(),gender:C.gender||'all',_createdAt:Date.now(),_mine:true,flair:me.flair||''};
  if(C.type==='image'&&C.picks.length)np.imgs=C.picks;
  if(C.type==='video')np.vidUrl=C.vid;
  if(C.type==='poll'){const o=(C.pollOpts||['po1','po2','po3','po4'].map(x=>(document.getElementById(x)||{}).value)).filter(Boolean);np.poll=(o.length?o:['כן','לא']).map((t,k)=>({t,p:0,v:0}));}
@@ -1727,14 +1733,20 @@ function renderProfile(){const me=S.me,wal=waLink(me.waD,me.waN),handle=me.handl
  const content=`<div class="sh-h">התוכן שלי</div>
   <div class="mi" onclick="go('myposts')"><span class="mc">${ic('edit')}</span>הפוסטים שלי<span class="mv">${S.mine.length} ›</span></div>
   <div class="mi" onclick="go('bm')"><span class="mc">${ic('bookmark')}</span>האוספים שלי<span class="mv">${Object.values(S.bk).filter(Boolean).length} ›</span></div>
+  <div class="mi" onclick="openWatchLater()"><span class="mc">${ic('play')}</span>לצפייה אחר כך<span class="mv">${(S.watchLater||[]).length} ›</span></div>
   <div class="mi" onclick="go('msgs')"><span class="mc">${ic('mail')}</span>הודעות פרטיות<span class="mv">${(IS_SERVER()&&window._srvLoaded?(window._srvAccepted||[]):S.pchats).length} ›</span></div>
   <div class="mi" onclick="go('settings')"><span class="mc">${ic('settings')}</span>הגדרות<span class="mv">›</span></div>`;
+ const pinList=(S.me.pinned||[]).map(key=>{const idx=POSTS.findIndex((p,i)=>(p._sid?'s'+p._sid:'i'+i)===key);return idx>=0?POSTS[idx]:null;}).filter(Boolean);
+ const pinned=pinList.length?`<div class="sh-h">📌 מוצמדים</div>`+pinList.slice(0,3).map(p=>{const i=POSTS.indexOf(p);const t=tp(p.topicId);return `<div class="card" style="cursor:pointer" onclick="searchOpen(${i})"><div class="row"><span style="font-size:17px">📌</span><b style="color:var(--text);font-size:13px;flex:1">${esc((p.text||'').slice(0,50))||(t?t[2]+' '+t[1]:'פוסט')}</b><span style="color:var(--mut);font-size:11px">${(p.likes/1000).toFixed(1)}K ❤️</span></div></div>`;}).join(''):'';
  const gallery=me.creator?galleryBlock():'';
  const about=`<div class="sh-h">אודות</div><div class="card" style="display:flex;flex-direction:column;gap:9px">
   <div class="abt">${ic('pin')}<span>${esc(me.loc||'—')}</span></div>
   <div class="abt">${ic('globe')}<span>${esc(me.lng||'—')}</span></div>
   ${me.hobby?`<div class="abt">${ic('star')}<span>${esc(me.hobby)}</span></div>`:''}</div>`;
- document.getElementById('pWrap').innerHTML=head+creatorToggle+content+gallery+about;}
+ document.getElementById('pWrap').innerHTML=head+pinned+creatorToggle+content+gallery+about;}
+function openWatchLater(){const list=(S.watchLater||[]).map(key=>{const idx=POSTS.findIndex((p,i)=>(p._sid?'s'+p._sid:'i'+i)===key);return idx>=0?POSTS[idx]:null;}).filter(Boolean);
+ const body=list.length?list.map(p=>{const i=POSTS.indexOf(p);const t=tp(p.topicId);return `<div class="card" style="cursor:pointer" onclick="closeSheet();searchOpen(${i})"><div class="row"><span class="av" style="width:36px;height:36px;font-size:16px">📺</span><div style="flex:1;min-width:0"><b style="color:var(--text);font-size:13px">${esc(p.nm)}</b><div style="color:var(--sub);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((p.text||'').slice(0,80))||(t?t[1]:'')}</div></div></div></div>`;}).join(''):`<div class="empty"><div class="e">${ic('play')}</div><p>אין פוסטים לצפייה מאוחרת<br>סמן/י "📺 לצפייה אחר כך" מכפתור 3 הנקודות מעל כל פוסט</p></div>`;
+ openSheet(`<div class="sh-hd"><h3>📺 לצפייה אחר כך</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">${body}</div>`);}
 function renderSettings(){const ln=(LANGS.find(l=>l[0]===S.lang)||['','עברית'])[1],mute=S.muteAll,me=S.me;
  document.getElementById('setWrap').innerHTML=`
  <div class="sh-h" style="margin-top:0">חשבון</div>
@@ -1786,6 +1798,7 @@ function renderPEdit(){const me=S.me;
  <div class="sh-h">שפות שאני דובר/ת</div>
  <div class="mi" onclick="grabPE();pickSpokenLangs()"><span class="mc">${ic('globe')}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(me.langs&&me.langs.length)?me.langs.map(c=>(LANGS.find(l=>l[0]===c)||['','','🌐'])[2]+' '+(LANGS.find(l=>l[0]===c)||['',''])[1]).join(' · '):'בחר/י שפות שאת/ה דובר/ת'}</span><span class="mv">${(me.langs&&me.langs.length)?me.langs.length+' ›':'›'}</span></div>
  <div class="sh-h">תחביב</div><input class="inp" id="ehob" value="${esc(me.hobby)}" placeholder="צילום, ריצה, גיטרה">
+ <div class="sh-h">תג אישי (Flair) — עד 4 תווים/אימוג'י</div><input class="inp" id="eflair" maxlength="6" value="${esc(me.flair||'')}" placeholder="🎨 / 🏃 / 🌱 / IL">
  <div class="mi" style="margin-top:14px" onclick="toggleCreator();renderPEdit()"><span class="mc">${ic('star')}</span>מצב יוצר${me.creator?' · פעיל':' (חינם)'}<div class="sw ${me.creator?'on':''}"><i></i></div></div>
  ${me.creator?`<div class="sh-h">פרטי יוצר / עסק</div>
   <input class="inp" id="bnm" value="${esc(me.bnm||'')}" placeholder="שם העסק">
@@ -1796,7 +1809,7 @@ function renderPEdit(){const me=S.me;
   <input class="inp" id="bem" value="${esc(me.bem||'')}" placeholder="אימייל ליצירת קשר">
   <input class="inp" id="bweb" value="${esc(me.bweb||'')}" placeholder="אתר / קישור">`:''}
  <button class="bt" style="width:100%;margin-top:16px" onclick="savePEdit()">${ic('check')} שמור פרופיל</button>`;}
-function grabPE(){const me=S.me;me.nm=eV('enm')||me.nm;const hd=document.getElementById('ehandle');if(hd)me.handle=hd.value.replace(/[^A-Za-z0-9_.]/g,'');const bi=document.getElementById('ebio');if(bi)me.bbio=bi.value;me.loc=eV('eloc')||me.loc;const ho=document.getElementById('ehob');if(ho)me.hobby=ho.value;
+function grabPE(){const me=S.me;me.nm=eV('enm')||me.nm;const hd=document.getElementById('ehandle');if(hd)me.handle=hd.value.replace(/[^A-Za-z0-9_.]/g,'');const bi=document.getElementById('ebio');if(bi)me.bbio=bi.value;me.loc=eV('eloc')||me.loc;const ho=document.getElementById('ehob');if(ho)me.hobby=ho.value;const fl=document.getElementById('eflair');if(fl)me.flair=fl.value.slice(0,6);
  if(me.creator){if(document.getElementById('bnm'))me.bnm=eV('bnm');if(document.getElementById('bpr'))me.bpr=eV('bpr');me.waD=eV('bwd')||me.waD;const wn=document.getElementById('bwn');if(wn)me.waN=wn.value.replace(/\D/g,'');if(document.getElementById('bph'))me.bph=eV('bph');if(document.getElementById('bem'))me.bem=eV('bem');if(document.getElementById('bweb'))me.bweb=eV('bweb');}}
 function savePEdit(){grabPE();sv();go('profile');toast('✅','הפרופיל עודכן');}
 function pickSpokenLangs(){const sel=new Set(S.me.langs||[]);window._spLangs=sel;openSheet(`<div class="sh-hd"><h3>🗣️ שפות שאני דובר/ת</h3><span class="x" onclick="closeSpokenLangs()">${ic('close')}</span></div><div class="sh-b"><div class="srch"><span data-ic="search" class="srch-ic"></span><input id="slq" placeholder="חיפוש שפה..." oninput="renderSpokenLangs(this.value)"></div><div class="fl tall" id="sll"></div></div><div class="sh-foot"><button class="bt" style="width:100%" onclick="closeSpokenLangs()">✓ שמור</button></div>`);renderSpokenLangs('');}
@@ -2053,21 +2066,30 @@ function rateBiz(nm){openSheet(`<div class="sh-hd"><h3>⭐ דירוג ${nm}</h3>
 function postText(p,i){if(!p.text)return '';const raw=linkify(p.text);const long=String(p.text).length>240;
  return `<div class="ptx"><div class="ptxt ${long?'clamp':''}" id="ptx${i}" data-noi18n>${raw}</div>${long?`<span class="moreb" onclick="toggleMore(${i},this)">הצג עוד ▾</span>`:''}<div style="margin-top:6px;font-size:11px"><span style="color:var(--acc);font-weight:700;cursor:pointer" onclick="translatePost(${i},this)">🌐 תרגם את הפוסט</span><div style="display:none;margin-top:6px;padding:8px 10px;background:var(--surface2);border-radius:8px;color:var(--text);font-size:13px"></div></div></div>`;}
 function toggleMore(i,el){const t=document.getElementById('ptx'+i);if(!t)return;t.classList.toggle('clamp');el.textContent=t.classList.contains('clamp')?'הצג עוד ▾':'הצג פחות ▴';}
-function eyeHtml(i){return `<span class="eyev" style="background:var(--surface2);padding:3px 8px;border-radius:7px;font-weight:700"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="vw${i}" class="vwn">${postViewers(i)}</span> צופים</span>`;}
-setInterval(()=>{document.querySelectorAll('.feed .fb[data-i]').forEach(po=>{const e=document.getElementById('vw'+po.dataset.i);if(!e)return;const c=parseInt(e.textContent)||1;e.textContent=Math.max(1,c+Math.floor(Math.random()*7-3));});},3500);
+function postViews(i){const p=POSTS[i];if(!p)return 0;if(p.views!=null)return p.views;p.views=Math.max(120,Math.floor((p.likes||100)*(8+Math.random()*15))+Math.floor(Math.random()*900));return p.views;}
+function fmtViews(n){return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n);}
+function eyeHtml(i){const v=postViews(i);return `<span class="eyev" style="background:var(--surface2);padding:3px 8px;border-radius:7px;font-weight:700"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span id="vw${i}" class="vwn">${fmtViews(v)}</span> צפיות</span>`;}
+function trackView(i){const p=POSTS[i];if(!p)return;const key=p._sid?'s'+p._sid:'i'+i;S.viewed=S.viewed||{};if(S.viewed[key])return;S.viewed[key]=1;p.views=(p.views||postViews(i))+1;const el=document.getElementById('vw'+i);if(el)el.textContent=fmtViews(p.views);sv();if(IS_SERVER()&&p._sid)API.req('/posts/'+p._sid+'/view',{method:'POST'}).catch(()=>{});}
+let _viewIO=null;
+function ensureViewIO(){if(_viewIO||!window.IntersectionObserver||!feed)return;_viewIO=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting&&en.intersectionRatio>=0.55){const i=en.target.dataset.i;if(i!=null)trackView(parseInt(i));}});},{root:feed,threshold:[0,.55,1]});}
+function applyViewObserver(){ensureViewIO();if(!_viewIO)return;document.querySelectorAll('.feed .fb[data-i]:not([data-viewed])').forEach(el=>{el.setAttribute('data-viewed','1');_viewIO.observe(el);});}
 
 /* ===== Post 3-dot menu (owner / viewer) ===== */
 function isMine(p){return !!(p&&(p._mine||p.nm===S.me.nm||(S.me.bnm&&p.nm===S.me.bnm)));}
 function postMenu(i){const p=POSTS[i];if(!p)return;const url=postUrl(p,i);const nm=(p.nm||'').replace(/'/g,'');
+ const editAllowed=isMine(p)&&(!p._createdAt||(Date.now()-p._createdAt)<3600000);
+ const pinned=isPinned(p,i);const watched=isWatched(p,i);const wIco=watched?'check':'play';
  const items=isMine(p)?[
-  ['edit','ערוך פוסט',`closeSheet();editPost(${i})`,''],
+  editAllowed?['edit','ערוך פוסט',`closeSheet();editPost(${i})`,'']:null,
+  [pinned?'check':'star',pinned?'בטל הצמדה':'📌 הצמד לפרופיל',`closeSheet();togglePin(${i})`,''],
   ['document','העתק טקסט',`copyText(${JSON.stringify(p.text||'')});closeSheet()`,''],
   ['link','העתק קישור',`copyText('${url}');closeSheet()`,''],
   ['bell','התראות על תגובות',`closeSheet();toast('🔔','תקבל התראה על כל תגובה לפוסט')`,''],
   ['extend','הארך ב-24 שעות',`closeSheet();extendPost(${i})`,''],
   ['trash','מחק פוסט',`deletePost(${i})`,'bad']
- ]:[
+ ].filter(Boolean):[
   ['bookmark','שמור פוסט',`closeSheet();bkById(${i})`,''],
+  [wIco,watched?'הוסר מ"לצפייה אחר כך"':'📺 לצפייה אחר כך',`closeSheet();toggleWatchLater(${i})`,''],
   ['bell','הפעל התראות על הפוסט',`closeSheet();toast('🔔','תקבל התראות על הפוסט הזה')`,''],
   ['link','העתק קישור',`copyText('${url}');closeSheet()`,''],
   ['hide','הסתר פוסט',`closeSheet();hidePost(${i})`,''],
@@ -2076,7 +2098,9 @@ function postMenu(i){const p=POSTS[i];if(!p)return;const url=postUrl(p,i);const 
  ];
  openSheet(`<div class="sh-hd"><h3>${p.nm}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">${items.map(it=>`<div class="mi" onclick="${it[2]}"><span class="mc">${ic(it[0])}</span><span style="${it[3]==='bad'?'color:var(--bad)':''}">${it[1]}</span><span class="mv">›</span></div>`).join('')}</div>`);}
 function editPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>✏️ עריכת פוסט</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><textarea id="edTx" style="height:150px" maxlength="5000">${p.text||''}</textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="saveEdit(${i})">שמור</button></div>`);}
-function saveEdit(i){const p=POSTS[i],v=eV('edTx');p.text=v;if(p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'PUT',body:{text:v}}).catch(()=>{});closeSheet();buildFeed();toast('✏️','הפוסט עודכן');}
+function saveEdit(i){const p=POSTS[i],v=eV('edTx');p.text=v;p._editedAt=Date.now();if(p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'PUT',body:{text:v}}).catch(()=>{});sv();closeSheet();buildFeed();toast('✏️','הפוסט עודכן');}
+function togglePin(i){const p=POSTS[i];if(!p)return;S.me.pinned=S.me.pinned||[];const key=p._sid?'s'+p._sid:'i'+i;const idx=S.me.pinned.indexOf(key);if(idx>=0){S.me.pinned.splice(idx,1);toast('📌','בוטלה ההצמדה');}else{if(S.me.pinned.length>=3){toast('⚠️','הגעת למקסימום (3 פוסטים מוצמדים)');return;}S.me.pinned.push(key);toast('📌','הוצמד לפרופיל');}sv();buildFeed();}
+function toggleWatchLater(i){const p=POSTS[i];if(!p)return;S.watchLater=S.watchLater||[];const key=p._sid?'s'+p._sid:'i'+i;const idx=S.watchLater.indexOf(key);if(idx>=0){S.watchLater.splice(idx,1);toast('📺','הוסר');}else{S.watchLater.unshift(key);toast('📺','נשמר לצפייה אחר כך');}sv();}
 function deletePost(i){openSheet(`<div class="sh-hd"><h3>🗑️ מחיקת פוסט</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><p style="color:var(--text);font-size:14px;line-height:1.6">למחוק את הפוסט לצמיתות? לא ניתן לשחזר.</p></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" style="background:var(--bad)" onclick="doDeletePost(${i})">מחק</button></div>`);}
 function doDeletePost(i){const p=POSTS[i];if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'DELETE'}).catch(()=>{});closeSheet();const el=document.querySelector(`#feed .fb[data-i="${i}"]`);dissolveCard(el,()=>{if(p)POSTS.splice(i,1);sv();buildFeed();});toast('🗑️','הפוסט נמחק');}
 function extendPost(i){const p=POSTS[i];if(p){p._m=(p._m??p.mins)+1440;p.mins=(p.mins||0)+1440;}if(p&&p._sid&&IS_SERVER())API.req('/posts/'+p._sid+'/extend',{method:'POST'}).catch(()=>{});toast('⏳','חיי הפוסט הוארכו ב-24 שעות');}
