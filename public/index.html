@@ -96,7 +96,9 @@
   .pcd{display:flex;align-items:center;gap:4px;background:var(--surface2);color:var(--sub);font-size:10.5px;font-weight:700;padding:4px 8px;border-radius:8px;flex:0 0 auto}
   .pcd.urg{background:rgba(229,72,77,.15);color:var(--bad)}
   .ptx{color:var(--text);font-size:14.5px;line-height:1.6;padding:0 13px 11px}
-  .ptx .ptxt.clamp{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+  .ptx .ptxt.clamp{display:-webkit-box;-webkit-line-clamp:8;-webkit-box-orient:vertical;overflow:hidden}
+  .ptx .ptxt b{font-weight:900}
+  .ptx .ptxt i{font-style:italic}
   .ptx a{color:var(--acc);text-decoration:underline;word-break:break-word}
   .fb.fbvideo .ptx a{color:#bcdcff}
   .moreb{color:var(--acc);font-weight:700;cursor:pointer;font-size:12.5px;display:inline-block;margin-top:3px}
@@ -1570,7 +1572,7 @@ function compose(){const em=C.em,label=C.label,id=C.type;
   prev=C.picks.length?`<div class="prev">${C.picks.map((p,k)=>`<div class="pv" style="position:relative">${isImg(p)?`<img src="${p}">`:em}${isImg(p)?`<span onclick="editImage(${k})" style="position:absolute;bottom:-5px;right:-5px;background:var(--acc);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;box-shadow:0 3px 8px var(--ring)" title="ערוך">✨</span>`:''}<span onclick="C.picks.splice(${k},1);compose()" style="position:absolute;top:-5px;left:-5px;background:var(--bad);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">${ic('close')}</span></div>`).join('')}${C.picks.filter(p=>isImg(p)).length>=2?'<button class="bt dim" style="flex:0 0 100%;margin-top:8px" onclick="makeCollage()">🧩 צור קולאז\' מהתמונות</button>':''}</div>`:(C.vid?`<div class="prev"><div class="pv"><video src="${C.vid}"></video></div></div>`:'');
  }
  let f=`<div class="sh-h" style="margin-top:0">${id==='product'?'תיאור המוצר':id==='poll'?'שאלת הסקר':'כתוב כיתוב / הסבר — אפשר טקסט ארוך'}</div>
-  <div style="position:relative"><textarea id="cText" maxlength="5000" style="height:110px" placeholder="${id==='poll'?'מה השאלה?':'מה אתה משתף? ספר בהרחבה...'}">${C.text}</textarea><span onclick="grab();emojiPick()" style="position:absolute;bottom:16px;left:10px;font-size:21px;cursor:pointer" title="אימוג׳ים">😀</span></div>`;
+  <div style="position:relative"><textarea id="cText" maxlength="10000" style="height:110px" placeholder="${id==='poll'?'מה השאלה?':'מה אתה משתף? ספר בהרחבה...'}">${C.text}</textarea><span onclick="grab();emojiPick()" style="position:absolute;bottom:16px;left:10px;font-size:21px;cursor:pointer" title="אימוג׳ים">😀</span></div>`;
  if(id==='poll'){const o=C.pollOpts||['','','',''];f+=[0,1,2,3].map(i=>`<input class="inp" id="po${i+1}" value="${o[i]||''}" placeholder="אפשרות ${i+1}${i>1?' (לא חובה)':''}">`).join('');}
  if(id==='product'){
   if(!C.pCat){f+=`<div class="sh-h">בחר קטגוריה</div><div class="catgrid">${MKTCATS.map(c=>`<div class="catchip" onclick="grab();C.pCat='${c[0]}';compose()"><span>${c[2]}</span>${c[1]}</div>`).join('')}</div>`;}
@@ -2146,7 +2148,14 @@ function postViewers(i){let h=0,id=String(i);for(let k=0;k<id.length;k++)h=(h*31
 function rateBiz(nm){openSheet(`<div class="sh-hd"><h3>⭐ דירוג ${nm}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><div style="text-align:center;font-size:38px;color:var(--warn);margin:14px 0" id="rStars">${'☆'.repeat(5)}</div><div id="rTxt" style="text-align:center;color:var(--sub);font-size:12px">בחר דירוג 1–5</div><div style="display:flex;gap:10px;justify-content:center;margin:14px 0">${[1,2,3,4,5].map(n=>`<button class="bt dim" style="padding:9px 14px" onclick="document.getElementById('rStars').textContent='⭐'.repeat(${n})+'☆'.repeat(5-${n});document.getElementById('rTxt').textContent='${n} כוכבים'">${n}</button>`).join('')}</div><textarea placeholder="ספר על העסקה (לא חובה)"></textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">בטל</button><button class="bt" onclick="closeSheet();toast('⭐','תודה! הדירוג נשלח')">שלח דירוג</button></div>`);}
 
 /* ===== Post text (linkify + show more) + viewers ===== */
-function postText(p,i){if(!p.text)return '';const raw=linkify(p.text);const long=String(p.text).length>240;
+function mdRender(html){return String(html||'')
+ .replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>')
+ .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,'$1<i>$2</i>')
+ .replace(/`([^`\n]+)`/g,'<code style="background:var(--surface2);padding:1px 5px;border-radius:4px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em">$1</code>')
+ .replace(/(^|<br>)#\s*([^<\n]+)/g,'$1<div style="font-weight:900;font-size:1.1em;margin:4px 0;color:var(--text)">$2</div>')
+ .replace(/(^|<br>)&gt;\s*([^<\n]+)/g,'$1<div style="border-right:3px solid var(--acc);padding:3px 10px;color:var(--sub);margin:4px 0">$2</div>')
+ .replace(/(^|<br>)[-*]\s+([^<\n]+)/g,'$1<div style="padding-right:18px;position:relative">• $2</div>');}
+function postText(p,i){if(!p.text)return '';const raw=mdRender(linkify(p.text));const long=String(p.text).length>240;
  return `<div class="ptx"><div class="ptxt ${long?'clamp':''}" id="ptx${i}" data-noi18n>${raw}</div>${long?`<span class="moreb" onclick="toggleMore(${i},this)">הצג עוד ▾</span>`:''}<div style="margin-top:6px;font-size:11px"><span style="color:var(--acc);font-weight:700;cursor:pointer" onclick="translatePost(${i},this)">🌐 תרגם את הפוסט</span><div style="display:none;margin-top:6px;padding:8px 10px;background:var(--surface2);border-radius:8px;color:var(--text);font-size:13px"></div></div></div>`;}
 function toggleMore(i,el){const t=document.getElementById('ptx'+i);if(!t)return;t.classList.toggle('clamp');el.textContent=t.classList.contains('clamp')?'הצג עוד ▾':'הצג פחות ▴';}
 function postViews(i){const p=POSTS[i];if(!p)return 0;if(p.views!=null)return p.views;p.views=Math.max(120,Math.floor((p.likes||100)*(8+Math.random()*15))+Math.floor(Math.random()*900));return p.views;}
@@ -2180,7 +2189,7 @@ function postMenu(i){const p=POSTS[i];if(!p)return;const url=postUrl(p,i);const 
   ['block','חסום את '+nm,`closeSheet();blockUser('${nm}')`,'bad']
  ];
  openSheet(`<div class="sh-hd"><h3>${p.nm}</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">${items.map(it=>`<div class="mi" onclick="${it[2]}"><span class="mc">${ic(it[0])}</span><span style="${it[3]==='bad'?'color:var(--bad)':''}">${it[1]}</span><span class="mv">›</span></div>`).join('')}</div>`);}
-function editPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>✏️ עריכת פוסט</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><textarea id="edTx" style="height:150px" maxlength="5000">${p.text||''}</textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="saveEdit(${i})">שמור</button></div>`);}
+function editPost(i){const p=POSTS[i];openSheet(`<div class="sh-hd"><h3>✏️ עריכת פוסט</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b"><textarea id="edTx" style="height:150px" maxlength="10000">${p.text||''}</textarea></div><div class="sh-foot"><button class="bt g" onclick="closeSheet()">ביטול</button><button class="bt" onclick="saveEdit(${i})">שמור</button></div>`);}
 function saveEdit(i){const p=POSTS[i],v=eV('edTx');p.text=v;p._editedAt=Date.now();if(p._sid&&IS_SERVER())API.req('/posts/'+p._sid,{method:'PUT',body:{text:v}}).catch(()=>{});sv();closeSheet();buildFeed();toast('✏️','הפוסט עודכן');}
 function togglePin(i){const p=POSTS[i];if(!p)return;S.me.pinned=S.me.pinned||[];const key=p._sid?'s'+p._sid:'i'+i;const idx=S.me.pinned.indexOf(key);if(idx>=0){S.me.pinned.splice(idx,1);toast('📌','בוטלה ההצמדה');}else{if(S.me.pinned.length>=3){toast('⚠️','הגעת למקסימום (3 פוסטים מוצמדים)');return;}S.me.pinned.push(key);toast('📌','הוצמד לפרופיל');}sv();buildFeed();}
 function toggleWatchLater(i){const p=POSTS[i];if(!p)return;S.watchLater=S.watchLater||[];const key=p._sid?'s'+p._sid:'i'+i;const idx=S.watchLater.indexOf(key);if(idx>=0){S.watchLater.splice(idx,1);toast('📺','הוסר');}else{S.watchLater.unshift(key);toast('📺','נשמר לצפייה אחר כך');}sv();}
