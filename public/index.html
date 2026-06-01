@@ -101,6 +101,10 @@
   .ptx .ptxt i{font-style:italic}
   .tag-link{color:var(--acc);font-weight:800;cursor:pointer;text-decoration:none}
   .tag-link:hover{text-decoration:underline}
+  .quote-card{margin:0 13px 11px;background:var(--surface2);border:1px solid var(--line);border-right:4px solid var(--acc);border-radius:11px;padding:11px 13px;cursor:pointer;transition:background .12s}
+  .quote-card:active{background:var(--surface)}
+  .quote-card .qhd{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+  .quote-card .qbd{color:var(--sub);font-size:13px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
   .ptx a{color:var(--acc);text-decoration:underline;word-break:break-word}
   .fb.fbvideo .ptx a{color:#bcdcff}
   .moreb{color:var(--acc);font-weight:700;cursor:pointer;font-size:12.5px;display:inline-block;margin-top:3px}
@@ -958,6 +962,7 @@ function prodSpec(pr){if(!pr)return '';const c=mkt(pr.cat||'general');let parts;
  else{parts=[c[2]+' '+(pr.cond==='new'?'חדש':'משומש')];}
  if(pr.city)parts.push('📍 '+pr.city);
  return esc(parts.filter(Boolean).join(' · '));}
+function quoteHtml(q){if(!q)return '';return `<div class="quote-card" onclick="${q._originalIdx!=null?'searchOpen('+q._originalIdx+')':''}"><div class="qhd"><span style="font-size:14px">${q.avImg?'':(q.av||'👤')}</span><b style="color:var(--text);font-size:13px;font-weight:800" data-noi18n>${esc(q.nm||'')}</b><span style="margin-right:auto;font-size:11px;color:var(--mut)">💬 ציטוט</span></div>${q.text?`<div class="qbd" data-noi18n>${linkify(String(q.text).slice(0,260))}${q.text.length>260?'…':''}</div>`:''}</div>`;}
 function mediaBlock(p,i){
  if(p.type==='image'&&p.imgs&&p.imgs.length){const im=p.imgs,sh=im.slice(0,4),n=Math.min(sh.length,4);
   return `<div class="media"><div class="fbg n${n}">`+sh.map((m,k)=>`<div onclick="galView(${i},${k})">${cell(m)}${(k===3&&im.length>4)?`<span class="more">+${im.length-4}</span>`:''}</div>`).join('')+`</div></div>`;}
@@ -984,6 +989,7 @@ function postCard(p,i){if(p.type==='video')return videoCard(p,i);
    <div class="who" onclick="openProf('${p.nm}',${p.uid||'null'})"><div class="nm-row"><span class="nm" data-noi18n>${p.nm}</span>${flairOf(p)}${profBadge(p.nm)}${isPinned(p,i)?'<span class="pinbadge" title="מוצמד">📌</span>':''}</div><div class="meta">${p.meta}${t?' · '+t[2]+' '+t[1]:''}${p.gender==='male'?' · 👨':p.gender==='female'?' · 👩':''}${p._editedAt?' · <span style="color:var(--mut);font-style:italic">(נערך)</span>':''}</div></div>
    <div class="pcd"><span class="cdt">--</span>${ic('clock')}</div><span class="pmenu" onclick="postMenu(${i})">${ic('more')}</span></div>
   ${postText(p,i)}
+  ${p.quote?quoteHtml(p.quote):''}
   ${mediaBlock(p,i)}
   ${p.snd&&String(p.snd).startsWith('http')?`<div class="vsnd"><audio controls src="${p.snd}"></audio></div>`:''}
   ${p.link?`<div class="lk-card" onclick="openInApp('${p.link}')"><span class="lic">${ic('link')}</span><div><div class="lt">קישור מצורף — נפתח באפליקציה</div><div class="lu">${p.link}</div></div></div>`:''}
@@ -1412,7 +1418,7 @@ function linkify(t){if(!t)return '';let s=esc(String(t)).replace(/\n/g,'<br>');r
 function addMsg(m,me){const chat=document.getElementById('chat');const id='x'+(Math.random()*1e9|0);
  const el=document.createElement('div');el.className='msg'+(me?' me':'');
  const isText=!m.img&&!m.audio&&!m.voiceSim&&m.t;
- const acap=m.audio?`<div class="vtool2"><button class="trb" data-url="${m.audio}" onclick="transcribeMsg(this)">📝 תמלל</button><div class="vout" data-noi18n style="display:none"></div></div>`:'';
+ const acap=m.audio?`<div class="vtool2"><button class="trb" data-url="${m.audio}" onclick="transcribeMsg(this)">📝 תמלל</button><button class="trb" data-url="${m.audio}" onclick="speakTranslate(this)">🗣️ קרא בשפה שלי</button><div class="vout" data-noi18n style="display:none"></div></div>`:'';
  const body=m.file?`<a href="${m.file.url}" download="${m.file.name}" style="display:flex;align-items:center;gap:8px;color:inherit;text-decoration:none"><span style="font-size:24px">${fileIcon(m.file.type)}</span><span style="word-break:break-all">${m.file.name}</span></a>`:(m.img?`<img src="${m.img}">`:(m.audio?`<audio controls src="${m.audio}"></audio>`:(m.voiceSim?`🎙️ הודעה קולית · 0:${String(m.voiceSim).padStart(2,'0')}`:linkify(m.t||''))));
  const trBtn=isText?`<span class="trb" data-src="${encodeURIComponent(m.t)}" data-lng="${m.lng||''}" onclick="trMsg(this)">🌐 תרגם</span><div class="tro" id="${id}"></div>`:'';
  el.innerHTML=`<div class="w" data-noi18n onclick="${me?'':`msgMenu('${(m.w||'').replace(/'/g,'')}')`}">${m.w||'אתה'}${me?'':' ⋯'}</div><div class="b"${m.audio?'':' data-noi18n'}>${body}</div>${acap}${trBtn}`;
@@ -1472,6 +1478,25 @@ async function transcribeMsg(btn){const out=btn.parentNode.querySelector('.vout'
  out.style.display='block';out.textContent='⏳ מתמלל… (טוען מנוע בפעם הראשונה — מעט סבלנות)';
  try{const tr=await transcribeBlob(url);out.dataset.done='1';if(tr){out.innerHTML='📝 '+esc(tr)+` <span class="trb" data-src="${encodeURIComponent(tr)}" onclick="trMsg(this)">🌐 תרגם</span><div class="tro"></div>`;}else out.textContent='📝 (לא זוהה דיבור בהקלטה)';}
  catch(e){console.warn('whisper',e);out.textContent='⚠️ התמלול נכשל — בדוק חיבור ונסה שוב';}}
+/* ===== תרגום קול-לקול: תמלול → תרגום → קריאה בקול בשפת הצופה ===== */
+let _ttsVoices=null;function _loadVoices(){return new Promise(res=>{const v=speechSynthesis.getVoices();if(v&&v.length){_ttsVoices=v;return res(v);}speechSynthesis.onvoiceschanged=()=>{_ttsVoices=speechSynthesis.getVoices();res(_ttsVoices);};setTimeout(()=>res(speechSynthesis.getVoices()||[]),1200);});}
+function _pickVoice(lang){const all=_ttsVoices||speechSynthesis.getVoices()||[];if(!all.length)return null;const exact=all.find(v=>v.lang===lang);if(exact)return exact;const pre=(lang||'en').split('-')[0];return all.find(v=>v.lang.toLowerCase().startsWith(pre.toLowerCase()))||null;}
+async function speakTranslate(btn){if(!('speechSynthesis' in window)){toast('⚠️','הדפדפן לא תומך בקריאה בקול');return;}
+ const out=btn.parentNode.querySelector('.vout');const url=btn.dataset.url;const targetLang=STT_LANG[S.lang]||'en-US';
+ out.style.display='block';out.textContent='⏳ מתמלל…';
+ try{
+  let src=out.dataset.src;
+  if(!src){src=await transcribeBlob(url);if(!src){out.textContent='⚠️ לא זוהה דיבור';return;}out.dataset.src=src;}
+  out.textContent='🌐 מתרגם…';
+  let tgt=src;try{tgt=await translateText(src,S.lang||'en');}catch(e){console.warn('translate',e);}
+  if(!tgt)tgt=src;
+  out.innerHTML='🗣️ '+esc(tgt);
+  await _loadVoices();
+  try{speechSynthesis.cancel();}catch(e){}
+  const u=new SpeechSynthesisUtterance(tgt);u.lang=targetLang;const v=_pickVoice(targetLang);if(v)u.voice=v;u.rate=1;u.pitch=1;
+  u.onerror=()=>toast('⚠️','השמעת הקול נכשלה');
+  speechSynthesis.speak(u);
+ }catch(e){console.warn('speakTranslate',e);out.textContent='⚠️ תרגום-קול נכשל';}}
 /* ===== תמלול חי בזמן הקלטה (Web Speech API — כתובית מהירה) ===== */
 let _stt=null;
 const STT_LANG={he:'he-IL',en:'en-US',ar:'ar-SA',ru:'ru-RU',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-BR','pt-BR':'pt-BR',it:'it-IT',tr:'tr-TR',ja:'ja-JP',ko:'ko-KR',zh:'zh-CN','zh-CN':'zh-CN',hi:'hi-IN',nl:'nl-NL',pl:'pl-PL',uk:'uk-UA',sv:'sv-SE',th:'th-TH',vi:'vi-VN',id:'id-ID',ro:'ro-RO',fa:'fa-IR'};
@@ -1577,7 +1602,8 @@ function compose(){const em=C.em,label=C.label,id=C.type;
  } else {
   prev=C.picks.length?`<div class="prev">${C.picks.map((p,k)=>`<div class="pv" style="position:relative">${isImg(p)?`<img src="${p}">`:em}${isImg(p)?`<span onclick="editImage(${k})" style="position:absolute;bottom:-5px;right:-5px;background:var(--acc);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;box-shadow:0 3px 8px var(--ring)" title="ערוך">✨</span>`:''}<span onclick="C.picks.splice(${k},1);compose()" style="position:absolute;top:-5px;left:-5px;background:var(--bad);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">${ic('close')}</span></div>`).join('')}${C.picks.filter(p=>isImg(p)).length>=2?'<button class="bt dim" style="flex:0 0 100%;margin-top:8px" onclick="makeCollage()">🧩 צור קולאז\' מהתמונות</button>':''}</div>`:(C.vid?`<div class="prev"><div class="pv"><video src="${C.vid}"></video></div></div>`:'');
  }
- let f=`<div class="sh-h" style="margin-top:0">${id==='product'?'תיאור המוצר':id==='poll'?'שאלת הסקר':'כתוב כיתוב / הסבר — אפשר טקסט ארוך'}</div>
+ let f='';if(C.quote)f+=`<div class="sh-h" style="margin-top:0">💬 מצטט את:</div>${quoteHtml(C.quote)}<div class="edrow" style="margin:-6px 0 12px"><button class="edchip" onclick="C.quote=null;compose()">✕ הסר ציטוט</button></div>`;
+ f+=`<div class="sh-h"${C.quote?'':' style="margin-top:0"'}>${id==='product'?'תיאור המוצר':id==='poll'?'שאלת הסקר':'כתוב כיתוב / הסבר — אפשר טקסט ארוך'}</div>
   <div style="position:relative"><textarea id="cText" maxlength="10000" style="height:110px" placeholder="${id==='poll'?'מה השאלה?':'מה אתה משתף? ספר בהרחבה...'}">${C.text}</textarea><span onclick="grab();emojiPick()" style="position:absolute;bottom:16px;left:10px;font-size:21px;cursor:pointer" title="אימוג׳ים">😀</span></div>`;
  if(id==='poll'){const o=C.pollOpts||['','','',''];f+=[0,1,2,3].map(i=>`<input class="inp" id="po${i+1}" value="${o[i]||''}" placeholder="אפשרות ${i+1}${i>1?' (לא חובה)':''}">`).join('');}
  if(id==='product'){
@@ -1619,6 +1645,7 @@ function em0(){return C.picks[0]&&!isImg(C.picks[0])?'📎':C.em;}
 function makeNP(){const me=S.me,np={e:em0(),av:me.av,avImg:me.avImg,nm:me.nm,meta:'🇮🇱 עכשיו',type:C.type,topicId:C.topic,lang:C.lang,country:C.country,text:C.text,mins:C.exp*60,likes:0,com:0,link:(C.link||'').trim(),gender:C.gender||'all',_createdAt:Date.now(),_mine:true,flair:me.flair||''};
  if(C.type==='image'&&C.picks.length)np.imgs=C.picks;
  if(C.type==='video'){np.vidUrl=C.vid;if(C.vidStart)np.vidStart=C.vidStart;if(C.vidEnd)np.vidEnd=C.vidEnd;if(C.vidSpeed&&C.vidSpeed!==1)np.vidSpeed=C.vidSpeed;if(C.vidCaps&&C.vidCaps.length)np.vidCaps=C.vidCaps;}
+ if(C.quote)np.quote=C.quote;
  if(C.type==='poll'){const o=(C.pollOpts||['po1','po2','po3','po4'].map(x=>(document.getElementById(x)||{}).value)).filter(Boolean);np.poll=(o.length?o:['כן','לא']).map((t,k)=>({t,p:0,v:0}));}
  if(C.type==='product'){np.imgs=C.picks;np.prod={cat:C.pCat||'general',title:C.pT||'מוצר',desc:C.text||'',price:C.pP||'₪—',ship:C.ship,cond:C.pCond||'used',city:C.pCity||''};
   if(C.pCat==='vehicles')np.prod.vehicle={make:C.pMake,model:C.pModel,year:C.pYear,km:C.pKm,hand:C.pHand,gear:C.pGear};
@@ -2218,8 +2245,12 @@ function applyJob(i){const p=POSTS[i];if(!p)return;const j=p.job||{};const note=
 /* ===== Real share ===== */
 function postUrl(p,i){const id=(p&&p._sid)?p._sid:i;return location.origin+'/?post='+id;}
 async function sharePost(i){const p=POSTS[i]||window._np;const url=postUrl(p,i);const text=(p&&p.text?String(p.text).slice(0,120):'פוסט בפלאזה');
- if(navigator.share){try{await navigator.share({title:'PLAZA 🌍',text,url});return;}catch(e){if(e&&e.name==='AbortError')return;}}
- openShareSheet(url,text);}
+ openSheet(`<div class="sh-hd"><h3>🔗 שתף</h3><span class="x" onclick="closeSheet()">${ic('close')}</span></div><div class="sh-b">
+   <div class="mi" onclick="closeSheet();quotePost(${i})"><span class="mc">💬</span>צטט עם תגובה משלך<span class="mv">›</span></div>
+   <div class="mi" onclick="closeSheet();openShareSheet('${url}','${text.replace(/'/g,"")}')"><span class="mc">${ic('share')}</span>שיתוף ב-WhatsApp/Telegram/X<span class="mv">›</span></div>
+   <div class="mi" onclick="closeSheet();copyText('${url}')"><span class="mc">${ic('link')}</span>העתק קישור<span class="mv">›</span></div>
+ </div>`);}
+function quotePost(i){const p=POSTS[i];if(!p)return;const q={nm:p.nm,text:String(p.text||'').slice(0,300),e:p.e,avImg:p.avImg,av:p.av,topicId:p.topicId,_originalIdx:i};createKind('text','טקסט','📝');C.quote=q;setTimeout(()=>compose(),100);toast('💬','הוסף את התגובה שלך לציטוט');}
 function copyText(t){const ok=()=>toast('🔗','הועתק ללוח');(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(ok).catch(()=>{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');ok();}catch(e){toast('🔗',t);}ta.remove();});}
 function openShareSheet(url,text){const enc=encodeURIComponent(url),et=encodeURIComponent((text||'')+' ');
  const u=url.replace(/'/g,"\\'");
