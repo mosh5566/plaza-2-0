@@ -258,6 +258,21 @@
   textarea{height:80px;resize:none}
   .prev{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
   .prev .pv{width:62px;height:62px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden}
+  .edprev{display:flex;align-items:center;justify-content:center;background:#0F172A;border-radius:14px;padding:10px;margin-bottom:12px;min-height:280px}
+  .edprev canvas{max-width:100%;max-height:380px;display:block;border-radius:9px;box-shadow:0 6px 22px rgba(0,0,0,.35)}
+  .edtabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px}
+  .edtabs::-webkit-scrollbar{height:0}
+  .edtab{flex:0 0 auto;border:none;background:var(--surface2);color:var(--sub);font-weight:800;font-size:12.5px;padding:8px 12px;border-radius:9px;cursor:pointer;white-space:nowrap}
+  .edtab.on{background:var(--acc);color:#fff;box-shadow:0 3px 10px var(--ring)}
+  .edpanel{min-height:80px}
+  .edrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+  .edrow.scroll{overflow-x:auto;flex-wrap:nowrap;padding-bottom:6px}
+  .edchip{flex:0 0 auto;border:none;background:var(--surface2);color:var(--text);font-weight:700;font-size:12.5px;padding:7px 12px;border-radius:8px;cursor:pointer}
+  .edchip.on{background:var(--acc);color:#fff}
+  .edsl{margin-bottom:14px}
+  .edsl label{display:block;font-size:12.5px;color:var(--sub);font-weight:700;margin-bottom:5px}
+  .edsl label span{color:var(--acc);font-weight:900;font-variant-numeric:tabular-nums}
+  .edsl input[type=range]{width:100%;accent-color:var(--acc)}
   .prev .pv img,.prev .pv video{width:100%;height:100%;object-fit:cover}
   .req{display:flex;gap:11px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:10px}
   .req .ra{width:38px;height:38px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto}
@@ -1040,6 +1055,50 @@ function vTap(v){if(!v)return;const card=v.closest('.fbvideo'),snd=card&&card.qu
 function vMute(e,btn){e.stopPropagation();const card=btn.closest('.fbvideo'),v=card.querySelector('[data-v]'),snd=card.querySelector('[data-vsnd]');if(snd){snd.muted=!snd.muted;btn.textContent=snd.muted?'🔇':'🔊';if(!snd.muted){snd.play().catch(()=>{});if(v)v.play().catch(()=>{});}}else if(v){v.muted=!v.muted;btn.textContent=v.muted?'🔇':'🔊';if(!v.muted)v.play().catch(()=>{});}}
 /* ===== וידאו: בחירת קובץ / מצלמה / דחיסה ===== */
 function pickVideoFile(f){if(!f)return;C.vidFile=f;C.vid=URL.createObjectURL(f);C.vidBig=f.size>25*1024*1024?Math.round(f.size/1048576):0;compose();toast('🎬','הסרטון נטען');}
+/* ===== עורך תמונה — פילטרים, חיתוך, סליידרים, טקסט, סטיקרים, אוטו, קולאז' ===== */
+let _ed=null,_edTxColor='#ffffff';
+const ED_FILTERS=[{id:'',n:'מקור',f:''},{id:'mono',n:'Mono',f:'grayscale(100%) contrast(110%)'},{id:'vivid',n:'Vivid',f:'saturate(170%) contrast(112%)'},{id:'vintage',n:'Vintage',f:'sepia(35%) saturate(135%) contrast(95%)'},{id:'cool',n:'Cool',f:'hue-rotate(-10deg) saturate(115%) brightness(102%)'},{id:'warm',n:'Warm',f:'sepia(22%) saturate(145%) hue-rotate(-10deg)'},{id:'fade',n:'Fade',f:'contrast(85%) saturate(85%) brightness(108%)'},{id:'sepia',n:'Sepia',f:'sepia(80%)'},{id:'bw',n:'B&W',f:'grayscale(100%) contrast(125%)'},{id:'dramatic',n:'Dramatic',f:'contrast(140%) saturate(110%) brightness(92%)'},{id:'soft',n:'Soft',f:'contrast(92%) saturate(95%) brightness(108%)'}];
+async function editImage(k){const src=C.picks&&C.picks[k];if(!src||!isImg(src)){toast('✨','בחר/י תמונה תחילה');return;}
+ const img=new Image();img.crossOrigin='anonymous';
+ try{await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=src;});}catch(e){toast('⚠️','שגיאה בטעינת התמונה');return;}
+ _ed={k,src,img,filter:'',brightness:100,contrast:100,saturate:100,rotate:0,flipH:false,flipV:false,layers:[],tab:'filter'};
+ openSheet(`<div class="sh-hd"><h3>✨ עריכת תמונה</h3><span class="x" onclick="closeEditor()">${ic('close')}</span></div>
+  <div class="sh-b" style="padding:14px">
+    <div class="edprev"><canvas id="edCv"></canvas></div>
+    <div class="edtabs">
+      <button class="edtab on" data-t="filter" onclick="edTab('filter')">🎨 פילטרים</button>
+      <button class="edtab" data-t="adjust" onclick="edTab('adjust')">🎚️ סליידרים</button>
+      <button class="edtab" data-t="crop" onclick="edTab('crop')">📐 סיבוב</button>
+      <button class="edtab" data-t="text" onclick="edTab('text')">📝 טקסט</button>
+      <button class="edtab" data-t="sticker" onclick="edTab('sticker')">😀 סטיקרים</button>
+      <button class="edtab" onclick="edAuto()">✨ אוטו</button>
+    </div>
+    <div id="edPanel" class="edpanel"></div>
+  </div>
+  <div class="sh-foot"><button class="bt g" onclick="closeEditor()">בטל</button><button class="bt" onclick="edApply()">✓ החל ושמור</button></div>`);
+ setTimeout(()=>{edRender();edRenderTab();},40);}
+function edRender(){const cv=document.getElementById('edCv');if(!cv||!_ed)return;const ed=_ed,img=ed.img;const maxW=720,maxH=720;const ar=img.naturalWidth/img.naturalHeight;let w=img.naturalWidth,h=img.naturalHeight;if(w>maxW){w=maxW;h=w/ar;}if(h>maxH){h=maxH;w=h*ar;}cv.width=Math.round(w);cv.height=Math.round(h);const ctx=cv.getContext('2d');ctx.save();const fcss=(ED_FILTERS.find(f=>f.id===ed.filter)||{}).f||'';ctx.filter=`${fcss} brightness(${ed.brightness}%) contrast(${ed.contrast}%) saturate(${ed.saturate}%)`;ctx.translate(cv.width/2,cv.height/2);ctx.rotate(ed.rotate*Math.PI/180);ctx.scale(ed.flipH?-1:1,ed.flipV?-1:1);ctx.drawImage(img,-cv.width/2,-cv.height/2,cv.width,cv.height);ctx.restore();ed.layers.forEach(L=>{if(L.type==='text'){const s=Math.max(20,cv.width/14);ctx.font=`900 ${s}px Heebo,Inter,sans-serif`;ctx.fillStyle=L.color;ctx.strokeStyle='rgba(0,0,0,.85)';ctx.lineWidth=Math.max(3,s/8);ctx.textBaseline='middle';ctx.textAlign='center';ctx.strokeText(L.text,L.x*cv.width,L.y*cv.height);ctx.fillText(L.text,L.x*cv.width,L.y*cv.height);}else if(L.type==='sticker'){const s=Math.max(40,cv.width/8);ctx.font=`${s}px serif`;ctx.textBaseline='middle';ctx.textAlign='center';ctx.fillText(L.emoji,L.x*cv.width,L.y*cv.height);}});}
+function edTab(t){if(!_ed)return;_ed.tab=t;document.querySelectorAll('.edtab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));edRenderTab();}
+function edRenderTab(){const p=document.getElementById('edPanel');if(!p||!_ed)return;const ed=_ed;if(ed.tab==='filter'){p.innerHTML=`<div class="edrow scroll">${ED_FILTERS.map(f=>`<button class="edchip ${ed.filter===f.id?'on':''}" onclick="edSetFilter('${f.id}')">${f.n}</button>`).join('')}</div>`;}else if(ed.tab==='adjust'){p.innerHTML=`<div class="edsl"><label>בהירות <span id="edBV">${ed.brightness}</span>%</label><input type="range" min="50" max="150" value="${ed.brightness}" oninput="edSlider('brightness',this.value)"></div><div class="edsl"><label>ניגודיות <span id="edCV">${ed.contrast}</span>%</label><input type="range" min="50" max="150" value="${ed.contrast}" oninput="edSlider('contrast',this.value)"></div><div class="edsl"><label>רוויה <span id="edSV">${ed.saturate}</span>%</label><input type="range" min="0" max="200" value="${ed.saturate}" oninput="edSlider('saturate',this.value)"></div>`;}else if(ed.tab==='crop'){p.innerHTML=`<div class="edrow"><button class="edchip" onclick="edRot(-90)">↺ סובב שמאל</button><button class="edchip" onclick="edRot(90)">↻ סובב ימין</button><button class="edchip ${ed.flipH?'on':''}" onclick="edFlip('h')">↔ היפוך אופקי</button><button class="edchip ${ed.flipV?'on':''}" onclick="edFlip('v')">↕ היפוך אנכי</button></div>`;}else if(ed.tab==='text'){p.innerHTML=`<div class="edrow"><input class="inp" id="edTxIn" placeholder="כתוב טקסט…" style="margin:0;flex:1"><button class="bt" style="flex:0 0 auto;padding:9px 16px" onclick="edAddText()">＋</button></div><div class="edrow"><button class="edchip" style="background:#fff;color:#000" onclick="edTxColor('#ffffff')">לבן</button><button class="edchip" style="background:#000;color:#fff" onclick="edTxColor('#000000')">שחור</button><button class="edchip" style="background:#ef4444;color:#fff" onclick="edTxColor('#ef4444')">אדום</button><button class="edchip" style="background:#3b82f6;color:#fff" onclick="edTxColor('#3b82f6')">כחול</button><button class="edchip" style="background:#22c55e;color:#fff" onclick="edTxColor('#22c55e')">ירוק</button><button class="edchip" style="background:#facc15;color:#000" onclick="edTxColor('#facc15')">צהוב</button></div>${ed.layers.filter(L=>L.type==='text').length?'<div class="edrow"><button class="edchip" onclick="edClearLayers(\'text\')">🗑️ מחק טקסטים</button></div>':''}`;}else if(ed.tab==='sticker'){const ST='😀 😂 🔥 ❤️ 💯 🎉 ✨ ⭐ 🌟 👏 🙌 🤩 😍 🥰 🌈 ☀️ 🌙 ⚡ 💎 🚀 🎁 🎯 💪 🏆 🥇 🎵 🎶 🌸 🌺 🦋 🐶 🐱 ☕ 🍕 🌊 🏖️ 🏔️ 🚗 ⚽ 🎬'.split(' ');p.innerHTML=`<div class="edrow scroll" style="flex-wrap:wrap;max-height:170px;overflow-y:auto">${ST.map(s=>`<button class="edchip" style="font-size:22px;padding:6px 9px" onclick="edAddSticker('${s}')">${s}</button>`).join('')}</div>${ed.layers.filter(L=>L.type==='sticker').length?'<div class="edrow"><button class="edchip" onclick="edClearLayers(\'sticker\')">🗑️ מחק סטיקרים</button></div>':''}`;}}
+function edSetFilter(id){if(!_ed)return;_ed.filter=id;edRender();edRenderTab();}
+function edSlider(k,v){if(!_ed)return;_ed[k]=parseInt(v);const ids={brightness:'edBV',contrast:'edCV',saturate:'edSV'};const el=document.getElementById(ids[k]);if(el)el.textContent=v;edRender();}
+function edRot(d){if(!_ed)return;_ed.rotate=(_ed.rotate+d+360)%360;edRender();}
+function edFlip(d){if(!_ed)return;if(d==='h')_ed.flipH=!_ed.flipH;else _ed.flipV=!_ed.flipV;edRender();edRenderTab();}
+function edTxColor(c){_edTxColor=c;toast('🎨','צבע נבחר');}
+function edAddText(){if(!_ed)return;const v=(document.getElementById('edTxIn')||{}).value;if(!v||!v.trim())return;_ed.layers.push({type:'text',text:v.trim(),x:0.5,y:0.5,color:_edTxColor});document.getElementById('edTxIn').value='';edRender();edRenderTab();}
+function edAddSticker(s){if(!_ed)return;_ed.layers.push({type:'sticker',emoji:s,x:0.5+(Math.random()-0.5)*0.4,y:0.5+(Math.random()-0.5)*0.4});edRender();}
+function edClearLayers(t){if(!_ed)return;_ed.layers=_ed.layers.filter(L=>L.type!==t);edRender();edRenderTab();}
+function edAuto(){if(!_ed)return;_ed.brightness=108;_ed.contrast=118;_ed.saturate=125;edRender();edTab('adjust');toast('✨','שיפור אוטומטי הוחל');}
+async function edApply(){if(!_ed)return;const cv=document.getElementById('edCv');const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.92));if(blob){const url=URL.createObjectURL(blob);C.picks[_ed.k]=url;}_ed=null;closeSheet();compose();toast('✨','התמונה עודכנה');}
+function closeEditor(){_ed=null;closeSheet();}
+async function makeCollage(){const picks=(C.picks||[]).filter(p=>isImg(p));if(picks.length<2){toast('🧩','בחר/י לפחות 2 תמונות');return;}
+ const imgs=await Promise.all(picks.slice(0,4).map(src=>new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=rej;im.src=src;})));
+ const n=imgs.length;const cv=document.createElement('canvas');const W=1200;cv.width=W;cv.height=W;const ctx=cv.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,W);
+ const gap=8;const draw=(im,x,y,w,h)=>{const ar=im.naturalWidth/im.naturalHeight;let sw=im.naturalWidth,sh=im.naturalHeight,sx=0,sy=0;const target=w/h;if(ar>target){sw=sh*target;sx=(im.naturalWidth-sw)/2;}else{sh=sw/target;sy=(im.naturalHeight-sh)/2;}ctx.drawImage(im,sx,sy,sw,sh,x,y,w,h);};
+ if(n===2){draw(imgs[0],0,0,W/2-gap/2,W);draw(imgs[1],W/2+gap/2,0,W/2-gap/2,W);}
+ else if(n===3){draw(imgs[0],0,0,W,W/2-gap/2);draw(imgs[1],0,W/2+gap/2,W/2-gap/2,W/2-gap/2);draw(imgs[2],W/2+gap/2,W/2+gap/2,W/2-gap/2,W/2-gap/2);}
+ else{draw(imgs[0],0,0,W/2-gap/2,W/2-gap/2);draw(imgs[1],W/2+gap/2,0,W/2-gap/2,W/2-gap/2);draw(imgs[2],0,W/2+gap/2,W/2-gap/2,W/2-gap/2);draw(imgs[3],W/2+gap/2,W/2+gap/2,W/2-gap/2,W/2-gap/2);}
+ const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.92));if(blob){const url=URL.createObjectURL(blob);C.picks=[url];compose();toast('🧩','קולאז\' נוצר!');}}
 let _camStream=null,_camRec=null,_camChunks=[],_camFront=true;
 async function openCameraRec(){if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){toast('📷','המצלמה לא נתמכת בדפדפן זה');return;}
  try{_camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:_camFront?'user':'environment',width:{ideal:1280},height:{ideal:720}},audio:true});}catch(e){toast('📷','אין גישה למצלמה — בדוק/י הרשאות');return;}
@@ -1484,7 +1543,7 @@ function compose(){const em=C.em,label=C.label,id=C.type;
  if(id==='file'&&C.files&&C.files.length){
   prev='<div style="margin-bottom:10px">'+C.files.map((fl,k)=>`<div style="display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:10px;margin-bottom:7px">${fl.type&&fl.type.startsWith('image')?`<img src="${fl.url}" style="width:46px;height:46px;border-radius:8px;object-fit:cover">`:`<div style="width:46px;height:46px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px">${fileIcon(fl.type)}</div>`}<div style="flex:1;min-width:0"><div style="color:var(--text);font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${fl.name}</div><div style="color:var(--mut);font-size:11px">${fmtSize(fl.size)} · ${((fl.type||'').split('/')[1]||'קובץ').toUpperCase()}</div></div><span onclick="C.files.splice(${k},1);C.picks.splice(${k},1);compose()" style="color:var(--bad);cursor:pointer;font-size:16px;padding:4px">${ic('close')}</span></div>`).join('')+'</div>';
  } else {
-  prev=C.picks.length?`<div class="prev">${C.picks.map((p,k)=>`<div class="pv" style="position:relative">${isImg(p)?`<img src="${p}">`:em}<span onclick="C.picks.splice(${k},1);compose()" style="position:absolute;top:-5px;left:-5px;background:var(--bad);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">${ic('close')}</span></div>`).join('')}</div>`:(C.vid?`<div class="prev"><div class="pv"><video src="${C.vid}"></video></div></div>`:'');
+  prev=C.picks.length?`<div class="prev">${C.picks.map((p,k)=>`<div class="pv" style="position:relative">${isImg(p)?`<img src="${p}">`:em}${isImg(p)?`<span onclick="editImage(${k})" style="position:absolute;bottom:-5px;right:-5px;background:var(--acc);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;box-shadow:0 3px 8px var(--ring)" title="ערוך">✨</span>`:''}<span onclick="C.picks.splice(${k},1);compose()" style="position:absolute;top:-5px;left:-5px;background:var(--bad);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer">${ic('close')}</span></div>`).join('')}${C.picks.filter(p=>isImg(p)).length>=2?'<button class="bt dim" style="flex:0 0 100%;margin-top:8px" onclick="makeCollage()">🧩 צור קולאז\' מהתמונות</button>':''}</div>`:(C.vid?`<div class="prev"><div class="pv"><video src="${C.vid}"></video></div></div>`:'');
  }
  let f=`<div class="sh-h" style="margin-top:0">${id==='product'?'תיאור המוצר':id==='poll'?'שאלת הסקר':'כתוב כיתוב / הסבר — אפשר טקסט ארוך'}</div>
   <div style="position:relative"><textarea id="cText" maxlength="5000" style="height:110px" placeholder="${id==='poll'?'מה השאלה?':'מה אתה משתף? ספר בהרחבה...'}">${C.text}</textarea><span onclick="grab();emojiPick()" style="position:absolute;bottom:16px;left:10px;font-size:21px;cursor:pointer" title="אימוג׳ים">😀</span></div>`;
