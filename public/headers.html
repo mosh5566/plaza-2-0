@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>PLAZA — 50 Header Designs</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800;900&family=Inter:wght@400;700;900&family=Rubik:wght@500;700;900&family=Frank+Ruhl+Libre:wght@500;700;900&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Heebo,Inter,system-ui,sans-serif;background:#f3f4f6;color:#0f172a;padding:24px;direction:rtl}
+.page-h{max-width:1280px;margin:0 auto 30px;text-align:center}
+.page-h h1{font-size:32px;font-weight:900;letter-spacing:.5px;background:linear-gradient(135deg,#7c5cff,#ec4899);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:6px}
+.page-h p{color:#475569;font-size:14px}
+.grid{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:22px}
+.demo{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 6px 22px rgba(15,23,42,.07);border:1px solid #e5e7eb}
+.demo-num{padding:8px 14px;background:#0f172a;color:#fff;font-weight:900;font-size:13px;display:flex;justify-content:space-between;align-items:center;font-family:JetBrains Mono,monospace}
+.demo-num span{color:#94a3b8;font-weight:600;font-size:11px;font-family:Heebo,sans-serif}
+.demo-stage{padding:18px;background:#f8fafc}
+.demo[data-bg="dark"] .demo-stage{background:#0a0f1c}
+.demo[data-bg="cream"] .demo-stage{background:#faf6ed}
+.demo[data-bg="pink"] .demo-stage{background:#fce7f3}
+.demo[data-bg="sky"] .demo-stage{background:#dbeafe}
+.demo[data-bg="green"] .demo-stage{background:#d1fae5}
+.demo[data-bg="black"] .demo-stage{background:#000}
+.demo[data-bg="navy"] .demo-stage{background:#0c1426}
+.demo-stage .hdr{min-height:148px}
+/* Common reusable atoms */
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.7);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.55)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes shine{0%{background-position:200% center}100%{background-position:-200% center}}
+.svg-i{width:18px;height:18px;display:inline-block;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<div class="page-h">
+  <h1>PLAZA · 50 Header Designs</h1>
+  <p>גלריה — לחץ על כל עיצוב כדי לראות אותו בגדול. תגיד לי מספר כדי להפעיל אותו באפליקציה.</p>
+</div>
+
+<div class="grid">
+
+<!-- =========== 1. Classic Minimal Glass =========== -->
+<div class="demo"><div class="demo-num">01 <span>Classic Minimal Glass</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-radius:16px;padding:14px;border:1px solid #e0e7ff">
+  <div style="text-align:center;margin-bottom:10px">
+    <h2 style="font-size:22px;font-weight:900;color:#4f46e5">PLAZA <span style="font-size:18px">🌍</span></h2>
+    <p style="font-size:11px;color:#6366f1;font-weight:700;margin-top:2px">קבוצה עולמית · אין אלגוריתמים · 48ש'</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:#fff;padding:6px 10px;border-radius:10px;font-size:11.5px;font-weight:800;color:#1e1b4b;border:1px solid #e0e7ff"><b style="color:#4f46e5">52</b> רשומים</div>
+    <div style="background:#fff;padding:6px 10px;border-radius:10px;font-size:11.5px;font-weight:800;border:1px solid #e0e7ff"><span class="dot"></span> <b style="color:#22c55e">23</b> אונליין</div>
+    <div style="background:#fff;padding:6px 10px;border-radius:10px;font-size:11.5px;font-weight:800;border:1px solid #e0e7ff"><b style="color:#ec4899">0</b> ב-48ש'</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 2. Dark Glassmorphism =========== -->
+<div class="demo" data-bg="dark"><div class="demo-num">02 <span>Dark Glassmorphism</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,rgba(124,92,255,.3),rgba(99,102,241,.15));border-radius:16px;padding:16px;backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1)">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:26px;font-weight:900;color:#fff;letter-spacing:1px">PLAZA <span>🌍</span></h2>
+    <p style="font-size:11px;color:#cbd5e1;margin-top:3px">קבוצה גלובלית · ללא אלגוריתם</p>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:center">
+    <div style="background:rgba(255,255,255,.08);padding:7px 11px;border-radius:11px;font-size:11px;color:#fff;border:1px solid rgba(255,255,255,.12)"><b>52</b> רשומים</div>
+    <div style="background:rgba(34,197,94,.18);padding:7px 11px;border-radius:11px;font-size:11px;color:#86efac;border:1px solid rgba(34,197,94,.3)"><span class="dot"></span> <b>23</b> חיים</div>
+    <div style="background:rgba(236,72,153,.15);padding:7px 11px;border-radius:11px;font-size:11px;color:#f9a8d4;border:1px solid rgba(236,72,153,.3)"><b>0</b> ב-48ש'</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 3. Neon Cyberpunk =========== -->
+<div class="demo" data-bg="black"><div class="demo-num">03 <span>Neon Cyberpunk</span></div><div class="demo-stage">
+<div class="hdr" style="background:#0a0a0f;border:1.5px solid #06b6d4;border-radius:14px;padding:14px;box-shadow:0 0 24px rgba(6,182,212,.4),inset 0 0 24px rgba(124,92,255,.15)">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:24px;font-weight:900;color:#06b6d4;text-shadow:0 0 12px #06b6d4">P L A Z A</h2>
+    <p style="font-size:10px;color:#a855f7;font-family:JetBrains Mono,monospace;letter-spacing:2px;margin-top:4px">// GLOBAL · NO ALGORITHM · 48H</p>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:center;font-family:JetBrains Mono,monospace">
+    <div style="border:1px solid #06b6d4;padding:5px 10px;border-radius:4px;font-size:10.5px;color:#06b6d4">[52] USERS</div>
+    <div style="border:1px solid #22c55e;padding:5px 10px;border-radius:4px;font-size:10.5px;color:#22c55e"><span class="dot"></span> [23] LIVE</div>
+    <div style="border:1px solid #ec4899;padding:5px 10px;border-radius:4px;font-size:10.5px;color:#ec4899">[0] /48H</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 4. Aurora Gradient =========== -->
+<div class="demo"><div class="demo-num">04 <span>Aurora Gradient</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#a855f7 0%,#ec4899 50%,#06b6d4 100%);border-radius:18px;padding:18px;color:#fff;box-shadow:0 10px 40px rgba(168,85,247,.35)">
+  <div style="text-align:center;margin-bottom:14px">
+    <h2 style="font-size:28px;font-weight:900;letter-spacing:.5px">PLAZA 🌍</h2>
+    <p style="font-size:11px;opacity:.92;margin-top:3px;font-weight:600">העולם כולו במקום אחד</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:rgba(255,255,255,.18);padding:7px 11px;border-radius:20px;font-size:11px;font-weight:800;backdrop-filter:blur(8px)">52 רשומים</div>
+    <div style="background:rgba(255,255,255,.18);padding:7px 11px;border-radius:20px;font-size:11px;font-weight:800;backdrop-filter:blur(8px)"><span class="dot"></span> 23 אונליין</div>
+    <div style="background:rgba(255,255,255,.18);padding:7px 11px;border-radius:20px;font-size:11px;font-weight:800;backdrop-filter:blur(8px)">0 פוסטים 48ש'</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 5. Premium Dark Gold =========== -->
+<div class="demo" data-bg="navy"><div class="demo-num">05 <span>Premium Dark Gold</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#0c1426,#1e293b);border-radius:14px;padding:18px;border:1px solid rgba(234,179,8,.2)">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:26px;font-weight:900;background:linear-gradient(90deg,#eab308,#fde047,#eab308);background-size:200% auto;-webkit-background-clip:text;color:transparent;background-clip:text;animation:shine 3s linear infinite;letter-spacing:2px">PLAZA</h2>
+    <p style="font-size:10px;color:#eab308;letter-spacing:3px;margin-top:3px;font-weight:600">— GLOBAL COMMUNITY —</p>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:center">
+    <div style="text-align:center"><div style="font-size:18px;color:#fde047;font-weight:900">52</div><div style="font-size:9.5px;color:#94a3b8;letter-spacing:1.5px">MEMBERS</div></div>
+    <div style="width:1px;background:rgba(234,179,8,.2)"></div>
+    <div style="text-align:center"><div style="font-size:18px;color:#fde047;font-weight:900"><span class="dot"></span>23</div><div style="font-size:9.5px;color:#94a3b8;letter-spacing:1.5px">LIVE</div></div>
+    <div style="width:1px;background:rgba(234,179,8,.2)"></div>
+    <div style="text-align:center"><div style="font-size:18px;color:#fde047;font-weight:900">0</div><div style="font-size:9.5px;color:#94a3b8;letter-spacing:1.5px">48H</div></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 6. Pastel Bubble Soft =========== -->
+<div class="demo" data-bg="pink"><div class="demo-num">06 <span>Pastel Bubble Soft</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#fce7f3,#fef3c7);border-radius:24px;padding:16px;border:2px solid #fff">
+  <div style="text-align:center;margin-bottom:10px">
+    <h2 style="font-size:24px;font-weight:900;color:#be185d">PLAZA <span style="display:inline-block;animation:float 3s infinite">🌍</span></h2>
+    <p style="font-size:11px;color:#9d174d;font-weight:700">קהילה גלובלית · ללא אלגוריתם</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:#fff;padding:6px 12px;border-radius:24px;font-size:11px;font-weight:800;color:#be185d;box-shadow:0 2px 8px rgba(190,24,93,.15)">😊 52</div>
+    <div style="background:#fff;padding:6px 12px;border-radius:24px;font-size:11px;font-weight:800;color:#16a34a;box-shadow:0 2px 8px rgba(22,163,74,.15)"><span class="dot"></span> 23</div>
+    <div style="background:#fff;padding:6px 12px;border-radius:24px;font-size:11px;font-weight:800;color:#d97706;box-shadow:0 2px 8px rgba(217,119,6,.15)">✨ 0</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 7. Discord Style =========== -->
+<div class="demo" data-bg="dark"><div class="demo-num">07 <span>Discord Style</span></div><div class="demo-stage">
+<div class="hdr" style="background:#2b2d31;border-radius:8px;padding:14px;border:1px solid #1e1f22">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+    <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#5865f2,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:22px">🌍</div>
+    <div><div style="font-size:18px;font-weight:900;color:#fff">PLAZA</div><div style="font-size:11px;color:#b9bbbe">קבוצה עולמית</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+    <div style="background:#1e1f22;padding:8px;border-radius:6px;text-align:center"><div style="font-size:15px;font-weight:900;color:#fff">52</div><div style="font-size:9px;color:#b9bbbe">רשומים</div></div>
+    <div style="background:#1e1f22;padding:8px;border-radius:6px;text-align:center"><div style="font-size:15px;font-weight:900;color:#22c55e">●23</div><div style="font-size:9px;color:#b9bbbe">אונליין</div></div>
+    <div style="background:#1e1f22;padding:8px;border-radius:6px;text-align:center"><div style="font-size:15px;font-weight:900;color:#fff">0</div><div style="font-size:9px;color:#b9bbbe">פוסטים 48ש'</div></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 8. iOS Frosted =========== -->
+<div class="demo" style="background:linear-gradient(135deg,#fbbf24,#f472b6)"><div class="demo-num">08 <span>iOS Frosted Vibrancy</span></div><div class="demo-stage" style="background:linear-gradient(135deg,#fbbf24,#f472b6,#a855f7)">
+<div class="hdr" style="background:rgba(255,255,255,.7);border-radius:22px;padding:16px;backdrop-filter:blur(40px) saturate(1.8);border:.5px solid rgba(255,255,255,.5);box-shadow:0 8px 30px rgba(0,0,0,.12)">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:26px;font-weight:900;color:#1c1c1e;letter-spacing:-.5px">PLAZA 🌍</h2>
+    <p style="font-size:11.5px;color:#3a3a3c;font-weight:600">Worldwide · Algorithm-free</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:rgba(255,255,255,.6);padding:7px 12px;border-radius:13px;font-size:11.5px;font-weight:700;color:#1c1c1e"><b>52</b> רשומים</div>
+    <div style="background:rgba(52,199,89,.18);padding:7px 12px;border-radius:13px;font-size:11.5px;font-weight:700;color:#1f6e3a"><span class="dot"></span> <b>23</b></div>
+    <div style="background:rgba(255,255,255,.6);padding:7px 12px;border-radius:13px;font-size:11.5px;font-weight:700;color:#1c1c1e"><b>0</b> ב-48ש'</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 9. Brutalist Bold =========== -->
+<div class="demo" data-bg="green"><div class="demo-num">09 <span>Brutalist Bold</span></div><div class="demo-stage">
+<div class="hdr" style="background:#fef9c3;border:4px solid #000;padding:14px;box-shadow:8px 8px 0 #000;border-radius:0">
+  <div style="border-bottom:3px solid #000;padding-bottom:10px;margin-bottom:10px;text-align:center">
+    <h2 style="font-size:32px;font-weight:900;color:#000;font-family:Inter,sans-serif;letter-spacing:-1px">PLAZA <span>🌍</span></h2>
+    <p style="font-size:12px;font-weight:900;color:#000;text-transform:uppercase">GLOBAL // NO ALGO // 48H</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="border:2px solid #000;padding:5px 9px;font-weight:900;font-size:11.5px;background:#fff">52 · USERS</div>
+    <div style="border:2px solid #000;padding:5px 9px;font-weight:900;font-size:11.5px;background:#22c55e;color:#fff">●23 LIVE</div>
+    <div style="border:2px solid #000;padding:5px 9px;font-weight:900;font-size:11.5px;background:#fff">0 / 48H</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 10. Magazine Editorial =========== -->
+<div class="demo" data-bg="cream"><div class="demo-num">10 <span>Magazine Editorial</span></div><div class="demo-stage">
+<div class="hdr" style="background:#faf6ed;padding:14px;border-top:6px solid #0f172a;border-bottom:1px solid #0f172a">
+  <div style="text-align:center;margin-bottom:12px">
+    <p style="font-size:9.5px;color:#475569;letter-spacing:4px;font-weight:600;margin-bottom:2px">— ISSUE #001 · 2026 —</p>
+    <h2 style="font-size:34px;font-weight:900;color:#0f172a;font-family:Frank Ruhl Libre,Georgia,serif;letter-spacing:-1.5px">PLAZA</h2>
+    <p style="font-size:10.5px;color:#64748b;font-style:italic;margin-top:1px">"The world's open square"</p>
+  </div>
+  <div style="display:flex;gap:14px;justify-content:center;border-top:1px solid #cbd5e1;padding-top:10px">
+    <div style="text-align:center"><div style="font-size:15px;font-weight:900;font-family:Frank Ruhl Libre,serif">52</div><div style="font-size:8.5px;color:#64748b;letter-spacing:1.5px;text-transform:uppercase">MEMBERS</div></div>
+    <div style="text-align:center"><div style="font-size:15px;font-weight:900;font-family:Frank Ruhl Libre,serif"><span class="dot"></span>23</div><div style="font-size:8.5px;color:#64748b;letter-spacing:1.5px;text-transform:uppercase">LIVE NOW</div></div>
+    <div style="text-align:center"><div style="font-size:15px;font-weight:900;font-family:Frank Ruhl Libre,serif">0</div><div style="font-size:8.5px;color:#64748b;letter-spacing:1.5px;text-transform:uppercase">48H POSTS</div></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 11. TikTok Style =========== -->
+<div class="demo" data-bg="black"><div class="demo-num">11 <span>TikTok Style</span></div><div class="demo-stage">
+<div class="hdr" style="background:#000;border-radius:14px;padding:16px">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px">PLAZA <span style="background:linear-gradient(45deg,#ff0050,#00f2ea);-webkit-background-clip:text;color:transparent;background-clip:text">🌍</span></h2>
+    <p style="font-size:11px;color:#aaa;font-weight:600;margin-top:2px">Worldwide community · No ads · 48h</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:linear-gradient(135deg,#ff0050,#ec4899);padding:7px 11px;border-radius:24px;font-size:11px;font-weight:800;color:#fff">52</div>
+    <div style="background:linear-gradient(135deg,#00f2ea,#06b6d4);padding:7px 11px;border-radius:24px;font-size:11px;font-weight:800;color:#000"><span class="dot"></span>23 LIVE</div>
+    <div style="background:#fff;padding:7px 11px;border-radius:24px;font-size:11px;font-weight:800;color:#000">0 ב-48ש'</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 12. Spotify Vibe =========== -->
+<div class="demo" data-bg="dark"><div class="demo-num">12 <span>Spotify Vibe</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(160deg,#1db954 0%,#191414 60%);border-radius:8px;padding:18px;color:#fff">
+  <div style="margin-bottom:10px">
+    <p style="font-size:10px;letter-spacing:2px;font-weight:700;opacity:.85;margin-bottom:2px">קהילה גלובלית</p>
+    <h2 style="font-size:34px;font-weight:900;letter-spacing:-1.5px">PLAZA 🌍</h2>
+  </div>
+  <div style="display:flex;gap:14px;align-items:center">
+    <div><b style="font-size:14px">52</b> <span style="font-size:11px;opacity:.8">רשומים</span></div>
+    <span style="opacity:.4">•</span>
+    <div><b style="font-size:14px"><span class="dot"></span>23</b> <span style="font-size:11px;opacity:.8">אונליין</span></div>
+    <span style="opacity:.4">•</span>
+    <div><b style="font-size:14px">0</b> <span style="font-size:11px;opacity:.8">ב-48ש'</span></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 13. Telegram Light =========== -->
+<div class="demo" data-bg="sky"><div class="demo-num">13 <span>Telegram Light</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(180deg,#fff,#f0f9ff);border-radius:14px;padding:16px;border:1px solid #bfdbfe">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0088cc,#229ed9);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 14px rgba(0,136,204,.3)">🌍</div>
+    <div style="flex:1"><div style="font-size:18px;font-weight:700;color:#000">PLAZA</div><div style="font-size:11px;color:#0088cc;font-weight:600">קבוצה עולמית · 52 חברים, 23 פעילים</div></div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <div style="flex:1;background:#fff;padding:7px;border-radius:10px;text-align:center;border:1px solid #dbeafe"><b style="color:#0088cc">52</b><div style="font-size:10px;color:#64748b">רשומים</div></div>
+    <div style="flex:1;background:#fff;padding:7px;border-radius:10px;text-align:center;border:1px solid #dbeafe"><b style="color:#22c55e"><span class="dot"></span>23</b><div style="font-size:10px;color:#64748b">אונליין</div></div>
+    <div style="flex:1;background:#fff;padding:7px;border-radius:10px;text-align:center;border:1px solid #dbeafe"><b style="color:#ec4899">0</b><div style="font-size:10px;color:#64748b">ב-48ש'</div></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 14. Newspaper Classic =========== -->
+<div class="demo" data-bg="cream"><div class="demo-num">14 <span>Newspaper Classic</span></div><div class="demo-stage">
+<div class="hdr" style="background:#f5f0e8;padding:14px;font-family:Frank Ruhl Libre,Georgia,serif;border:2px double #000">
+  <div style="text-align:center;border-bottom:4px double #000;padding-bottom:10px;margin-bottom:10px">
+    <p style="font-size:9px;letter-spacing:3px;font-weight:700">EST. MMXXVI · OPEN SOURCE</p>
+    <h2 style="font-size:38px;font-weight:900;letter-spacing:-2px;line-height:1">The PLAZA</h2>
+    <p style="font-size:10px;font-style:italic;margin-top:2px">"News from the global square"</p>
+  </div>
+  <div style="display:flex;justify-content:space-around;font-size:11px">
+    <div><b>52</b> Members</div><div>·</div>
+    <div><b><span class="dot"></span>23</b> Online</div><div>·</div>
+    <div><b>0</b> in 48h</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 15. Material You 3 =========== -->
+<div class="demo"><div class="demo-num">15 <span>Material You 3</span></div><div class="demo-stage">
+<div class="hdr" style="background:#eaddff;border-radius:24px;padding:18px">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:26px;font-weight:800;color:#21005d">PLAZA <span>🌍</span></h2>
+    <p style="font-size:12px;color:#4a4458;font-weight:500">קבוצה עולמית · ללא אלגוריתם</p>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:center">
+    <div style="background:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;color:#21005d">👥 52</div>
+    <div style="background:#cfe7c1;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;color:#0f3b0f"><span class="dot"></span> 23</div>
+    <div style="background:#ffd8e4;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;color:#5e0c2b">📝 0/48ש</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 16. Holographic Iridescent =========== -->
+<div class="demo"><div class="demo-num">16 <span>Holographic Iridescent</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#fbcfe8,#bfdbfe,#a7f3d0,#fef3c7,#fbcfe8);background-size:300% 300%;animation:shine 8s ease infinite;border-radius:18px;padding:18px;position:relative;overflow:hidden">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:30px;font-weight:900;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.25);letter-spacing:-.5px">PLAZA 🌍</h2>
+    <p style="font-size:11px;color:#fff;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.3)">קהילה גלובלית · אין מודעות · אין מעקב</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:rgba(255,255,255,.45);padding:7px 12px;border-radius:24px;font-size:11px;font-weight:800;color:#0f172a;backdrop-filter:blur(10px)">52 רשומים</div>
+    <div style="background:rgba(255,255,255,.45);padding:7px 12px;border-radius:24px;font-size:11px;font-weight:800;color:#0f172a;backdrop-filter:blur(10px)"><span class="dot"></span> 23</div>
+    <div style="background:rgba(255,255,255,.45);padding:7px 12px;border-radius:24px;font-size:11px;font-weight:800;color:#0f172a;backdrop-filter:blur(10px)">0/48ש</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 17. Ocean Deep =========== -->
+<div class="demo" data-bg="navy"><div class="demo-num">17 <span>Ocean Deep</span></div><div class="demo-stage">
+<div class="hdr" style="background:radial-gradient(ellipse at top,#0c4a6e,#0f172a);border-radius:14px;padding:16px;border-top:2px solid rgba(56,189,248,.4)">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:28px;font-weight:900;color:#7dd3fc">PLAZA <span style="color:#bae6fd">🌊</span></h2>
+    <p style="font-size:11px;color:#7dd3fc;opacity:.85;margin-top:2px">קבוצה עולמית · עומק של חיבור</p>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:center">
+    <div style="background:rgba(56,189,248,.12);padding:7px 11px;border-radius:11px;font-size:11px;color:#bae6fd;font-weight:700;border:1px solid rgba(56,189,248,.25)">52 רשומים</div>
+    <div style="background:rgba(34,197,94,.15);padding:7px 11px;border-radius:11px;font-size:11px;color:#86efac;font-weight:700;border:1px solid rgba(34,197,94,.3)"><span class="dot"></span> 23 אונליין</div>
+    <div style="background:rgba(56,189,248,.12);padding:7px 11px;border-radius:11px;font-size:11px;color:#bae6fd;font-weight:700;border:1px solid rgba(56,189,248,.25)">0 פוסטים</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 18. Sunset Warm =========== -->
+<div class="demo"><div class="demo-num">18 <span>Sunset Warm</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#fb923c,#f43f5e,#a855f7);border-radius:18px;padding:18px;color:#fff;box-shadow:0 10px 32px rgba(244,63,94,.3)">
+  <div style="text-align:center;margin-bottom:14px">
+    <h2 style="font-size:30px;font-weight:900">PLAZA 🌅</h2>
+    <p style="font-size:11px;opacity:.95;font-weight:600;margin-top:3px">קבוצה עולמית · השמש לא שוקעת על פלאזה</p>
+  </div>
+  <div style="display:flex;gap:14px;justify-content:center">
+    <div style="text-align:center"><div style="font-size:22px;font-weight:900">52</div><div style="font-size:10px;opacity:.92">רשומים</div></div>
+    <div style="text-align:center"><div style="font-size:22px;font-weight:900"><span class="dot"></span>23</div><div style="font-size:10px;opacity:.92">חיים עכשיו</div></div>
+    <div style="text-align:center"><div style="font-size:22px;font-weight:900">0</div><div style="font-size:10px;opacity:.92">ב-48ש'</div></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 19. Forest Green =========== -->
+<div class="demo" data-bg="green"><div class="demo-num">19 <span>Forest Green</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#064e3b,#10b981);border-radius:16px;padding:16px;color:#fff">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:26px;font-weight:900">PLAZA <span style="filter:hue-rotate(80deg)">🌍</span></h2>
+    <p style="font-size:11px;opacity:.93;margin-top:2px">קהילה גלובלית · טבעית · אורגנית</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:rgba(255,255,255,.18);padding:7px 12px;border-radius:14px;font-size:11px;font-weight:800;backdrop-filter:blur(8px)">🌿 52 רשומים</div>
+    <div style="background:rgba(255,255,255,.18);padding:7px 12px;border-radius:14px;font-size:11px;font-weight:800;backdrop-filter:blur(8px)"><span class="dot"></span> 23 אונליין</div>
+    <div style="background:rgba(255,255,255,.18);padding:7px 12px;border-radius:14px;font-size:11px;font-weight:800;backdrop-filter:blur(8px)">0 ב-48ש'</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 20. Live Dashboard =========== -->
+<div class="demo" data-bg="dark"><div class="demo-num">20 <span>Live Dashboard</span></div><div class="demo-stage">
+<div class="hdr" style="background:#0f172a;border-radius:12px;padding:14px;border:1px solid #1e293b">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid #1e293b;padding-bottom:10px">
+    <div><div style="font-size:18px;font-weight:900;color:#fff">PLAZA 🌍</div><div style="font-size:9.5px;color:#64748b;letter-spacing:1px">GLOBAL · LIVE METRICS</div></div>
+    <div style="font-size:10px;color:#22c55e;font-family:JetBrains Mono,monospace;display:flex;align-items:center;gap:5px"><span class="dot"></span>LIVE</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+    <div style="background:#1e293b;padding:9px;border-radius:7px;border-right:2px solid #6366f1"><div style="font-size:9px;color:#94a3b8;letter-spacing:1px">USERS</div><div style="font-size:18px;font-weight:900;color:#fff">52 ▲</div></div>
+    <div style="background:#1e293b;padding:9px;border-radius:7px;border-right:2px solid #22c55e"><div style="font-size:9px;color:#94a3b8;letter-spacing:1px">ONLINE</div><div style="font-size:18px;font-weight:900;color:#22c55e">23 ●</div></div>
+    <div style="background:#1e293b;padding:9px;border-radius:7px;border-right:2px solid #ec4899"><div style="font-size:9px;color:#94a3b8;letter-spacing:1px">POSTS/48H</div><div style="font-size:18px;font-weight:900;color:#fff">0</div></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 21. Cosmic Space =========== -->
+<div class="demo" data-bg="black"><div class="demo-num">21 <span>Cosmic Space</span></div><div class="demo-stage">
+<div class="hdr" style="background:radial-gradient(circle at 30% 20%,#1e1b4b,#000),radial-gradient(circle at 80% 80%,#581c87,transparent);background-blend-mode:screen;border-radius:18px;padding:18px;color:#fff;position:relative;overflow:hidden;border:1px solid rgba(168,85,247,.3)">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:28px;font-weight:900;letter-spacing:1px">PLAZA <span style="display:inline-block;animation:spin 30s linear infinite">🌍</span></h2>
+    <p style="font-size:11px;color:#a78bfa;font-weight:600;margin-top:2px">✦ קוסמוס של קשרים אנושיים ✦</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:rgba(168,85,247,.18);padding:7px 11px;border-radius:11px;font-size:11px;font-weight:800;border:1px solid rgba(168,85,247,.4)">52 רשומים</div>
+    <div style="background:rgba(34,197,94,.18);padding:7px 11px;border-radius:11px;font-size:11px;font-weight:800;color:#86efac;border:1px solid rgba(34,197,94,.4)"><span class="dot"></span> 23</div>
+    <div style="background:rgba(236,72,153,.18);padding:7px 11px;border-radius:11px;font-size:11px;font-weight:800;color:#f9a8d4;border:1px solid rgba(236,72,153,.4)">0 / 48ש'</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 22. Vintage Postcard =========== -->
+<div class="demo" data-bg="cream"><div class="demo-num">22 <span>Vintage Postcard</span></div><div class="demo-stage">
+<div class="hdr" style="background:#fef3c7;padding:14px;border:2px dashed #92400e;border-radius:8px;position:relative">
+  <div style="position:absolute;top:8px;left:8px;width:32px;height:32px;border:1.5px solid #92400e;font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#92400e;font-family:Frank Ruhl Libre,serif;border-radius:3px">🌍</div>
+  <div style="text-align:center;margin-bottom:10px;padding-right:24px">
+    <h2 style="font-size:28px;font-weight:900;color:#78350f;font-family:Frank Ruhl Libre,serif">PLAZA</h2>
+    <p style="font-size:11px;color:#92400e;font-style:italic">~ קהילה גלובלית · מאז 2026 ~</p>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:center">
+    <div style="font-size:11px;color:#78350f;font-weight:700"><b style="font-size:14px">52</b> מבקרים</div>
+    <div style="color:#78350f">·</div>
+    <div style="font-size:11px;color:#78350f;font-weight:700"><b style="font-size:14px"><span class="dot"></span>23</b> חיים</div>
+    <div style="color:#78350f">·</div>
+    <div style="font-size:11px;color:#78350f;font-weight:700"><b style="font-size:14px">0</b> פוסטים</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 23. Comic Book =========== -->
+<div class="demo"><div class="demo-num">23 <span>Comic Book</span></div><div class="demo-stage">
+<div class="hdr" style="background:#fef9c3;border:3px solid #000;border-radius:0;padding:14px;background-image:radial-gradient(#000 1px,transparent 1px);background-size:8px 8px;background-color:#fef9c3">
+  <div style="background:#fff;border:3px solid #000;padding:10px;text-align:center;margin-bottom:10px;box-shadow:5px 5px 0 #ef4444;border-radius:0">
+    <h2 style="font-size:32px;font-weight:900;color:#000;letter-spacing:-1px;font-family:Inter,sans-serif">PLAZA! 🌍</h2>
+    <p style="font-size:11px;font-weight:900;color:#ef4444;text-transform:uppercase">★ Worldwide community! ★</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:#ef4444;color:#fff;border:2px solid #000;padding:5px 10px;font-weight:900;font-size:11px">52!</div>
+    <div style="background:#22c55e;color:#fff;border:2px solid #000;padding:5px 10px;font-weight:900;font-size:11px">●23 חי</div>
+    <div style="background:#3b82f6;color:#fff;border:2px solid #000;padding:5px 10px;font-weight:900;font-size:11px">0/48ש</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 24. Liquid Chrome =========== -->
+<div class="demo" data-bg="dark"><div class="demo-num">24 <span>Liquid Chrome</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#94a3b8,#475569 30%,#0f172a 70%,#94a3b8);background-size:200% 200%;animation:shine 6s ease infinite;border-radius:16px;padding:16px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:30px;font-weight:900;letter-spacing:-1px;text-shadow:0 2px 4px rgba(0,0,0,.5)">PLAZA <span>🌍</span></h2>
+    <p style="font-size:11px;color:#cbd5e1;font-weight:600;margin-top:2px">GLOBAL · OPEN · 48H</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:linear-gradient(135deg,#475569,#0f172a);padding:7px 12px;border-radius:11px;font-size:11px;font-weight:800;border:1px solid rgba(255,255,255,.15)">52</div>
+    <div style="background:linear-gradient(135deg,#475569,#0f172a);padding:7px 12px;border-radius:11px;font-size:11px;font-weight:800;border:1px solid rgba(255,255,255,.15)"><span class="dot"></span> 23</div>
+    <div style="background:linear-gradient(135deg,#475569,#0f172a);padding:7px 12px;border-radius:11px;font-size:11px;font-weight:800;border:1px solid rgba(255,255,255,.15)">0</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 25. Neumorphism Soft =========== -->
+<div class="demo"><div class="demo-num">25 <span>Neumorphism Soft</span></div><div class="demo-stage" style="background:#e0e5ec">
+<div class="hdr" style="background:#e0e5ec;border-radius:20px;padding:18px;box-shadow:8px 8px 16px #b8bdc4,-8px -8px 16px #ffffff">
+  <div style="text-align:center;margin-bottom:14px">
+    <h2 style="font-size:26px;font-weight:900;color:#475569;text-shadow:1px 1px 1px #fff,-1px -1px 1px #b8bdc4">PLAZA 🌍</h2>
+    <p style="font-size:11px;color:#64748b;font-weight:600;margin-top:2px">קבוצה עולמית רכה</p>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:center">
+    <div style="background:#e0e5ec;padding:8px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#475569;box-shadow:inset 4px 4px 8px #b8bdc4,inset -4px -4px 8px #fff">52</div>
+    <div style="background:#e0e5ec;padding:8px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#16a34a;box-shadow:inset 4px 4px 8px #b8bdc4,inset -4px -4px 8px #fff"><span class="dot"></span>23</div>
+    <div style="background:#e0e5ec;padding:8px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#ec4899;box-shadow:inset 4px 4px 8px #b8bdc4,inset -4px -4px 8px #fff">0</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 26. Tech Terminal =========== -->
+<div class="demo" data-bg="black"><div class="demo-num">26 <span>Tech Terminal</span></div><div class="demo-stage">
+<div class="hdr" style="background:#0a0a0a;border:1px solid #1f2937;border-radius:8px;padding:14px;font-family:JetBrains Mono,monospace;color:#22c55e">
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:10px;color:#64748b">
+    <span style="width:10px;height:10px;background:#ef4444;border-radius:50%"></span>
+    <span style="width:10px;height:10px;background:#eab308;border-radius:50%"></span>
+    <span style="width:10px;height:10px;background:#22c55e;border-radius:50%"></span>
+    <span style="margin-right:auto">~/plaza</span>
+  </div>
+  <div style="font-size:11.5px;line-height:1.7">
+    <div><span style="color:#64748b">$</span> plaza --status</div>
+    <div style="color:#fff">┌─ <b style="color:#22c55e">PLAZA 🌍</b> · Global Community ─┐</div>
+    <div style="color:#fff">│  users.....: <b style="color:#fbbf24">52</b></div>
+    <div style="color:#fff">│  online....: <b style="color:#22c55e">23 ●</b></div>
+    <div style="color:#fff">│  posts_48h.: <b style="color:#ec4899">0</b></div>
+    <div style="color:#fff">└──────────────────────────┘</div>
+    <div><span style="color:#64748b">$</span> <span style="background:#22c55e;color:#000;width:8px;display:inline-block">&nbsp;</span></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 27. Stats Mega =========== -->
+<div class="demo"><div class="demo-num">27 <span>Stats Mega Numbers</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#fff,#f8fafc);border-radius:18px;padding:16px;border:1px solid #e5e7eb">
+  <div style="text-align:center;margin-bottom:14px">
+    <h2 style="font-size:22px;font-weight:900;color:#0f172a">PLAZA 🌍</h2>
+    <p style="font-size:11px;color:#64748b;font-weight:600">קבוצה עולמית · אפס אלגוריתם</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;text-align:center">
+    <div><div style="font-size:34px;font-weight:900;color:#6366f1;line-height:1">52</div><div style="font-size:9.5px;color:#64748b;letter-spacing:1px;text-transform:uppercase">רשומים</div></div>
+    <div style="border-right:1px solid #e5e7eb;border-left:1px solid #e5e7eb"><div style="font-size:34px;font-weight:900;color:#22c55e;line-height:1"><span class="dot"></span>23</div><div style="font-size:9.5px;color:#64748b;letter-spacing:1px;text-transform:uppercase">אונליין</div></div>
+    <div><div style="font-size:34px;font-weight:900;color:#ec4899;line-height:1">0</div><div style="font-size:9.5px;color:#64748b;letter-spacing:1px;text-transform:uppercase">ב-48ש'</div></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 28. Wave SVG =========== -->
+<div class="demo"><div class="demo-num">28 <span>Wave Background</span></div><div class="demo-stage">
+<div class="hdr" style="background:#0ea5e9;border-radius:16px;padding:16px;color:#fff;position:relative;overflow:hidden">
+  <svg style="position:absolute;left:0;right:0;bottom:0;width:100%;height:50px" viewBox="0 0 200 50" preserveAspectRatio="none"><path d="M0,30 Q50,5 100,25 T200,20 V50 H0 Z" fill="rgba(255,255,255,.15)"/><path d="M0,40 Q50,20 100,35 T200,30 V50 H0 Z" fill="rgba(255,255,255,.25)"/></svg>
+  <div style="position:relative;text-align:center;margin-bottom:14px">
+    <h2 style="font-size:28px;font-weight:900;letter-spacing:-.5px">PLAZA 🌍</h2>
+    <p style="font-size:11px;opacity:.92;font-weight:600">גלי קשר ברחבי העולם</p>
+  </div>
+  <div style="position:relative;display:flex;gap:6px;justify-content:center">
+    <div style="background:rgba(255,255,255,.25);padding:6px 11px;border-radius:20px;font-size:11px;font-weight:800;backdrop-filter:blur(6px)">52 רשומים</div>
+    <div style="background:rgba(255,255,255,.25);padding:6px 11px;border-radius:20px;font-size:11px;font-weight:800;backdrop-filter:blur(6px)"><span class="dot"></span> 23</div>
+    <div style="background:rgba(255,255,255,.25);padding:6px 11px;border-radius:20px;font-size:11px;font-weight:800;backdrop-filter:blur(6px)">0/48ש'</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 29. Network Nodes =========== -->
+<div class="demo" data-bg="dark"><div class="demo-num">29 <span>Network Nodes (SVG)</span></div><div class="demo-stage">
+<div class="hdr" style="background:#0f172a;border-radius:14px;padding:16px;color:#fff;position:relative;overflow:hidden">
+  <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.4" viewBox="0 0 320 150">
+    <line x1="40" y1="30" x2="280" y2="60" stroke="#7c5cff" stroke-width=".7"/>
+    <line x1="40" y1="30" x2="160" y2="120" stroke="#7c5cff" stroke-width=".7"/>
+    <line x1="280" y1="60" x2="160" y2="120" stroke="#7c5cff" stroke-width=".7"/>
+    <line x1="40" y1="30" x2="280" y2="120" stroke="#06b6d4" stroke-width=".5"/>
+    <circle cx="40" cy="30" r="4" fill="#7c5cff"/><circle cx="280" cy="60" r="4" fill="#06b6d4"/>
+    <circle cx="160" cy="120" r="4" fill="#ec4899"/><circle cx="280" cy="120" r="3" fill="#22c55e"/>
+  </svg>
+  <div style="position:relative;text-align:center;margin-bottom:12px">
+    <h2 style="font-size:28px;font-weight:900;background:linear-gradient(90deg,#7c5cff,#06b6d4);-webkit-background-clip:text;color:transparent;background-clip:text">PLAZA 🌍</h2>
+    <p style="font-size:11px;color:#94a3b8;font-weight:600">רשת אחת · 52 קודקודים</p>
+  </div>
+  <div style="position:relative;display:flex;gap:6px;justify-content:center">
+    <div style="background:rgba(124,92,255,.18);padding:7px 11px;border-radius:9px;font-size:11px;font-weight:800;color:#c4b5fd;border:1px solid rgba(124,92,255,.3)">52</div>
+    <div style="background:rgba(34,197,94,.18);padding:7px 11px;border-radius:9px;font-size:11px;font-weight:800;color:#86efac;border:1px solid rgba(34,197,94,.3)"><span class="dot"></span>23</div>
+    <div style="background:rgba(236,72,153,.18);padding:7px 11px;border-radius:9px;font-size:11px;font-weight:800;color:#f9a8d4;border:1px solid rgba(236,72,153,.3)">0</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 30. Diagonal Split =========== -->
+<div class="demo"><div class="demo-num">30 <span>Diagonal Split</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(110deg,#0f172a 50%,#fff 50%);border-radius:14px;padding:16px;position:relative;overflow:hidden">
+  <div style="text-align:center;margin-bottom:14px">
+    <h2 style="font-size:30px;font-weight:900"><span style="color:#fff">PLA</span><span style="color:#0f172a">ZA</span> 🌍</h2>
+    <p style="font-size:11px;color:#475569;font-weight:700">קבוצה גלובלית · ללא חוקי משחק</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:#0f172a;color:#fff;padding:7px 11px;border-radius:9px;font-size:11px;font-weight:800">52</div>
+    <div style="background:#22c55e;color:#fff;padding:7px 11px;border-radius:9px;font-size:11px;font-weight:800"><span class="dot"></span>23</div>
+    <div style="background:#ec4899;color:#fff;padding:7px 11px;border-radius:9px;font-size:11px;font-weight:800">0/48ש</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 31. Floating Pills =========== -->
+<div class="demo"><div class="demo-num">31 <span>Floating Pills</span></div><div class="demo-stage">
+<div class="hdr" style="padding:8px">
+  <div style="text-align:center;padding:14px;background:#fff;border-radius:30px;margin-bottom:10px;box-shadow:0 4px 18px rgba(0,0,0,.05)">
+    <h2 style="font-size:24px;font-weight:900;color:#0f172a">PLAZA <span>🌍</span></h2>
+    <p style="font-size:11px;color:#64748b;font-weight:600">קבוצה עולמית · 48ש'</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:#fff;padding:8px 14px;border-radius:30px;font-size:11.5px;font-weight:800;color:#0f172a;box-shadow:0 3px 10px rgba(0,0,0,.08)">👥 52</div>
+    <div style="background:#22c55e;color:#fff;padding:8px 14px;border-radius:30px;font-size:11.5px;font-weight:800;box-shadow:0 3px 10px rgba(34,197,94,.3)"><span style="background:#fff;width:6px;height:6px;border-radius:50%;display:inline-block;margin-left:5px"></span>23</div>
+    <div style="background:#fff;padding:8px 14px;border-radius:30px;font-size:11.5px;font-weight:800;color:#0f172a;box-shadow:0 3px 10px rgba(0,0,0,.08)">📝 0</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 32. Sticker Playful =========== -->
+<div class="demo" data-bg="pink"><div class="demo-num">32 <span>Sticker Playful</span></div><div class="demo-stage">
+<div class="hdr" style="background:#fff;border-radius:24px;padding:14px;border:3px solid #fde047">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:30px;font-weight:900;color:#0f172a"><span style="display:inline-block;transform:rotate(-5deg);background:#fbbf24;padding:0 6px;border-radius:6px">P</span><span style="display:inline-block;transform:rotate(3deg);background:#a5f3fc;padding:0 6px;border-radius:6px">L</span><span style="display:inline-block;transform:rotate(-2deg);background:#fda4af;padding:0 6px;border-radius:6px">A</span><span style="display:inline-block;transform:rotate(4deg);background:#bbf7d0;padding:0 6px;border-radius:6px">Z</span><span style="display:inline-block;transform:rotate(-3deg);background:#c4b5fd;padding:0 6px;border-radius:6px">A</span> 🌍</h2>
+    <p style="font-size:11px;color:#64748b;font-weight:700;margin-top:8px">קהילה גלובלית 🎉 כיפית 🎈</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:#fde047;border:2px solid #0f172a;padding:5px 10px;border-radius:11px;font-size:11px;font-weight:900;transform:rotate(-2deg)">👥 52</div>
+    <div style="background:#86efac;border:2px solid #0f172a;padding:5px 10px;border-radius:11px;font-size:11px;font-weight:900;transform:rotate(2deg)">🟢 23</div>
+    <div style="background:#fca5a5;border:2px solid #0f172a;padding:5px 10px;border-radius:11px;font-size:11px;font-weight:900;transform:rotate(-1deg)">⚡ 0</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 33. Minimal Mono =========== -->
+<div class="demo"><div class="demo-num">33 <span>Minimal Mono</span></div><div class="demo-stage" style="background:#fff">
+<div class="hdr" style="padding:18px">
+  <div style="text-align:center;margin-bottom:18px;border-bottom:1px solid #e5e7eb;padding-bottom:14px">
+    <h2 style="font-size:30px;font-weight:300;color:#0f172a;letter-spacing:6px">PLAZA</h2>
+    <p style="font-size:10.5px;color:#64748b;font-weight:500;letter-spacing:2.5px;margin-top:6px">A GLOBAL COMMUNITY</p>
+  </div>
+  <div style="display:flex;gap:20px;justify-content:center">
+    <div style="text-align:center"><div style="font-size:24px;font-weight:200;color:#0f172a">52</div><div style="font-size:10px;color:#64748b;letter-spacing:1.5px">רשומים</div></div>
+    <div style="text-align:center"><div style="font-size:24px;font-weight:200;color:#22c55e"><span class="dot"></span>23</div><div style="font-size:10px;color:#64748b;letter-spacing:1.5px">אונליין</div></div>
+    <div style="text-align:center"><div style="font-size:24px;font-weight:200;color:#0f172a">0</div><div style="font-size:10px;color:#64748b;letter-spacing:1.5px">48 שעות</div></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 34. Earth Photo Style =========== -->
+<div class="demo" data-bg="dark"><div class="demo-num">34 <span>Earth Photo Style</span></div><div class="demo-stage">
+<div class="hdr" style="background:radial-gradient(ellipse at center,#1e3a8a,#0c1426 70%);border-radius:14px;padding:16px;color:#fff;position:relative;overflow:hidden">
+  <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:130px;opacity:.15;line-height:1">🌍</div>
+  <div style="position:relative;text-align:center;margin-bottom:12px">
+    <h2 style="font-size:28px;font-weight:900;letter-spacing:1.5px;color:#dbeafe">PLAZA</h2>
+    <p style="font-size:11px;color:#93c5fd;font-weight:600">EARTH'S OPEN COMMUNITY</p>
+  </div>
+  <div style="position:relative;display:flex;gap:8px;justify-content:center">
+    <div style="background:rgba(59,130,246,.18);padding:7px 12px;border-radius:11px;font-size:11px;font-weight:800;color:#bfdbfe;border:1px solid rgba(59,130,246,.3)">🌐 52</div>
+    <div style="background:rgba(34,197,94,.18);padding:7px 12px;border-radius:11px;font-size:11px;font-weight:800;color:#86efac;border:1px solid rgba(34,197,94,.3)"><span class="dot"></span>23</div>
+    <div style="background:rgba(236,72,153,.18);padding:7px 12px;border-radius:11px;font-size:11px;font-weight:800;color:#f9a8d4;border:1px solid rgba(236,72,153,.3)">0/48ש</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 35. World Flags Strip =========== -->
+<div class="demo"><div class="demo-num">35 <span>World Flags Strip</span></div><div class="demo-stage">
+<div class="hdr" style="background:#fff;border-radius:14px;padding:14px;border:1px solid #e5e7eb">
+  <div style="display:flex;justify-content:center;gap:3px;margin-bottom:8px;font-size:18px;opacity:.95">🇮🇱 🇺🇸 🇫🇷 🇯🇵 🇧🇷 🇮🇳 🇩🇪 🇪🇬 🇨🇳 🇿🇦</div>
+  <div style="text-align:center;margin-bottom:10px">
+    <h2 style="font-size:26px;font-weight:900;color:#0f172a">PLAZA 🌍</h2>
+    <p style="font-size:11px;color:#64748b;font-weight:600">קבוצה עולמית · 22 מדינות · 12 שפות</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:#f1f5f9;padding:7px 11px;border-radius:10px;font-size:11px;font-weight:800">👥 52</div>
+    <div style="background:#dcfce7;padding:7px 11px;border-radius:10px;font-size:11px;font-weight:800;color:#166534"><span class="dot"></span>23</div>
+    <div style="background:#fce7f3;padding:7px 11px;border-radius:10px;font-size:11px;font-weight:800;color:#9d174d">0</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 36. Live Ticker =========== -->
+<div class="demo" data-bg="dark"><div class="demo-num">36 <span>Live Ticker Bar</span></div><div class="demo-stage">
+<div class="hdr" style="background:#000;border-radius:10px;padding:14px;color:#fff">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+    <div style="background:#ef4444;color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:900;letter-spacing:1px;display:flex;align-items:center;gap:5px"><span class="dot" style="background:#fff"></span>LIVE</div>
+    <h2 style="font-size:20px;font-weight:900">PLAZA 🌍</h2>
+    <div style="margin-right:auto;font-size:10px;color:#94a3b8;font-family:JetBrains Mono,monospace">GLOBAL · NO ALGO</div>
+  </div>
+  <div style="background:#1f2937;padding:8px;border-radius:6px;overflow:hidden;white-space:nowrap;font-size:11.5px;font-weight:700">
+    <span style="color:#22c55e">●23</span> אונליין &nbsp;·&nbsp; <span style="color:#fbbf24">52</span> רשומים &nbsp;·&nbsp; <span style="color:#ec4899">0</span> פוסטים ב-48 שעות אחרונות &nbsp;·&nbsp; <span style="color:#94a3b8">22</span> מדינות &nbsp;·&nbsp; <span style="color:#06b6d4">12</span> שפות
+  </div>
+</div></div></div>
+
+<!-- =========== 37. Big Stat Hero =========== -->
+<div class="demo" data-bg="dark"><div class="demo-num">37 <span>Big Stat Hero</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:18px;color:#fff;text-align:center">
+  <p style="font-size:11px;color:#a5b4fc;letter-spacing:3px;font-weight:700;margin-bottom:4px">PLAZA · GLOBAL</p>
+  <h2 style="font-size:54px;font-weight:900;line-height:1;background:linear-gradient(90deg,#fff,#c7d2fe);-webkit-background-clip:text;color:transparent;background-clip:text;letter-spacing:-2px">52</h2>
+  <p style="font-size:12px;color:#c7d2fe;font-weight:700;margin-top:2px">חברים מ-22 מדינות · 12 שפות</p>
+  <div style="display:flex;justify-content:center;gap:14px;margin-top:12px;font-size:12px">
+    <div><span class="dot"></span> <b>23</b> <span style="opacity:.8">חיים</span></div>
+    <span style="opacity:.5">·</span>
+    <div><b>0</b> <span style="opacity:.8">פוסטים ב-48ש'</span></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 38. Origami Folded =========== -->
+<div class="demo"><div class="demo-num">38 <span>Origami Folded</span></div><div class="demo-stage">
+<div class="hdr" style="background:#fff;border-radius:14px;padding:16px;position:relative;clip-path:polygon(0 0,100% 0,100% 88%,93% 100%,0 100%);box-shadow:0 6px 20px rgba(0,0,0,.08)">
+  <div style="text-align:center;margin-bottom:12px">
+    <div style="display:inline-block;background:linear-gradient(135deg,#fbbf24,#ec4899);padding:7px 18px;border-radius:0 14px 0 14px;color:#fff;font-weight:900;font-size:11px;letter-spacing:2px;margin-bottom:6px">GLOBAL</div>
+    <h2 style="font-size:28px;font-weight:900;color:#0f172a">PLAZA 🌍</h2>
+    <p style="font-size:11px;color:#64748b;font-weight:600">קהילה מקופלת מעולמות</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:#f1f5f9;padding:6px 10px;clip-path:polygon(8% 0,100% 0,100% 100%,0 100%);font-size:11px;font-weight:800">52 רשומים</div>
+    <div style="background:#dcfce7;padding:6px 10px;clip-path:polygon(8% 0,100% 0,100% 100%,0 100%);font-size:11px;font-weight:800;color:#166534"><span class="dot"></span>23</div>
+    <div style="background:#fce7f3;padding:6px 10px;clip-path:polygon(8% 0,100% 0,100% 100%,0 100%);font-size:11px;font-weight:800;color:#9d174d">0/48ש</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 39. Notebook Lined =========== -->
+<div class="demo" data-bg="cream"><div class="demo-num">39 <span>Notebook Lined</span></div><div class="demo-stage">
+<div class="hdr" style="background:repeating-linear-gradient(transparent,transparent 24px,#cbd5e1 24px,#cbd5e1 25px),#fefce8;border-radius:10px;padding:16px;border:1px solid #e5e7eb;border-right:6px solid #ef4444">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:28px;font-weight:900;color:#1e3a8a;font-family:Frank Ruhl Libre,serif;text-decoration:underline;text-decoration-color:#ef4444;text-underline-offset:4px;text-decoration-thickness:3px">PLAZA 🌍</h2>
+    <p style="font-size:11px;color:#1e40af;font-weight:600;font-style:italic">מחברת הקבוצה הגלובלית 📓</p>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:center;font-family:Frank Ruhl Libre,serif">
+    <div style="text-align:center"><b style="font-size:16px;color:#1e3a8a">52</b><div style="font-size:10px;color:#475569">רשומים</div></div>
+    <div>·</div>
+    <div style="text-align:center"><b style="font-size:16px;color:#16a34a"><span class="dot"></span>23</b><div style="font-size:10px;color:#475569">אונליין</div></div>
+    <div>·</div>
+    <div style="text-align:center"><b style="font-size:16px;color:#dc2626">0</b><div style="font-size:10px;color:#475569">48ש'</div></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 40. Compact Mini Bar =========== -->
+<div class="demo"><div class="demo-num">40 <span>Compact Mini Bar</span></div><div class="demo-stage">
+<div class="hdr" style="background:#0f172a;border-radius:10px;padding:10px 14px;color:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+  <h2 style="font-size:18px;font-weight:900;margin-left:6px">PLAZA <span>🌍</span></h2>
+  <div style="height:18px;width:1px;background:#334155"></div>
+  <div style="font-size:11px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+    <span><b style="color:#fbbf24">52</b> רשומים</span>
+    <span><b style="color:#22c55e"><span class="dot"></span>23</b> חיים</span>
+    <span><b style="color:#ec4899">0</b> 48ש'</span>
+  </div>
+</div>
+<div style="margin-top:8px;font-size:11px;color:#475569;text-align:center;font-weight:600">פס עליון קומפקטי — מינימום פיקסלים, מקסימום מידע</div>
+</div></div>
+
+<!-- =========== 41. Pop Vibrant =========== -->
+<div class="demo"><div class="demo-num">41 <span>Pop Vibrant</span></div><div class="demo-stage">
+<div class="hdr" style="background:#ff006e;border-radius:18px;padding:16px;color:#fff;box-shadow:6px 6px 0 #ffd60a">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:30px;font-weight:900;letter-spacing:-1px">PLAZA 🌍</h2>
+    <p style="font-size:11px;font-weight:800;opacity:.95">קבוצה עולמית · אין אלגוריתם</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:#ffd60a;color:#000;padding:7px 12px;border-radius:24px;font-size:11px;font-weight:900">⚡ 52</div>
+    <div style="background:#fff;color:#ff006e;padding:7px 12px;border-radius:24px;font-size:11px;font-weight:900"><span class="dot" style="background:#22c55e"></span>23</div>
+    <div style="background:#3a0ca3;color:#fff;padding:7px 12px;border-radius:24px;font-size:11px;font-weight:900">0/48ש</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 42. Gradient Mesh =========== -->
+<div class="demo"><div class="demo-num">42 <span>Gradient Mesh Blob</span></div><div class="demo-stage">
+<div class="hdr" style="background:radial-gradient(at 20% 30%,#fbbf24 0,transparent 50%),radial-gradient(at 80% 20%,#ec4899 0,transparent 50%),radial-gradient(at 50% 80%,#06b6d4 0,transparent 50%),#fff;border-radius:18px;padding:18px">
+  <div style="text-align:center;margin-bottom:12px;backdrop-filter:blur(2px)">
+    <h2 style="font-size:30px;font-weight:900;color:#0f172a">PLAZA 🌍</h2>
+    <p style="font-size:11px;color:#475569;font-weight:700">קהילה גלובלית · כל הצבעים של העולם</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:rgba(255,255,255,.75);padding:7px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#0f172a;backdrop-filter:blur(8px)">52 רשומים</div>
+    <div style="background:rgba(255,255,255,.75);padding:7px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#0f172a;backdrop-filter:blur(8px)"><span class="dot"></span>23</div>
+    <div style="background:rgba(255,255,255,.75);padding:7px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#0f172a;backdrop-filter:blur(8px)">0/48ש</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 43. Threads/Meta Style =========== -->
+<div class="demo"><div class="demo-num">43 <span>Threads / Meta Style</span></div><div class="demo-stage" style="background:#101010">
+<div class="hdr" style="background:#101010;border-radius:14px;padding:16px;color:#fff;border:1px solid #2a2a2a">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+    <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#fff,#ddd);display:flex;align-items:center;justify-content:center;font-size:24px">🌍</div>
+    <div style="flex:1"><div style="font-size:17px;font-weight:800">plaza.global</div><div style="font-size:12px;color:#888;display:flex;gap:4px;align-items:center"><span class="dot"></span>23 online · 52 חברים</div></div>
+    <button style="background:#fff;color:#000;border:none;padding:6px 14px;border-radius:8px;font-weight:800;font-size:12.5px;cursor:pointer">הצטרף</button>
+  </div>
+  <div style="border-top:1px solid #2a2a2a;padding-top:10px;display:flex;gap:18px;font-size:12px">
+    <span><b>52</b> <span style="color:#888">חברים</span></span>
+    <span><b style="color:#22c55e">23</b> <span style="color:#888">חיים</span></span>
+    <span><b>0</b> <span style="color:#888">פוסטים ב-48ש'</span></span>
+  </div>
+</div></div></div>
+
+<!-- =========== 44. Crystal Ice =========== -->
+<div class="demo" data-bg="sky"><div class="demo-num">44 <span>Crystal Ice</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,rgba(207,250,254,.9),rgba(207,250,254,.5));border-radius:18px;padding:16px;backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.7);box-shadow:0 8px 24px rgba(56,189,248,.18)">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:28px;font-weight:900;color:#0c4a6e;text-shadow:0 1px 0 #fff">PLAZA <span style="color:#0ea5e9">❄️🌍</span></h2>
+    <p style="font-size:11px;color:#0369a1;font-weight:700">קבוצה גלובלית · קריסטל נקי</p>
+  </div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <div style="background:rgba(255,255,255,.7);padding:7px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#0c4a6e;border:1px solid rgba(255,255,255,.8)">💎 52</div>
+    <div style="background:rgba(255,255,255,.7);padding:7px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#16a34a;border:1px solid rgba(255,255,255,.8)"><span class="dot"></span>23</div>
+    <div style="background:rgba(255,255,255,.7);padding:7px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#0c4a6e;border:1px solid rgba(255,255,255,.8)">0/48ש'</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 45. Headline News =========== -->
+<div class="demo"><div class="demo-num">45 <span>Headline News</span></div><div class="demo-stage">
+<div class="hdr" style="background:#fff;border-radius:0;padding:14px;border-top:8px solid #ef4444;border-bottom:1px solid #e5e7eb">
+  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+    <span style="background:#ef4444;color:#fff;padding:2px 8px;font-size:10px;font-weight:900;letter-spacing:2px">BREAKING</span>
+    <span style="font-size:10px;color:#64748b;font-weight:700">PLAZA.NEWS · 2026</span>
+  </div>
+  <h2 style="font-size:24px;font-weight:900;color:#0f172a;line-height:1.15;font-family:Frank Ruhl Libre,serif;margin-bottom:8px">PLAZA 🌍 קבוצה עולמית — 52 חברים מ-22 מדינות מצטרפים לרשת ללא אלגוריתם</h2>
+  <div style="display:flex;gap:10px;font-size:11px;color:#475569;font-weight:600">
+    <span><span class="dot"></span> <b>23</b> אונליין כרגע</span>
+    <span>·</span>
+    <span><b>0</b> פוסטים נוספו ב-48 שעות</span>
+  </div>
+</div></div></div>
+
+<!-- =========== 46. Cherry Pink Modern =========== -->
+<div class="demo" data-bg="pink"><div class="demo-num">46 <span>Cherry Pink Modern</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(135deg,#fbcfe8,#f9a8d4);border-radius:20px;padding:16px">
+  <div style="text-align:center;margin-bottom:12px">
+    <h2 style="font-size:28px;font-weight:900;color:#831843">PLAZA <span>🌸</span></h2>
+    <p style="font-size:11px;color:#9d174d;font-weight:700;margin-top:2px">קהילה גלובלית · בלי לחץ · 48ש'</p>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:center">
+    <div style="background:#fff;padding:8px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#831843;box-shadow:0 4px 10px rgba(190,24,93,.15)">52 חברים</div>
+    <div style="background:#22c55e;color:#fff;padding:8px 12px;border-radius:14px;font-size:11px;font-weight:800;box-shadow:0 4px 10px rgba(34,197,94,.3)"><span style="background:#fff;width:6px;height:6px;border-radius:50%;display:inline-block"></span> 23</div>
+    <div style="background:#fff;padding:8px 12px;border-radius:14px;font-size:11px;font-weight:800;color:#831843;box-shadow:0 4px 10px rgba(190,24,93,.15)">0 פוסטים</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 47. Vertical Stats Stack =========== -->
+<div class="demo"><div class="demo-num">47 <span>Vertical Stats Stack</span></div><div class="demo-stage">
+<div class="hdr" style="background:linear-gradient(180deg,#0f172a,#1e293b);border-radius:14px;padding:14px;color:#fff;display:flex;gap:14px;align-items:center">
+  <div style="flex:1">
+    <h2 style="font-size:24px;font-weight:900;margin-bottom:4px">PLAZA <span>🌍</span></h2>
+    <p style="font-size:10px;color:#94a3b8;font-weight:600;line-height:1.5">קבוצה גלובלית<br>אין אלגוריתם<br>נעלם ב-48ש'</p>
+  </div>
+  <div style="width:1px;background:#334155;align-self:stretch"></div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;align-items:baseline;gap:6px"><b style="font-size:18px;color:#fbbf24">52</b><span style="font-size:10px;color:#94a3b8">רשומים</span></div>
+    <div style="display:flex;align-items:baseline;gap:6px"><b style="font-size:18px;color:#22c55e"><span class="dot"></span>23</b><span style="font-size:10px;color:#94a3b8">חיים</span></div>
+    <div style="display:flex;align-items:baseline;gap:6px"><b style="font-size:18px;color:#ec4899">0</b><span style="font-size:10px;color:#94a3b8">ב-48ש'</span></div>
+  </div>
+</div></div></div>
+
+<!-- =========== 48. Origami Triangles =========== -->
+<div class="demo"><div class="demo-num">48 <span>Geometric Triangles</span></div><div class="demo-stage">
+<div class="hdr" style="background:#fff;border-radius:14px;padding:16px;position:relative;overflow:hidden;border:1px solid #e5e7eb">
+  <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.6" viewBox="0 0 200 100" preserveAspectRatio="none"><polygon points="0,0 60,0 30,40" fill="#fef3c7"/><polygon points="180,0 200,0 200,30" fill="#fce7f3"/><polygon points="0,100 50,100 0,60" fill="#dbeafe"/><polygon points="200,100 160,100 200,70" fill="#dcfce7"/></svg>
+  <div style="position:relative;text-align:center;margin-bottom:12px">
+    <h2 style="font-size:28px;font-weight:900;color:#0f172a">▲ PLAZA 🌍 ▲</h2>
+    <p style="font-size:11px;color:#64748b;font-weight:600;margin-top:2px">גיאומטריה גלובלית</p>
+  </div>
+  <div style="position:relative;display:flex;gap:6px;justify-content:center">
+    <div style="background:#fff;padding:7px 11px;border-radius:0;font-size:11px;font-weight:800;border:2px solid #0f172a;clip-path:polygon(10% 0,100% 0,90% 100%,0 100%)">52</div>
+    <div style="background:#22c55e;color:#fff;padding:7px 11px;font-size:11px;font-weight:800;clip-path:polygon(10% 0,100% 0,90% 100%,0 100%)"><span class="dot" style="background:#fff"></span>23</div>
+    <div style="background:#ec4899;color:#fff;padding:7px 11px;font-size:11px;font-weight:800;clip-path:polygon(10% 0,100% 0,90% 100%,0 100%)">0/48ש</div>
+  </div>
+</div></div></div>
+
+<!-- =========== 49. Subway Sign =========== -->
+<div class="demo" data-bg="dark"><div class="demo-num">49 <span>Subway Sign</span></div><div class="demo-stage">
+<div class="hdr" style="background:#000;border-radius:8px;padding:14px;color:#fff;font-family:Inter,sans-serif">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+    <div style="width:42px;height:42px;background:#dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff">P</div>
+    <div><div style="font-size:18px;font-weight:900;letter-spacing:.5px">PLAZA WORLD LINE</div><div style="font-size:10px;color:#94a3b8;font-weight:600">⮕ GLOBAL · 24/7 · NO ALGORITHM</div></div>
+  </div>
+  <div style="background:#dc2626;padding:7px 10px;border-radius:5px;display:flex;justify-content:space-around;font-size:11px;font-weight:900">
+    <span>P52 ⮕ USERS</span>
+    <span style="background:#fff;color:#dc2626;padding:0 6px;border-radius:3px"><span class="dot"></span>23 LIVE</span>
+    <span>0 ⮕ 48H</span>
+  </div>
+</div></div></div>
+
+<!-- =========== 50. Premium Pitch (Hero) =========== -->
+<div class="demo"><div class="demo-num">50 <span>Premium Pitch Hero</span></div><div class="demo-stage" style="background:linear-gradient(135deg,#020617,#1e1b4b)">
+<div class="hdr" style="background:linear-gradient(135deg,rgba(124,92,255,.15),rgba(99,102,241,.05));border-radius:20px;padding:20px;color:#fff;border:1px solid rgba(124,92,255,.25);box-shadow:0 16px 50px rgba(124,92,255,.15),inset 0 1px 0 rgba(255,255,255,.08);position:relative;overflow:hidden">
+  <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(124,92,255,.35),transparent 70%);border-radius:50%"></div>
+  <div style="position:relative;display:flex;align-items:center;gap:14px;margin-bottom:14px">
+    <div style="width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#7c5cff,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 8px 22px rgba(124,92,255,.45)">🌍</div>
+    <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+        <h2 style="font-size:24px;font-weight:900;letter-spacing:-.5px">PLAZA</h2>
+        <span style="background:linear-gradient(90deg,#22c55e,#10b981);padding:2px 8px;border-radius:6px;font-size:9.5px;font-weight:900;letter-spacing:1.5px;display:flex;align-items:center;gap:4px"><span class="dot" style="background:#fff"></span>LIVE</span>
+      </div>
+      <div style="font-size:11.5px;color:#cbd5e1;font-weight:600">קבוצה עולמית · אין אלגוריתם · נעלם ב-48ש'</div>
+    </div>
+  </div>
+  <div style="position:relative;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div style="background:rgba(124,92,255,.12);padding:9px;border-radius:11px;border:1px solid rgba(124,92,255,.25);text-align:center"><div style="font-size:9.5px;color:#a5b4fc;letter-spacing:1.5px;font-weight:700">רשומים</div><div style="font-size:20px;font-weight:900;color:#fff;margin-top:1px">52</div></div>
+    <div style="background:rgba(34,197,94,.12);padding:9px;border-radius:11px;border:1px solid rgba(34,197,94,.25);text-align:center"><div style="font-size:9.5px;color:#86efac;letter-spacing:1.5px;font-weight:700">אונליין</div><div style="font-size:20px;font-weight:900;color:#22c55e;margin-top:1px"><span class="dot"></span>23</div></div>
+    <div style="background:rgba(236,72,153,.12);padding:9px;border-radius:11px;border:1px solid rgba(236,72,153,.25);text-align:center"><div style="font-size:9.5px;color:#f9a8d4;letter-spacing:1.5px;font-weight:700">פוסטים 48ש'</div><div style="font-size:20px;font-weight:900;color:#fff;margin-top:1px">0</div></div>
+  </div>
+</div></div></div>
+
+</div>
+
+<div style="max-width:1280px;margin:40px auto 0;text-align:center;padding:20px;background:#fff;border-radius:14px;box-shadow:0 4px 18px rgba(15,23,42,.06)">
+  <p style="font-size:14px;color:#475569;font-weight:600">בחרת? כתוב לי את המספר ואחיל אותו על האפליקציה.</p>
+  <p style="font-size:12px;color:#94a3b8;margin-top:6px">דוגמה: "תפעיל #5" או "אני רוצה את עיצוב 42, אבל בצבעים אחרים".</p>
+</div>
+
+</body>
+</html>
