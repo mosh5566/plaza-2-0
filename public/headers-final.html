@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>PLAZA · 100 Native Header Variations</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800;900&family=Inter:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--acc:#7c5cff;--accD:#5e5ce6;--bg:#fff;--surface:#f5f5f7;--surface2:#fafafa;--text:#1d1d1f;--sub:#6e6e73;--mut:#86868b;--line:#e5e5ea;--good:#22c55e;--bad:#ff3b30;--shadow:0 8px 24px rgba(0,0,0,.06);--shadow-sm:0 2px 8px rgba(0,0,0,.04)}
+body{font-family:Heebo,Inter,sans-serif;background:#f3f4f6;color:var(--text);padding:30px 22px;direction:rtl;-webkit-font-smoothing:antialiased}
+.page-h{max-width:1440px;margin:0 auto 36px;text-align:center}
+.page-h h1{font-size:36px;font-weight:900;letter-spacing:-1.2px;margin-bottom:8px}
+.page-h h1 b{background:linear-gradient(135deg,#7c5cff,#0a84ff,#22c55e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.page-h p{color:#6e6e73;font-size:14px;max-width:680px;margin:0 auto;line-height:1.55;font-weight:500}
+.grid{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:22px}
+.demo{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.05);border:.5px solid rgba(0,0,0,.05);transition:transform .25s}
+.demo:hover{transform:translateY(-2px)}
+.demo-num{padding:11px 16px;background:#1d1d1f;color:#fff;font-weight:700;font-size:13px;display:flex;justify-content:space-between;align-items:center;letter-spacing:-.2px}
+.demo-num span{color:#a1a1a6;font-weight:500;font-size:11.5px}
+.demo-stage{padding:20px;background:#f5f5f7;min-height:160px;display:flex;align-items:center;justify-content:center}
+.demo[data-bg="dark"] .demo-stage{background:#0a0a0a}
+.demo[data-bg="cream"] .demo-stage{background:#fbf9f4}
+.demo[data-bg="pink"] .demo-stage{background:#fce7f3}
+.demo[data-bg="sky"] .demo-stage{background:#dbeafe}
+.demo[data-bg="violet"] .demo-stage{background:#ede9fe}
+.demo[data-bg="green"] .demo-stage{background:#dcfce7}
+.hdr{width:100%;max-width:380px}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}70%{box-shadow:0 0 0 8px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.flag-anim{display:inline-block;animation:flag-cycle 4s infinite}
+@keyframes flag-cycle{0%,33%{opacity:1}40%,49%{opacity:0}50%,82%{opacity:1}}
+.section-h{grid-column:1/-1;padding:12px 18px;margin-top:6px;display:flex;align-items:center;gap:10px}
+.section-h::before,.section-h::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,#d2d2d7,transparent)}
+.section-h b{color:#6e6e73;font-weight:600;font-size:12px;letter-spacing:2px;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="page-h">
+  <h1>PLAZA · <b>100 וריאציות לכותרת החדשה</b></h1>
+  <p>3 משבצות (500 חברים · 247 LIVE · 445 פוסטים 48ש') + שורת זהות (קבוצה עולמית · 195 מדינות 🇮🇱 · כולם עוקבים אחריך · נמחק 48ש'). ממוספרים 151-250. תגיד מספר ואחיל אותו.</p>
+</div>
+
+<div class="grid">
+
+<div class="section-h"><b>Family A · PLAZA Native — קרובים לעיצוב הקיים</b></div>
+
+<!-- 151 · Native Clean -->
+<div class="demo"><div class="demo-num">151 <span>Native Clean</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#1d1d1f;margin-bottom:8px">🌍 PLAZA</h2>
+ <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+  <div style="background:#fff;padding:6px 10px;border-radius:11px;font-size:11px;border:1px solid #e5e5ea"><b style="color:#1d1d1f">500</b><div style="font-size:9.5px;color:#6e6e73">חברים הצטרפו</div></div>
+  <div style="background:#fff;padding:6px 10px;border-radius:11px;font-size:11px;border:1px solid #e5e5ea"><b style="color:#22c55e"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#6e6e73">מחוברים LIVE</div></div>
+  <div style="background:#fff;padding:6px 10px;border-radius:11px;font-size:11px;border:1px solid #e5e5ea"><b style="color:#1d1d1f">445</b><div style="font-size:9.5px;color:#6e6e73">פוסטים 48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#6e6e73;font-weight:600">
+  <span style="background:#fff;padding:3px 8px;border-radius:8px;border:1px solid #e5e5ea">🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span>
+  <span style="background:#fff;padding:3px 8px;border-radius:8px;border:1px solid #e5e5ea">👀 כולם עוקבים אחריך</span>
+  <span style="background:#fff;padding:3px 8px;border-radius:8px;border:1px solid #e5e5ea">♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<!-- 152 · Native Acc Bordered -->
+<div class="demo"><div class="demo-num">152 <span>Native Acc Bordered</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#7c5cff;margin-bottom:8px">PLAZA 🌍</h2>
+ <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1.5px solid #7c5cff;text-align:center"><b style="color:#7c5cff;font-size:14px">500</b><div style="font-size:9.5px;color:#6e6e73">חברים הצטרפו</div></div>
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1.5px solid #22c55e;text-align:center"><b style="color:#22c55e;font-size:14px"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#6e6e73">מחוברים LIVE</div></div>
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1.5px solid #ec4899;text-align:center"><b style="color:#ec4899;font-size:14px">445</b><div style="font-size:9.5px;color:#6e6e73">פוסטים 48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;font-size:10px">
+  <span style="color:#7c5cff;font-weight:700">🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span>
+  <span style="color:#6e6e73">·</span><span style="color:#22c55e;font-weight:700">👀 כולם עוקבים אחריך</span>
+  <span style="color:#6e6e73">·</span><span style="color:#ec4899;font-weight:700">♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<!-- 153 · Native Shadow -->
+<div class="demo"><div class="demo-num">153 <span>Native Shadow</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <div style="display:inline-flex;align-items:center;gap:6px;margin-bottom:10px"><span style="font-size:22px">🌍</span><b style="font-size:22px;font-weight:900;color:#1d1d1f;letter-spacing:-.5px">PLAZA</b></div>
+ <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+  <div style="background:#fff;padding:8px 12px;border-radius:12px;font-size:11px;box-shadow:0 4px 14px rgba(0,0,0,.06);text-align:center"><b style="color:#1d1d1f;font-size:15px">500</b><div style="font-size:9.5px;color:#6e6e73;font-weight:600">חברים הצטרפו</div></div>
+  <div style="background:#fff;padding:8px 12px;border-radius:12px;font-size:11px;box-shadow:0 4px 14px rgba(34,197,94,.18);text-align:center"><b style="color:#22c55e;font-size:15px"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#6e6e73;font-weight:600">מחוברים LIVE</div></div>
+  <div style="background:#fff;padding:8px 12px;border-radius:12px;font-size:11px;box-shadow:0 4px 14px rgba(0,0,0,.06);text-align:center"><b style="color:#1d1d1f;font-size:15px">445</b><div style="font-size:9.5px;color:#6e6e73;font-weight:600">פוסטים 48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#6e6e73;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span>
+  <span>👀 כולם עוקבים אחריך</span><span>·</span>
+  <span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<!-- 154 · Native Gradient Acc -->
+<div class="demo"><div class="demo-num">154 <span>Native Gradient Acc</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#7c5cff,#0a84ff);-webkit-background-clip:text;color:transparent;background-clip:text;margin-bottom:8px">PLAZA 🌍</h2>
+ <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+  <div style="background:linear-gradient(135deg,#fff,#f5f5f7);padding:8px 11px;border-radius:13px;font-size:11px;text-align:center;border:1px solid #ede9fe"><b style="color:#7c5cff;font-size:15px">500</b><div style="font-size:9.5px;color:#6e6e73">חברים הצטרפו</div></div>
+  <div style="background:linear-gradient(135deg,#dcfce7,#fff);padding:8px 11px;border-radius:13px;font-size:11px;text-align:center;border:1px solid #bbf7d0"><b style="color:#16a34a;font-size:15px"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#6e6e73">מחוברים LIVE</div></div>
+  <div style="background:linear-gradient(135deg,#fff,#fce7f3);padding:8px 11px;border-radius:13px;font-size:11px;text-align:center;border:1px solid #fbcfe8"><b style="color:#ec4899;font-size:15px">445</b><div style="font-size:9.5px;color:#6e6e73">פוסטים 48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;font-weight:600">
+  <span style="background:#ede9fe;color:#5b21b6;padding:3px 8px;border-radius:8px">🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span>
+  <span style="background:#dcfce7;color:#15803d;padding:3px 8px;border-radius:8px">👀 כולם עוקבים אחריך</span>
+  <span style="background:#fce7f3;color:#9d174d;padding:3px 8px;border-radius:8px">♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<!-- 155 · Native Soft Glass -->
+<div class="demo" data-bg="violet"><div class="demo-num">155 <span>Native Soft Glass</span></div><div class="demo-stage">
+<div class="hdr" style="background:rgba(255,255,255,.75);border-radius:18px;padding:14px;backdrop-filter:blur(20px);text-align:center;border:1px solid rgba(255,255,255,.7);box-shadow:0 8px 24px rgba(124,92,255,.08)">
+ <h2 style="font-size:22px;font-weight:900;color:#1d1d1f;margin-bottom:8px">PLAZA 🌍</h2>
+ <div style="display:flex;gap:5px;justify-content:center;margin-bottom:8px">
+  <div style="background:rgba(255,255,255,.7);padding:7px 10px;border-radius:11px;text-align:center"><b style="color:#1d1d1f;font-size:14px">500</b><div style="font-size:9.5px;color:#6e6e73">חברים</div></div>
+  <div style="background:rgba(255,255,255,.7);padding:7px 10px;border-radius:11px;text-align:center"><b style="color:#22c55e;font-size:14px"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#6e6e73">LIVE</div></div>
+  <div style="background:rgba(255,255,255,.7);padding:7px 10px;border-radius:11px;text-align:center"><b style="color:#1d1d1f;font-size:14px">445</b><div style="font-size:9.5px;color:#6e6e73">48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#5b21b6;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span>
+  <span>👀 כולם עוקבים אחריך</span><span>·</span>
+  <span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<!-- 156-165 · Compact variants -->
+<div class="demo"><div class="demo-num">156 <span>Compact Single Row</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:20px;font-weight:900;color:#1d1d1f;margin-bottom:8px">🌍 PLAZA</h2>
+ <div style="background:#fff;border:1px solid #e5e5ea;padding:9px 12px;border-radius:14px;display:flex;gap:14px;justify-content:center;align-items:center;margin-bottom:6px;box-shadow:var(--shadow-sm)">
+  <span style="font-size:12px"><b style="font-size:14px">500</b> <span style="color:#6e6e73;font-size:10px">חברים</span></span>
+  <span style="color:#e5e5ea">·</span>
+  <span style="font-size:12px"><b style="color:#22c55e;font-size:14px"><span class="live-dot"></span>247</b> <span style="color:#6e6e73;font-size:10px">LIVE</span></span>
+  <span style="color:#e5e5ea">·</span>
+  <span style="font-size:12px"><b style="font-size:14px">445</b> <span style="color:#6e6e73;font-size:10px">48ש'</span></span>
+ </div>
+ <div style="font-size:10px;color:#6e6e73">🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span> · 👀 כולם עוקבים אחריך · ♻️ נמחק 48ש'</div>
+</div></div></div>
+
+<div class="demo"><div class="demo-num">157 <span>Compact No Box</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#1d1d1f;margin-bottom:6px">PLAZA 🌍</h2>
+ <p style="font-size:11px;color:#6e6e73;font-weight:600;margin-bottom:10px"><b style="color:#1d1d1f">500</b> חברים הצטרפו · <b style="color:#22c55e"><span class="live-dot"></span>247</b> מחוברים LIVE · <b style="color:#1d1d1f">445</b> פוסטים 48ש'</p>
+ <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#6e6e73">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span>
+  <span>👀 כולם עוקבים אחריך</span><span>·</span>
+  <span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo"><div class="demo-num">158 <span>Tabs with Accent</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#1d1d1f;margin-bottom:9px">PLAZA <span style="color:#7c5cff">🌍</span></h2>
+ <div style="display:flex;gap:0;justify-content:center;margin-bottom:8px;background:#f5f5f7;padding:3px;border-radius:11px;display:inline-flex">
+  <div style="padding:6px 11px;text-align:center"><b style="font-size:14px;color:#1d1d1f">500</b><div style="font-size:9px;color:#6e6e73">חברים</div></div>
+  <div style="padding:6px 11px;text-align:center;background:#fff;border-radius:9px;box-shadow:0 1px 3px rgba(0,0,0,.06)"><b style="color:#22c55e;font-size:14px"><span class="live-dot"></span>247</b><div style="font-size:9px;color:#22c55e">LIVE</div></div>
+  <div style="padding:6px 11px;text-align:center"><b style="font-size:14px;color:#1d1d1f">445</b><div style="font-size:9px;color:#6e6e73">48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;font-size:9.5px;color:#6e6e73;margin-top:6px">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo"><div class="demo-num">159 <span>Vertical Border Acc</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#1d1d1f;margin-bottom:9px">🌍 PLAZA</h2>
+ <div style="display:flex;justify-content:center;background:#fff;padding:8px 4px;border-radius:13px;border:1px solid #e5e5ea;margin-bottom:8px">
+  <div style="padding:0 12px;text-align:center;border-left:1px solid #e5e5ea"><b style="font-size:15px;color:#1d1d1f">500</b><div style="font-size:9.5px;color:#6e6e73">חברים הצטרפו</div></div>
+  <div style="padding:0 12px;text-align:center;border-left:1px solid #e5e5ea"><b style="font-size:15px;color:#22c55e"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#6e6e73">מחוברים LIVE</div></div>
+  <div style="padding:0 12px;text-align:center"><b style="font-size:15px;color:#1d1d1f">445</b><div style="font-size:9.5px;color:#6e6e73">פוסטים 48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#6e6e73">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo"><div class="demo-num">160 <span>Native Hero Big</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:28px;font-weight:900;color:#1d1d1f;letter-spacing:-1px;margin-bottom:10px">PLAZA <span style="color:#7c5cff">🌍</span></h2>
+ <div style="display:flex;gap:8px;justify-content:center;margin-bottom:10px">
+  <div style="text-align:center"><div style="font-size:24px;font-weight:900;color:#1d1d1f;letter-spacing:-1px">500</div><div style="font-size:9.5px;color:#6e6e73;font-weight:600;letter-spacing:.5px">חברים הצטרפו</div></div>
+  <div style="width:1px;background:#e5e5ea"></div>
+  <div style="text-align:center"><div style="font-size:24px;font-weight:900;color:#22c55e;letter-spacing:-1px"><span class="live-dot"></span>247</div><div style="font-size:9.5px;color:#6e6e73;font-weight:600;letter-spacing:.5px">מחוברים LIVE</div></div>
+  <div style="width:1px;background:#e5e5ea"></div>
+  <div style="text-align:center"><div style="font-size:24px;font-weight:900;color:#1d1d1f;letter-spacing:-1px">445</div><div style="font-size:9.5px;color:#6e6e73;font-weight:600;letter-spacing:.5px">פוסטים 48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#6e6e73;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<!-- 161-170 -->
+<div class="demo" data-bg="cream"><div class="demo-num">161 <span>Warm Cream</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#78350f;margin-bottom:8px">PLAZA 🌍</h2>
+ <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #fde68a;text-align:center"><b style="color:#92400e;font-size:14px">500</b><div style="font-size:9.5px;color:#a16207">חברים הצטרפו</div></div>
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #bbf7d0;text-align:center"><b style="color:#15803d;font-size:14px"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#a16207">מחוברים LIVE</div></div>
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #fde68a;text-align:center"><b style="color:#92400e;font-size:14px">445</b><div style="font-size:9.5px;color:#a16207">פוסטים 48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#92400e;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo" data-bg="sky"><div class="demo-num">162 <span>Sky Blue</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#1e40af;margin-bottom:8px">PLAZA 🌍</h2>
+ <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #bfdbfe;text-align:center"><b style="color:#1e40af;font-size:14px">500</b><div style="font-size:9.5px;color:#1e40af">חברים הצטרפו</div></div>
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #bbf7d0;text-align:center"><b style="color:#15803d;font-size:14px"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#1e40af">מחוברים LIVE</div></div>
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #bfdbfe;text-align:center"><b style="color:#1e40af;font-size:14px">445</b><div style="font-size:9.5px;color:#1e40af">פוסטים 48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#1e40af;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo" data-bg="pink"><div class="demo-num">163 <span>Soft Pink</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#9d174d;margin-bottom:8px">PLAZA 🌍</h2>
+ <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #fbcfe8;text-align:center"><b style="color:#be185d;font-size:14px">500</b><div style="font-size:9.5px;color:#9d174d">חברים</div></div>
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #bbf7d0;text-align:center"><b style="color:#15803d;font-size:14px"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#9d174d">LIVE</div></div>
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #fbcfe8;text-align:center"><b style="color:#be185d;font-size:14px">445</b><div style="font-size:9.5px;color:#9d174d">48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#9d174d;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo" data-bg="green"><div class="demo-num">164 <span>Fresh Green</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#065f46;margin-bottom:8px">PLAZA 🌍</h2>
+ <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #bbf7d0;text-align:center"><b style="color:#15803d;font-size:14px">500</b><div style="font-size:9.5px;color:#065f46">חברים</div></div>
+  <div style="background:#15803d;color:#fff;padding:7px 11px;border-radius:11px;font-size:11px;text-align:center"><b style="font-size:14px"><span class="live-dot" style="background:#fff"></span>247</b><div style="font-size:9.5px;opacity:.9">LIVE</div></div>
+  <div style="background:#fff;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #bbf7d0;text-align:center"><b style="color:#15803d;font-size:14px">445</b><div style="font-size:9.5px;color:#065f46">48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#065f46;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo" data-bg="dark"><div class="demo-num">165 <span>Dark Mode Native</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center;color:#fff">
+ <h2 style="font-size:22px;font-weight:900;margin-bottom:8px">PLAZA 🌍</h2>
+ <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+  <div style="background:#1c1c1e;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #2c2c2e;text-align:center"><b style="font-size:14px">500</b><div style="font-size:9.5px;color:#86868b">חברים הצטרפו</div></div>
+  <div style="background:rgba(34,197,94,.18);padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid rgba(34,197,94,.3);text-align:center"><b style="color:#22c55e;font-size:14px"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#86efac">מחוברים LIVE</div></div>
+  <div style="background:#1c1c1e;padding:7px 11px;border-radius:11px;font-size:11px;border:1px solid #2c2c2e;text-align:center"><b style="font-size:14px">445</b><div style="font-size:9.5px;color:#86868b">פוסטים 48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#86868b;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo"><div class="demo-num">166 <span>Pills Tight</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:20px;font-weight:900;color:#1d1d1f;margin-bottom:8px">🌍 PLAZA · קבוצה עולמית</h2>
+ <div style="display:flex;gap:5px;justify-content:center;margin-bottom:7px">
+  <span style="background:#1d1d1f;color:#fff;padding:5px 11px;border-radius:18px;font-size:11px;font-weight:700">500 חברים</span>
+  <span style="background:#22c55e;color:#fff;padding:5px 11px;border-radius:18px;font-size:11px;font-weight:700"><span class="live-dot" style="background:#fff"></span>247 LIVE</span>
+  <span style="background:#ec4899;color:#fff;padding:5px 11px;border-radius:18px;font-size:11px;font-weight:700">445 פוסטים</span>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#6e6e73;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo"><div class="demo-num">167 <span>Number First</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <div style="display:flex;justify-content:center;gap:18px;margin-bottom:6px">
+  <div><div style="font-size:28px;font-weight:900;color:#1d1d1f;line-height:1;letter-spacing:-1px">500</div></div>
+  <div><div style="font-size:28px;font-weight:900;color:#22c55e;line-height:1;letter-spacing:-1px"><span class="live-dot"></span>247</div></div>
+  <div><div style="font-size:28px;font-weight:900;color:#ec4899;line-height:1;letter-spacing:-1px">445</div></div>
+ </div>
+ <div style="display:flex;justify-content:center;gap:18px;margin-bottom:8px;font-size:9.5px;color:#6e6e73;font-weight:600">
+  <span>חברים הצטרפו</span><span>מחוברים LIVE</span><span>פוסטים 48ש'</span>
+ </div>
+ <h2 style="font-size:14px;font-weight:800;color:#1d1d1f;margin-bottom:5px">🌍 PLAZA · קבוצה עולמית</h2>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#6e6e73;font-weight:600">
+  <span>195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo"><div class="demo-num">168 <span>Frosted Cards</span></div><div class="demo-stage" style="background:linear-gradient(135deg,#fce7f3,#dbeafe)">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#1d1d1f;margin-bottom:8px">PLAZA 🌍</h2>
+ <div style="display:flex;gap:5px;justify-content:center;margin-bottom:8px">
+  <div style="background:rgba(255,255,255,.7);backdrop-filter:blur(10px);padding:7px 11px;border-radius:12px;font-size:11px;text-align:center;border:.5px solid rgba(255,255,255,.6)"><b style="font-size:14px;color:#1d1d1f">500</b><div style="font-size:9.5px;color:#6e6e73">חברים</div></div>
+  <div style="background:rgba(34,197,94,.25);backdrop-filter:blur(10px);padding:7px 11px;border-radius:12px;font-size:11px;text-align:center;border:.5px solid rgba(34,197,94,.4)"><b style="font-size:14px;color:#15803d"><span class="live-dot"></span>247</b><div style="font-size:9.5px;color:#15803d">LIVE</div></div>
+  <div style="background:rgba(255,255,255,.7);backdrop-filter:blur(10px);padding:7px 11px;border-radius:12px;font-size:11px;text-align:center;border:.5px solid rgba(255,255,255,.6)"><b style="font-size:14px;color:#1d1d1f">445</b><div style="font-size:9.5px;color:#6e6e73">48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#1d1d1f;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo"><div class="demo-num">169 <span>iOS Settings Card</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <h2 style="font-size:22px;font-weight:900;color:#1d1d1f;margin-bottom:8px">PLAZA 🌍</h2>
+ <div style="background:#fff;border:.5px solid rgba(0,0,0,.04);border-radius:13px;padding:1px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+  <div style="display:flex;justify-content:space-around;padding:9px">
+   <div style="text-align:center"><b style="font-size:16px;color:#1d1d1f">500</b><div style="font-size:10px;color:#6e6e73">חברים</div></div>
+   <div style="text-align:center"><b style="font-size:16px;color:#22c55e"><span class="live-dot"></span>247</b><div style="font-size:10px;color:#6e6e73">LIVE</div></div>
+   <div style="text-align:center"><b style="font-size:16px;color:#1d1d1f">445</b><div style="font-size:10px;color:#6e6e73">48ש'</div></div>
+  </div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#6e6e73;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+<div class="demo"><div class="demo-num">170 <span>Mini Hero</span></div><div class="demo-stage">
+<div class="hdr" style="text-align:center">
+ <div style="display:inline-flex;align-items:center;gap:5px;background:#fff;padding:4px 9px;border-radius:9px;border:1px solid #e5e5ea;margin-bottom:8px;font-size:10px;font-weight:700;color:#7c5cff"><span class="live-dot"></span>LIVE · קבוצה עולמית</div>
+ <h2 style="font-size:22px;font-weight:900;color:#1d1d1f;margin-bottom:9px">PLAZA 🌍</h2>
+ <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+  <div style="text-align:center"><b style="font-size:18px;color:#1d1d1f">500</b><div style="font-size:9px;color:#6e6e73">חברים הצטרפו</div></div>
+  <div style="width:1px;background:#e5e5ea"></div>
+  <div style="text-align:center"><b style="font-size:18px;color:#22c55e">247</b><div style="font-size:9px;color:#6e6e73">מחוברים LIVE</div></div>
+  <div style="width:1px;background:#e5e5ea"></div>
+  <div style="text-align:center"><b style="font-size:18px;color:#ec4899">445</b><div style="font-size:9px;color:#6e6e73">פוסטים 48ש'</div></div>
+ </div>
+ <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:#6e6e73;font-weight:600">
+  <span>🧑‍🧑‍🧒 195 מדינות <span class="flag-anim">🇮🇱</span></span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>
+</div></div></div>
+
+</div>
+
+<!-- Second batch via script injection to keep file manageable -->
+<div class="grid" id="g2">
+<div class="section-h"><b>Family B-E · גרסאות נוספות (171-250)</b></div>
+</div>
+
+<script>
+/* Generate 80 more variations programmatically — same content, different surface treatments */
+const PALETTES = [
+ {n:'Indigo',c:'#5e5ce6',cs:'#ede9fe',ct:'#312e81',bg:'#fff'},
+ {n:'Cyan',c:'#0891b2',cs:'#cffafe',ct:'#155e75',bg:'#fff'},
+ {n:'Emerald',c:'#10b981',cs:'#d1fae5',ct:'#065f46',bg:'#fff'},
+ {n:'Rose',c:'#f43f5e',cs:'#ffe4e6',ct:'#9f1239',bg:'#fff'},
+ {n:'Amber',c:'#f59e0b',cs:'#fef3c7',ct:'#78350f',bg:'#fff'},
+ {n:'Violet',c:'#8b5cf6',cs:'#ede9fe',ct:'#5b21b6',bg:'#fff'},
+ {n:'Teal',c:'#14b8a6',cs:'#ccfbf1',ct:'#115e59',bg:'#fff'},
+ {n:'Fuchsia',c:'#d946ef',cs:'#fae8ff',ct:'#86198f',bg:'#fff'},
+ {n:'Sky',c:'#0ea5e9',cs:'#e0f2fe',ct:'#0c4a6e',bg:'#fff'},
+ {n:'Lime',c:'#65a30d',cs:'#ecfccb',ct:'#365314',bg:'#fff'}
+];
+const STYLES = [
+ {n:'Bordered',layout:'border',shadow:0},
+ {n:'Shadowed',layout:'shadow',shadow:1},
+ {n:'Solid Acc',layout:'solid',shadow:0},
+ {n:'Glass',layout:'glass',shadow:1},
+ {n:'Pills',layout:'pill',shadow:0},
+ {n:'Stripe',layout:'stripe',shadow:0},
+ {n:'Underline',layout:'under',shadow:0},
+ {n:'Card',layout:'card',shadow:1}
+];
+
+function renderHeader(n,p,s){
+ const grad=`linear-gradient(135deg,${p.c},${p.ct})`;
+ const live=`<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 1.6s infinite"></span>`;
+ const flag=`<span style="display:inline-block;animation:flag-cycle 4s infinite">🇮🇱</span>`;
+ let inner='';
+ if(s.layout==='border'){
+  inner=`<h2 style="font-size:22px;font-weight:900;color:${p.ct};margin-bottom:8px">PLAZA 🌍</h2>
+   <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+    <div style="background:#fff;padding:7px 11px;border-radius:11px;border:1.5px solid ${p.c};text-align:center"><b style="color:${p.ct};font-size:14px">500</b><div style="font-size:9.5px;color:${p.ct}">חברים הצטרפו</div></div>
+    <div style="background:${p.cs};padding:7px 11px;border-radius:11px;border:1.5px solid #22c55e;text-align:center"><b style="color:#15803d;font-size:14px">${live}247</b><div style="font-size:9.5px;color:#15803d">מחוברים LIVE</div></div>
+    <div style="background:#fff;padding:7px 11px;border-radius:11px;border:1.5px solid ${p.c};text-align:center"><b style="color:${p.ct};font-size:14px">445</b><div style="font-size:9.5px;color:${p.ct}">פוסטים 48ש'</div></div>
+   </div>`;
+ } else if(s.layout==='shadow'){
+  inner=`<h2 style="font-size:22px;font-weight:900;color:${p.ct};margin-bottom:8px">PLAZA 🌍</h2>
+   <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+    <div style="background:#fff;padding:8px 12px;border-radius:13px;text-align:center;box-shadow:0 4px 14px ${p.c}33"><b style="color:${p.ct};font-size:15px">500</b><div style="font-size:9.5px;color:${p.ct}">חברים</div></div>
+    <div style="background:#fff;padding:8px 12px;border-radius:13px;text-align:center;box-shadow:0 4px 14px #22c55e33"><b style="color:#15803d;font-size:15px">${live}247</b><div style="font-size:9.5px;color:#15803d">LIVE</div></div>
+    <div style="background:#fff;padding:8px 12px;border-radius:13px;text-align:center;box-shadow:0 4px 14px ${p.c}33"><b style="color:${p.ct};font-size:15px">445</b><div style="font-size:9.5px;color:${p.ct}">48ש'</div></div>
+   </div>`;
+ } else if(s.layout==='solid'){
+  inner=`<h2 style="font-size:22px;font-weight:900;color:${p.ct};margin-bottom:8px">PLAZA 🌍</h2>
+   <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px">
+    <div style="background:${grad};color:#fff;padding:8px 12px;border-radius:13px;text-align:center"><b style="font-size:15px">500</b><div style="font-size:9.5px;opacity:.92">חברים</div></div>
+    <div style="background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;padding:8px 12px;border-radius:13px;text-align:center"><b style="font-size:15px">${live}247</b><div style="font-size:9.5px;opacity:.92">LIVE</div></div>
+    <div style="background:${grad};color:#fff;padding:8px 12px;border-radius:13px;text-align:center"><b style="font-size:15px">445</b><div style="font-size:9.5px;opacity:.92">48ש'</div></div>
+   </div>`;
+ } else if(s.layout==='glass'){
+  inner=`<div style="background:rgba(255,255,255,.7);backdrop-filter:blur(20px);border-radius:14px;padding:14px;border:1px solid rgba(255,255,255,.7)">
+    <h2 style="font-size:22px;font-weight:900;color:${p.ct};margin-bottom:8px">PLAZA 🌍</h2>
+    <div style="display:flex;gap:6px;justify-content:center">
+     <div style="background:${p.cs};padding:7px 10px;border-radius:11px;text-align:center"><b style="color:${p.ct};font-size:14px">500</b><div style="font-size:9.5px;color:${p.ct}">חברים</div></div>
+     <div style="background:rgba(34,197,94,.18);padding:7px 10px;border-radius:11px;text-align:center"><b style="color:#15803d;font-size:14px">${live}247</b><div style="font-size:9.5px;color:#15803d">LIVE</div></div>
+     <div style="background:${p.cs};padding:7px 10px;border-radius:11px;text-align:center"><b style="color:${p.ct};font-size:14px">445</b><div style="font-size:9.5px;color:${p.ct}">48ש'</div></div>
+    </div>
+   </div>`;
+ } else if(s.layout==='pill'){
+  inner=`<h2 style="font-size:22px;font-weight:900;color:${p.ct};margin-bottom:8px">PLAZA 🌍</h2>
+   <div style="display:flex;gap:5px;justify-content:center;margin-bottom:8px">
+    <span style="background:${grad};color:#fff;padding:6px 13px;border-radius:20px;font-size:11.5px;font-weight:800">500 חברים</span>
+    <span style="background:#22c55e;color:#fff;padding:6px 13px;border-radius:20px;font-size:11.5px;font-weight:800">${live}247 LIVE</span>
+    <span style="background:#1d1d1f;color:#fff;padding:6px 13px;border-radius:20px;font-size:11.5px;font-weight:800">445 פוסטים</span>
+   </div>`;
+ } else if(s.layout==='stripe'){
+  inner=`<div style="background:#fff;border-top:3px solid ${p.c};border-radius:9px;padding:14px;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,.04)">
+    <h2 style="font-size:22px;font-weight:900;color:${p.ct};margin-bottom:8px">PLAZA 🌍</h2>
+    <div style="display:flex;gap:6px;justify-content:center">
+     <div style="text-align:center"><b style="font-size:17px;color:${p.ct}">500</b><div style="font-size:9.5px;color:#6e6e73">חברים</div></div>
+     <div style="width:1px;background:#e5e5ea"></div>
+     <div style="text-align:center"><b style="font-size:17px;color:#22c55e">${live}247</b><div style="font-size:9.5px;color:#6e6e73">LIVE</div></div>
+     <div style="width:1px;background:#e5e5ea"></div>
+     <div style="text-align:center"><b style="font-size:17px;color:${p.ct}">445</b><div style="font-size:9.5px;color:#6e6e73">48ש'</div></div>
+    </div>
+   </div>`;
+ } else if(s.layout==='under'){
+  inner=`<h2 style="font-size:22px;font-weight:900;color:${p.ct};margin-bottom:9px;display:inline-block;border-bottom:3px solid ${p.c};padding-bottom:2px">PLAZA 🌍</h2>
+   <div style="display:flex;gap:14px;justify-content:center;margin-bottom:8px">
+    <div style="text-align:center"><b style="font-size:18px;color:${p.ct};border-bottom:2px solid ${p.c}">500</b><div style="font-size:9.5px;color:#6e6e73">חברים</div></div>
+    <div style="text-align:center"><b style="font-size:18px;color:#22c55e;border-bottom:2px solid #22c55e">${live}247</b><div style="font-size:9.5px;color:#6e6e73">LIVE</div></div>
+    <div style="text-align:center"><b style="font-size:18px;color:${p.ct};border-bottom:2px solid ${p.c}">445</b><div style="font-size:9.5px;color:#6e6e73">48ש'</div></div>
+   </div>`;
+ } else if(s.layout==='card'){
+  inner=`<div style="background:#fff;border-radius:14px;padding:14px;box-shadow:0 8px 24px ${p.c}22;border:1px solid ${p.c}33">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+     <h2 style="font-size:18px;font-weight:900;color:${p.ct}">PLAZA 🌍</h2>
+     <span style="background:${p.c};color:#fff;padding:3px 9px;border-radius:9px;font-size:10px;font-weight:700">${live}LIVE</span>
+    </div>
+    <div style="display:flex;gap:14px;justify-content:space-around">
+     <div style="text-align:center"><b style="font-size:18px;color:${p.ct}">500</b><div style="font-size:9.5px;color:#6e6e73">חברים</div></div>
+     <div style="text-align:center"><b style="font-size:18px;color:#22c55e">247</b><div style="font-size:9.5px;color:#6e6e73">LIVE</div></div>
+     <div style="text-align:center"><b style="font-size:18px;color:${p.ct}">445</b><div style="font-size:9.5px;color:#6e6e73">48ש'</div></div>
+    </div>
+   </div>`;
+ }
+ const idrow=`<div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;font-size:10px;color:${p.ct};font-weight:600;margin-top:8px">
+  <span>🧑‍🧑‍🧒 195 מדינות ${flag}</span><span>·</span><span>👀 כולם עוקבים אחריך</span><span>·</span><span>♻️ נמחק 48ש'</span>
+ </div>`;
+ return `<div class="demo"><div class="demo-num">${n} <span>${p.n} · ${s.n}</span></div><div class="demo-stage" style="background:${p.bg==='#fff'?'#f5f5f7':p.bg}"><div class="hdr" style="text-align:center">${inner}${idrow}</div></div></div>`;
+}
+
+const g2=document.getElementById('g2');
+let n=171;
+for(let i=0;i<PALETTES.length;i++){
+ for(let j=0;j<STYLES.length;j++){
+  g2.insertAdjacentHTML('beforeend',renderHeader(n++,PALETTES[i],STYLES[j]));
+ }
+}
+</script>
+
+<div style="max-width:1440px;margin:40px auto 0;text-align:center;padding:22px;background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.05)">
+  <h2 style="font-size:20px;font-weight:800;color:#1d1d1f;margin-bottom:6px">בחרת? תגיד מספר.</h2>
+  <p style="font-size:13px;color:#6e6e73">דוגמאות: <b>"תפעיל #160"</b> · <b>"#185 בלי אימוג'ים"</b> · <b>"#170 בכהה"</b></p>
+  <p style="font-size:11.5px;color:#86868b;margin-top:8px">דפים קודמים: <a href="headers.html" style="color:#0a84ff;text-decoration:none">headers.html</a> (1-50) · <a href="headers-pro.html" style="color:#0a84ff;text-decoration:none">headers-pro.html</a> (51-150) · דף נוכחי (151-250)</p>
+</div>
+</body>
+</html>
