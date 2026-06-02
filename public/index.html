@@ -67,9 +67,11 @@
   .st .o{display:inline-flex;align-items:center;gap:4px;color:var(--ok)}
   #stU,#stP{color:var(--acc)}
   #stO{color:var(--ok)}
-  .vanish-line{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:5px;padding:3px 8px;color:var(--sub);font-size:10px;font-weight:700;letter-spacing:-.1px}
+  .globe-tag{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:5px;color:var(--sub);font-size:11px;font-weight:800;letter-spacing:-.1px}
+  .globe-i{font-size:13px;line-height:1}
+  .globe-flag{font-size:13px;line-height:1;transition:opacity .22s;display:inline-block;min-width:14px;text-align:center}
+  .vanish-line{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:5px;color:var(--sub);font-size:10px;font-weight:700;letter-spacing:-.1px}
   .vanish-i{font-size:11px;line-height:1}
-  .vanish-flag{font-size:13px;line-height:1;transition:opacity .22s;display:inline-block;min-width:14px;text-align:center}
   .live{width:6px;height:6px;border-radius:50%;background:var(--ok);display:inline-block}
   .chips{display:flex;gap:6px;margin-top:9px;overflow-x:auto}
   .chips::-webkit-scrollbar{height:0}.chips:empty{display:none}
@@ -658,12 +660,13 @@
   <div class="view" id="view">
     <section class="screen on" id="s-feed">
       <div class="hd">
+        <div class="globe-tag"><span class="globe-i">🌍</span><span data-noi18n>קבוצה עולמית גלובלית</span><span class="globe-flag" id="idFlag">🇮🇱</span></div>
         <div class="stat">
           <div class="st"><b id="stU">500</b><small id="lblReg">חברים שהצטרפו</small></div>
           <div class="st"><b class="o"><span class="live"></span><span id="stO">247</span></b><small id="lblOnl">מחוברים בלייב</small></div>
           <div class="st"><b id="stP">445</b><small id="lblP48">פוסטים שעלו לאחרונה</small></div>
         </div>
-        <div class="vanish-line"><span class="vanish-i">♻️</span><span data-noi18n>הכל נעלם תוך 48 שעות</span><span class="vanish-flag" id="idFlag">🇮🇱</span></div>
+        <div class="vanish-line"><span class="vanish-i">♻️</span><span data-noi18n>הכל נעלם תוך 48 שעות</span></div>
         <div class="hdrow">
           <div class="ib" onclick="go('search')" title="חיפוש" data-ic="search" style="flex:0 0 auto;background:var(--surface);box-shadow:var(--shadow-sm)"></div>
           <div class="filt-block" onclick="openFilter()">
